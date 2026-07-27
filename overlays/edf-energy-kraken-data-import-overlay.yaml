@@ -1,0 +1,112 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the EDF Kraken Customer Migration (Data Import) API
+  version: 1.0.0
+extends: openapi/edf-energy-kraken-data-import-openapi.yml
+x-apievangelist:
+  generated: '2026-07-27'
+  method: generated
+  source: >-
+    Enhancements derived from the artifacts in this repository, applied over the verbatim
+    OpenAPI 3.0.3 document EDF serves at
+    https://api.edfgb-kraken.energy/data-import/schema/ (HTTP 200, anonymous, 2026-07-27).
+    The original document is never mutated.
+  note: >-
+    This is a partner-facing contract, not a public one: every operation requires
+    authentication and a migration relationship with EDF. It is also the only part of the
+    platform with no GraphQL equivalent.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: edf-energy
+    x-apievangelist-audience: partner
+    x-apievangelist-purpose: >-
+      The machine-readable expression of how a customer book moves between suppliers onto
+      Kraken. EDF used this platform to migrate 5.8 million of its own accounts in fifteen
+      months.
+    x-onboarding: >-
+      Not self-service. Requires a migration relationship with EDF and credentials issued
+      by them; there is no signup form.
+    x-conventions: conventions/edf-energy-conventions.yml
+    x-error-registry: https://developer.edfgb-kraken.energy/graphql/reference/error-codes/
+    x-graphql-equivalent: none — this API is REST-only (see mcp/edf-energy-tool-crosswalk.yml)
+- target: $
+  update:
+    servers:
+    - url: https://api.edfgb-kraken.energy/
+      description: >-
+        Production. The served document declares no servers[]; paths carry the
+        /v1/data-import/ and /v2/data-import/ prefixes themselves.
+- target: $.info
+  update:
+    x-key-identifiers:
+      import_supplier_code: The losing supplier whose customer book is being imported.
+      external_account_number: The account number as held by the losing supplier.
+    x-versioning: >-
+      Two live majors in the same document — /v1/data-import/ and /v2/data-import/. v2
+      supersedes the v1 account-creation and validation path with a scheduled
+      (asynchronous) model.
+- target: $.paths['/v1/data-import/account-import-process/process/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: physical
+      audit: required
+      human-in-the-loop: required
+    x-note: >-
+      Processes a real customer's transfer between suppliers. This is the highest
+      consequence operation in the repository — it moves a household's energy supply.
+      Declares a 429, the only rate-limited response in either document.
+    x-idempotency: >-
+      None declared. The create-or-update operation is upsert-shaped by name, which is the
+      only replay protection on this surface; no Idempotency-Key is accepted.
+- target: $.paths['/v1/data-import/account-import-process/create-or-update/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: write
+      audit: required
+    x-semantics: Upsert keyed on import_supplier_code + the account's external identifier.
+- target: $.paths['/v1/data-import/validate-account/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: write
+    x-note: Dry-run validation; safe to call before the irreversible process step.
+- target: $.paths['/v2/data-import/accounts/validate/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: write
+    x-note: v2 replacement for /v1/data-import/validate-account/.
+- target: $.paths['/v2/data-import/accounts/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: physical
+      audit: required
+      human-in-the-loop: required
+    x-note: Schedules asynchronous account creation; poll V2 Account Import Status for the outcome.
+- target: $.paths['/v1/data-import/payment-instruction/create/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: physical
+      audit: required
+      human-in-the-loop: required
+    x-note: Creates a payment instruction (e.g. a direct debit) against a migrated account.
+- target: $.info
+  update:
+    x-spec-gaps:
+    - No servers[] array.
+    - >-
+      33 `deprecated: true` flags on request parameters and schema properties, but no
+      deprecation dates or replacement fields named — unlike the GraphQL schema, where
+      every deprecation carries a marked-on date and a scheduled removal date.
+    - No response examples.
+    - >-
+      Errors are declared as bare 400/404/429/500 status codes without a consistent
+      documented body schema; the behavioural vocabulary lives in the KT-CT-* registry.
+    - >-
+      operationIds are human-readable strings with spaces ("V1 Validate Account"), which
+      most code generators will mangle.

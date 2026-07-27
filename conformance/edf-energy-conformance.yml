@@ -1,0 +1,154 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  https://auth.edfgb-kraken.energy/ (HTTP 200),
+  https://auth.edfgb-kraken.energy/.well-known/openid-configuration (HTTP 200),
+  https://developer.edfgb-kraken.energy/graphql/guides/basics/ (HTTP 200),
+  https://developer.edfgb-kraken.energy/rest/guides/api-basics/ (HTTP 200);
+  derived from openapi/*.yml, graphql/edf-energy-schema.graphql and
+  well-known/edf-energy-openid-configuration.json.
+description: >-
+  Which cross-cutting and industry standards the EDF GB Kraken API actually conforms to.
+  The authorisation layer is where the standards density is: OAuth 2.0 with PKCE, device
+  authorization grant, token exchange and OpenID Connect discovery are all explicitly
+  implemented and self-described. The API layer conforms to OpenAPI 3.0.3 and to the
+  GraphQL cursor-connections (Relay) specification. What it does NOT conform to is
+  equally load-bearing for a utility: there is no RFC 9457 problem+json, no RFC 8594
+  Sunset/Deprecation headers, no RFC 9116 security.txt, and — the finding that defines
+  this provider — no consumer energy data-portability standard of any kind, because
+  Great Britain mandates none. There is no Green Button, no Consumer Data Right, no
+  NEM12 obligation. The one British mandate that does bind EDF, the Smart Energy Code,
+  runs over the licensed Smart DCC monopoly and produces no third-party API.
+standards:
+- id: openapi-3.0.3
+  conforms: true
+  evidence: >-
+    Two first-party OpenAPI 3.0.3 documents served by EDF at
+    api.edfgb-kraken.energy/v1/schema and /data-import/schema/ (both HTTP 200, anonymous).
+- id: graphql
+  conforms: true
+  evidence: >-
+    Live GraphQL endpoint at api.edfgb-kraken.energy/v1/graphql/ with anonymous
+    introspection enabled; 2,492 types harvested to graphql/edf-energy-schema.graphql.
+- id: graphql-cursor-connections
+  conforms: true
+  evidence: >-
+    Relay connection pattern (edges/node/cursor, pageInfo with hasNextPage,
+    hasPreviousPage, startCursor, endCursor); the GraphQL basics guide cites the Relay
+    spec directly for the hasPreviousPage behaviour.
+- id: oauth2
+  conforms: true
+  rfc: RFC 6749
+  evidence: >-
+    Dedicated OAuth 2.0 server at auth.edfgb-kraken.energy documenting the authorization
+    code, client credentials and refresh token grants.
+- id: oauth2-pkce
+  conforms: true
+  rfc: RFC 7636
+  evidence: >-
+    The auth server's worked example generates a code verifier and an S256 code
+    challenge and passes code_challenge_method=S256 to /authorize/.
+- id: oauth2-device-authorization-grant
+  conforms: true
+  rfc: RFC 8628
+  evidence: >-
+    POST /device-authorization/ documented with user_code / verification_uri display
+    guidance, citing RFC 8628 sections 3.3 and 5.7.
+- id: oauth2-token-exchange
+  conforms: true
+  rfc: RFC 8693
+  evidence: The auth server documents a token exchange example and links RFC 8693 delegation semantics.
+- id: openid-connect-discovery
+  conforms: true
+  evidence: >-
+    /.well-known/openid-configuration served anonymously at HTTP 200 with issuer,
+    authorization/token/userinfo/revocation/end_session endpoints, jwks_uri,
+    111 scopes_supported, 7 response_types_supported, and claims_supported.
+- id: oauth2-authorization-server-metadata
+  conforms: false
+  rfc: RFC 8414
+  evidence: >-
+    /.well-known/oauth-authorization-server returns 404 on auth.edfgb-kraken.energy;
+    only the OIDC discovery path is served.
+- id: jwks
+  conforms: true
+  rfc: RFC 7517
+  evidence: >-
+    /.well-known/jwks.json served anonymously at HTTP 200 with an RS256 signing key;
+    saved to well-known/edf-energy-jwks.json.
+- id: jwt
+  conforms: true
+  rfc: RFC 7519
+  evidence: >-
+    DRFKrakenTokenAuthentication security scheme is JWT-based; id_token signing
+    algorithms RS256 and HS256 advertised in the discovery document.
+- id: iso8601
+  conforms: true
+  evidence: >-
+    "Datetimes ... should be passed in ISO 8601 format", with an explicit
+    Europe/London default and a BST/GMT warning, in the REST API basics guide.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    No application/problem+json anywhere in either OpenAPI document. REST errors use
+    ErrorResponse / ValidationOrDomainError JSON schemas; GraphQL errors use the
+    Kraken extensions envelope (errorType/errorCode/errorDescription) over HTTP 200.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: >-
+    No Sunset or Deprecation response header is documented or declared. Deprecation is
+    signalled in-schema via @deprecated reasons carrying scheduled removal dates, and
+    out-of-band via the dated announcements feed.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: >-
+    /.well-known/security.txt returns 404 on www.edfenergy.com, api.edfgb-kraken.energy,
+    developer.edfgb-kraken.energy and auth.edfgb-kraken.energy.
+- id: asyncapi
+  conforms: false
+  evidence: >-
+    No AsyncAPI document and no public webhook catalog. An external-events namespace
+    exists at api.edfgb-kraken.energy/external-events/schema/ but returns HTTP 403 —
+    it is not served anonymously. The GraphQL schema declares no Subscription type.
+- id: mcp
+  conforms: false
+  evidence: >-
+    No official EDF or Kraken MCP server was found in the docs, on npm, or in the MCP
+    registries. Third-party community MCP servers exist for the Octopus Energy variant
+    of the same Kraken platform, but none are EDF-published.
+- id: green-button
+  conforms: false
+  evidence: >-
+    Not applicable in Great Britain. There is no Green Button obligation and EDF
+    publishes no ESPI/Green Button surface.
+- id: consumer-data-right
+  conforms: false
+  evidence: >-
+    No UK equivalent exists. Consumer consumption data is available through the Kraken
+    OAuth scopes (request:consumption-data, view:smartflex-data) purely as a supplier
+    choice, not under a data-portability mandate.
+- id: smart-energy-code
+  conforms: true
+  binding: regulatory
+  evidence: >-
+    EDF is a licensed GB supplier and is therefore bound by the Smart Energy Code and
+    the licensed Smart DCC monopoly for smart-meter traffic. This is an
+    industry-to-industry obligation and produces no public third-party API; it does not
+    appear in any EDF-published contract.
+- id: remit
+  conforms: partial
+  binding: regulatory
+  evidence: >-
+    EDF publishes REMIT generation unavailability at
+    www.edfenergy.com/energy/remit-summary as an HTML table (HTTP 200), but the XML and
+    CSV export links on that page both return HTTP 404. The machine-readable channel is
+    Elexon's BMRS platform, which EDF does not operate.
+compliance_program:
+  published: false
+  certifications: []
+  trust_center: null
+  note: >-
+    No trust centre, SOC 2 / ISO 27001 / PCI DSS attestation page, or published
+    certification list was found for EDF Energy's API platform. Probes of
+    trust./security./compliance paths returned nothing. Recorded as absent; no
+    Compliance pointer is emitted.

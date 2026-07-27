@@ -103,6 +103,15 @@ apis:
     url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
   - type: Authentication
     url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ToolCrosswalk
+    url: mcp/edf-energy-tool-crosswalk.yml
+  - type: ErrorCatalog
+    url: errors/edf-energy-error-codes.yml
+  - type: RateLimits
+    url: rate-limits/edf-energy-rate-limits.yml
+  - type: Console
+    name: GraphiQL IDE
+    url: https://api.edfgb-kraken.energy/v1/graphql/
 - aid: edf-energy:edf-kraken-rest-api
   name: EDF Kraken REST API
   description: >-
@@ -142,6 +151,23 @@ apis:
     url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
   - type: Authentication
     url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: Overlay
+    url: overlays/edf-energy-kraken-overlay.yaml
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: AgentSkill
+    name: Compare EDF electricity and gas tariffs for a postcode
+    url: skills/edf-energy-compare-tariffs.md
+  - type: AgentSkill
+    name: Read a customer's electricity and gas consumption
+    url: skills/edf-energy-read-consumption.md
+  - type: AgentSkill
+    name: Quote a supply and enrol a customer
+    url: skills/edf-energy-quote-and-enrol.md
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
 - aid: edf-energy:edf-kraken-customer-migration-api
   name: EDF Kraken Customer Migration (Data Import) API
   description: >-
@@ -172,11 +198,82 @@ apis:
     url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
   - type: APIReference
     url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Overlay
+    url: overlays/edf-energy-kraken-data-import-overlay.yaml
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+  - type: AgentSkill
+    name: Migrate a customer book onto Kraken
+    url: skills/edf-energy-migrate-customer-book.md
 common:
+- type: AgenticAccess
+  url: agentic-access/edf-energy-agentic-access.yml
+- type: DomainSecurity
+  url: security/edf-energy-domain-security.yml
+- type: Authentication
+  url: authentication/edf-energy-authentication.yml
+- type: OAuthScopes
+  url: scopes/edf-energy-scopes.yml
+- type: Conventions
+  url: conventions/edf-energy-conventions.yml
+- type: Idempotency
+  url: conventions/edf-energy-conventions.yml
+- type: RateLimits
+  url: rate-limits/edf-energy-rate-limits.yml
+- type: ErrorCatalog
+  name: Kraken KT-CT-* error code registry (1,370 codes)
+  url: errors/edf-energy-error-codes.yml
+- type: ErrorCatalog
+  name: REST problem types derived from the OpenAPI
+  url: errors/edf-energy-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/edf-energy-lifecycle.yml
+- type: Deprecation
+  url: https://developer.edfgb-kraken.energy/announcements/
+- type: ChangeLog
+  url: changelog/edf-energy-changelog.yml
+- type: ChangeLog
+  name: GraphQL schema changelog
+  url: https://developer.edfgb-kraken.energy/graphql/changelog/
+- type: Conformance
+  url: conformance/edf-energy-conformance.yml
+- type: DataModel
+  url: data-model/edf-energy-data-model.yml
+- type: Sandbox
+  name: Public GraphiQL IDE
+  url: sandbox/edf-energy-sandbox.yml
+- type: Console
+  url: https://api.edfgb-kraken.energy/v1/graphql/
+- type: WellKnown
+  url: well-known/edf-energy-well-known.yml
+- type: Packages
+  url: packages/edf-energy-packages.yml
+- type: MCPServer
+  url: mcp/edf-energy-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/edf-energy-tool-crosswalk.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: LLMsTxt
+  name: EDF Energy llms.txt (published, verbatim)
+  url: llms/edf-energy-llms.txt
+- type: LLMsTxt
+  name: API-surface llms.txt (generated)
+  url: llms/edf-energy-api-llms.txt
+- type: Overlay
+  url: overlays/edf-energy-kraken-overlay.yaml
+- type: Overlay
+  url: overlays/edf-energy-kraken-data-import-overlay.yaml
 - type: Website
   url: https://www.edfenergy.com/
+- type: DeveloperPortal
+  url: https://developer.edfgb-kraken.energy/
 - type: Documentation
   url: https://developer.edfgb-kraken.energy/
+- type: APIReference
+  url: https://developer.edfgb-kraken.energy/rest/reference/
+- type: GettingStarted
+  url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
 - type: Changelog
   url: https://developer.edfgb-kraken.energy/announcements/
 - type: Authentication
@@ -189,6 +286,20 @@ common:
   url: https://www.edfenergy.com/about
 - type: News
   url: https://www.edfenergy.com/media-centre
+- type: Blog
+  url: https://www.edfenergy.com/energywise
+- type: Support
+  url: https://www.edfenergy.com/help-support
+- type: HelpCenter
+  url: https://www.edfenergy.com/for-home/help-centre
+- type: Pricing
+  url: https://www.edfenergy.com/deemed-tariff-prices
+- type: SignUp
+  url: https://www.edfenergy.com/gas-and-electricity/switch-energy-supplier
+- type: Login
+  url: https://www.edfenergy.com/customer-information/activate-myaccount
+- type: TermsOfService
+  url: https://www.edfenergy.com/terms-conditions
 - type: PrivacyPolicy
   url: https://www.edfenergy.com/terms-conditions/privacy-cookie-policy
 - type: GitHubOrganization

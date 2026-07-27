@@ -1,0 +1,390 @@
+generated: '2026-07-27'
+method: derived
+source: >-
+  mcp/edf-energy-mcp.yml (candidate tools derived from the two OpenAPI documents),
+  openapi/edf-energy-kraken-openapi.yml, openapi/edf-energy-kraken-data-import-openapi.yml,
+  and graphql/edf-energy-schema.graphql (harvested by anonymous introspection 2026-07-27).
+description: >-
+  EDF Energy runs two overlapping-but-non-identical projections of one Kraken data core,
+  and neither is a superset of the other. REST exposes 43 operations across two documents.
+  GraphQL exposes 246 Query fields and 417 Mutation fields over the same core. This
+  crosswalk binds them, so a tool built on either surface inherits a real input contract
+  instead of a guessed one. The headline divergence is enormous and asymmetric: almost
+  every REST operation has a GraphQL equivalent, but the overwhelming majority of the
+  GraphQL surface — smart-meter telemetry, SmartFlex and EV device control, heat pumps,
+  prepay ledgers, loyalty points, complaints, collection processes, property portfolios,
+  on-site jobs and appointments — has no REST expression at all. An agent restricted to
+  the OpenAPI sees the tariff shop-window; an agent on GraphQL sees the customer's energy
+  life. The exception runs the other way: the entire customer-migration API is REST-only,
+  and every unit-rate/standing-charge collection is addressed more directly in REST than
+  through the GraphQL product tree.
+surfaces:
+  openapi:
+  - path: openapi/edf-energy-kraken-openapi.yml
+    served_at: https://api.edfgb-kraken.energy/v1/schema?namespaces=default
+    operations: 27
+    gated: false
+  - path: openapi/edf-energy-kraken-data-import-openapi.yml
+    served_at: https://api.edfgb-kraken.energy/data-import/schema/
+    operations: 16
+    gated: false
+  graphql:
+    endpoint: https://api.edfgb-kraken.energy/v1/graphql/
+    sdl: graphql/edf-energy-schema.graphql
+    introspection_gated: false
+    types: 2492
+    query_fields: 246
+    mutation_fields: 417
+    subscription_type: none
+  mcp:
+    url: null
+    published: false
+    gated: null
+    note: No official EDF or Kraken MCP server; the tool list is a derived candidate.
+crosswalk:
+- tool: list_products
+  category: retail-tariffs
+  rest: ['List Products']
+  graphql: [energyProducts, availableProducts]
+  binding: rest
+  confidence: high
+  note: >-
+    Both surfaces resolve anonymously. GraphQL energyProducts requires brand "EDF"
+    (omitting it returns KT-GB-9516); REST /v1/products/ needs nothing.
+- tool: product
+  category: retail-tariffs
+  rest: ['Product']
+  graphql: [energyProduct, availableProductFromDisplayName]
+  binding: rest
+  confidence: high
+- tool: electricity_tariff_standard_unit_rates
+  category: retail-tariffs
+  rest: ['Electricity Tariff Standard Unit Rates']
+  graphql: [agreementRates, applicableRates]
+  binding: rest
+  confidence: medium
+  note: >-
+    GraphQL exposes rates through the agreement/applicable-rate path (customer-scoped),
+    not as an anonymous per-tariff rate collection. The REST binding is the direct one.
+- tool: electricity_tariff_day_unit_rates
+  category: retail-tariffs
+  rest: ['Electricity Tariff Day Unit Rates']
+  graphql: []
+  binding: rest
+  confidence: high
+  note: Economy 7 day rate; no dedicated GraphQL field.
+- tool: electricity_tariff_night_unit_rates
+  category: retail-tariffs
+  rest: ['Electricity Tariff Night Unit Rates']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: electricity_tariff_ev_device_peak_unit_rates
+  category: retail-tariffs
+  rest: ['Electricity Tariff Ev Device Peak Unit Rates']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: electricity_tariff_ev_device_off_peak_unit_rates
+  category: retail-tariffs
+  rest: ['Electricity Tariff Ev Device Off Peak Unit Rates']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: electricity_tariff_standing_charges
+  category: retail-tariffs
+  rest: ['Electricity Tariff Standing Charges']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: gas_tariff_standard_unit_rates
+  category: retail-tariffs
+  rest: ['Gas Tariff Standard Unit Rates']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: gas_tariff_standing_charges
+  category: retail-tariffs
+  rest: ['Gas Tariff Standing Charges']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: list_industry_grid_supply_points
+  category: industry
+  rest: ['List Industry Grid Supply Points']
+  graphql: [addressMeterpoints, addressUprns, addressFields]
+  binding: rest
+  confidence: medium
+  note: >-
+    Both resolve a postcode to industry data, but they answer different questions —
+    REST returns the GSP group, GraphQL returns address/meterpoint candidates.
+- tool: get_electricity_meter_point
+  category: industry
+  rest: ['Get Electricity Meter Point']
+  graphql: [electricityMeterpoint, electricityMeterPointDetails, multipleElectricityMeterPointsForAddress]
+  binding: rest
+  confidence: high
+  note: Customer-scoped on both surfaces; requires an Authorization token.
+- tool: list_consumption_for_an_electricity_meter
+  category: consumption
+  rest: ['List consumption for an electricity meter']
+  graphql: [annualElectricityConsumption, extendedAnnualElectricityConsumption, smartMeterTelemetry, electricityMeterReadings]
+  binding: rest
+  confidence: medium
+  note: >-
+    REST returns interval consumption for a named meter serial under an MPAN. The
+    GraphQL fields are richer and differently shaped (telemetry, annualised estimates,
+    readings) — not a 1:1 replacement. Both require a customer-held token or the
+    request:consumption-data OAuth scope.
+- tool: list_consumption_for_a_gas_meter
+  category: consumption
+  rest: ['List consumption for a gas meter']
+  graphql: [annualGasConsumption, gasMeterReadings, gasMeterPointDetails]
+  binding: rest
+  confidence: medium
+- tool: create_an_account
+  category: enrolment
+  rest: ['Create an account']
+  graphql: [productEnrolment, productEnrolments, joinSupplierProcess]
+  binding: rest
+  confidence: medium
+  note: Enrolment is modelled as a process on GraphQL and as a single POST on REST.
+- tool: renew_a_business_tariff
+  category: enrolment
+  rest: ['Renew a business tariff']
+  graphql: [agreementRollover, agreementsForRollover, canRescindAgreement]
+  binding: rest
+  confidence: medium
+- tool: create_a_quote
+  category: sales
+  rest: ['Create a quote']
+  graphql: [quote, quoteRequest, goodsQuotes, offerForQuoting]
+  binding: rest
+  confidence: medium
+- tool: share_a_quote_via_email
+  category: sales
+  rest: ['Share a quote via email']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: create_a_stripe_payment_intent
+  category: payments
+  rest: ['Create a Stripe payment intent']
+  graphql: [paymentRequests, defaultPaymentInstruction]
+  binding: rest
+  confidence: low
+  note: >-
+    The Stripe payment-intent triple is REST-only in practice; the GraphQL payment
+    families (payment instructions, action intents, ledgers) are a different model.
+- tool: confirm_a_stripe_payment_intent
+  category: payments
+  rest: ['Confirm a Stripe payment intent']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: mark_a_stripe_payment_intent_as_failed
+  category: payments
+  rest: ['Mark a Stripe payment intent as failed']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: external_client_health_check
+  category: platform
+  rest: ['External Client Health Check']
+  graphql: [krakenVersion, apiBrownouts]
+  binding: rest
+  confidence: medium
+  note: Anonymous on REST; returned HTTP 200 on 2026-07-27.
+- tool: twilio_enqueue_audio
+  category: voice
+  rest: ['Twilio Enqueue Audio']
+  graphql: [inboundCallAverageWaitTime, calls, callTags]
+  binding: rest
+  confidence: low
+  note: Contact-centre telephony callback surface; no GraphQL equivalent of the callback itself.
+- tool: voice_announcement
+  category: voice
+  rest: ['Voice Announcement']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_create_or_update_account_import_process
+  category: migration
+  rest: ['V1 Create Or Update Account Import Process']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_validate_account
+  category: migration
+  rest: ['V1 Validate Account']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_process_account_import_process
+  category: migration
+  rest: ['V1 Process Account Import Process']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_get_account_transfer_status
+  category: migration
+  rest: ['V1 Get Account Transfer Status']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_get_all_account_import_processes
+  category: migration
+  rest: ['V1 Get All Account Import Processes']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_get_pending_account_import_processes
+  category: migration
+  rest: ['V1 Get Pending Account Import Processes']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_get_imported_accounts
+  category: migration
+  rest: ['V1 Get Imported Accounts']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_get_meter_point_statuses_for_account
+  category: migration
+  rest: ['V1 Get Meter Point Statuses For Account']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_create_historical_statements
+  category: migration
+  rest: ['V1 Create Historical Statements']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_create_transactions
+  category: migration
+  rest: ['V1 Create Transactions']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_create_account_notes
+  category: migration
+  rest: ['V1 Create Account Notes']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_create_payment_instruction
+  category: migration
+  rest: ['V1 Create Payment Instruction']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v1_send_registration_flows
+  category: migration
+  rest: ['V1 Send Registration Flows']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v2_schedule_account_creation
+  category: migration
+  rest: ['V2 Schedule Account Creation']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v2_validate_account
+  category: migration
+  rest: ['V2 Validate Account']
+  graphql: []
+  binding: rest
+  confidence: high
+- tool: v2_account_import_status
+  category: migration
+  rest: ['V2 Account Import Status']
+  graphql: []
+  binding: rest
+  confidence: high
+graphql_only:
+- capability: Smart-meter telemetry and consent
+  fields: [smartMeterTelemetry, smartMeterDataPreferences, readingConsentGranularity, settableConsentGranularities, estimatedSupplyPointReadings]
+  reason: >-
+    No REST expression. Granular half-hourly telemetry and the consent granularity a
+    customer has granted are GraphQL-only, and are the most consequential consumer-data
+    surface EDF exposes. Gated behind a customer token or the request:consumption-data /
+    update:smart-meter-data-preferences OAuth scopes.
+- capability: SmartFlex, EV charging and device control
+  fields: [flexPlannedDispatches, plannedDispatches, completedDispatches, vehicleChargingPreferences, costOfCharge, flexSupportedDevices, smartFlexDeviceSupplyPoint, smartFlexOnboardingWizards, devices, eligibleDeviceTypes, ocppConnection, ocppDetails, batteryDevice, registeredKrakenflexDevice]
+  reason: >-
+    Demand-flexibility and physical device control — dispatching a charge, reading a
+    planned dispatch schedule, OCPP charge-point state. Entirely GraphQL, entirely
+    absent from the OpenAPI, and the highest-consequence surface for an autonomous agent.
+- capability: Heat pumps and low-carbon assets
+  fields: [mcsInstallations, segInstallation, fitInstallations, fitSchedule, customerAsset, chargePointVariants, batteryVariants, electricVehicles]
+  reason: Generation, export (SEG/FIT) and heating assets; no REST counterpart.
+- capability: Prepay and ledgers
+  fields: [electricityPrepayLedgers, gasPrepayLedgers, prepayBalanceSnapshot, prepayPayments, autoTopupConfigs, autoTopupTriggers]
+  reason: Prepayment metering and top-up; REST has no ledger surface.
+- capability: Billing, debt and payment adequacy
+  fields: [accountDebtPosition, livePaymentAdequacy, livePaymentAdequacyCalculation, paymentPlanDetails, collectionProcessDetails, depositAgreements, returnSchedule]
+  reason: Credit and collections; REST stops at the Stripe payment intent.
+- capability: Loyalty, campaigns and rewards
+  fields: [loyaltyPointsBalance, loyaltyPointLedgers, loyaltyPointLedgerEntry, loyaltyCards, campaigns, activeCampaignOffers, vouchersForAccount, vouchersBalanceDetail]
+  reason: Engagement mechanics; no REST expression.
+- capability: Complaints, contact centre and conversations
+  fields: [complaint, calls, callTranscripts, callRecordingDetail, inkConversation, inkLiveChatConversations, inkMessage, customerFeedbackForms]
+  reason: Service operations; REST exposes only two Twilio callback endpoints.
+- capability: Property, portfolio and multi-site
+  fields: [property, properties, propertySearch, propertiesSearch, portfolio, portfolioByReference, supplyPoint, supplyPoints, meterPoints, occupierAccount, embeddedNetwork]
+  reason: The multi-site / C&I model, which is also what drives dynamic rate-limit scaling.
+- capability: Field service and appointments
+  fields: [siteworksAppointmentSlots, siteworksRequests, getOnSiteJobsAppointmentSlots, getOnSiteJobsRequests, getOnSiteJobsJobTypes, workSchedule]
+  reason: Engineer visits and metering works; REST has none of it.
+- capability: Platform introspection and governance
+  fields: [rateLimitInfo, queryComplexity, possibleErrors, apiBrownouts, krakenVersion, authorizedApplications, apiExceptions]
+  reason: >-
+    Self-describing runtime governance — an agent can read its own remaining points
+    budget, a query's complexity cost and a field's possible errors before executing.
+    There is no REST equivalent, which makes GraphQL the only self-governing surface.
+- capability: Fraud, identity and validation
+  fields: [fraudMeterPointChecks, fraudRiskLevel, paymentFingerprintChecks, bankDetailsValidation, validateBankAccount, verificationStatus, mfaDevices, leadBlocklistValidations]
+  reason: Risk controls; REST exposes none.
+rest_only:
+- capability: Customer migration / data import
+  operations: ['V1 Create Or Update Account Import Process', 'V1 Validate Account', 'V1 Process Account Import Process', 'V1 Get Account Transfer Status', 'V1 Get All Account Import Processes', 'V1 Get Pending Account Import Processes', 'V1 Get Imported Accounts', 'V1 Get Meter Point Statuses For Account', 'V1 Create Historical Statements', 'V1 Create Transactions', 'V1 Create Account Notes', 'V1 Create Payment Instruction', 'V1 Send Registration Flows', 'V2 Schedule Account Creation', 'V2 Validate Account', 'V2 Account Import Status']
+  reason: >-
+    The entire 16-operation migration API is REST-only and has no GraphQL expression.
+    This is the contract by which a customer book is moved onto Kraken — the operational
+    counterpart to EDF migrating 5.8 million accounts in fifteen months.
+- capability: Direct per-tariff rate collections
+  operations: ['Electricity Tariff Day Unit Rates', 'Electricity Tariff Night Unit Rates', 'Electricity Tariff Ev Device Peak Unit Rates', 'Electricity Tariff Ev Device Off Peak Unit Rates', 'Electricity Tariff Standing Charges', 'Gas Tariff Standard Unit Rates', 'Gas Tariff Standing Charges']
+  reason: >-
+    Anonymous, directly addressable per-tariff price collections. GraphQL reaches rates
+    only through the customer-scoped agreement/applicable-rate path, so these are the
+    only anonymous machine-readable price feeds EDF publishes.
+- capability: Stripe payment intents
+  operations: ['Create a Stripe payment intent', 'Confirm a Stripe payment intent', 'Mark a Stripe payment intent as failed']
+  reason: The Stripe integration lifecycle is REST-only.
+- capability: Twilio voice callbacks
+  operations: ['Twilio Enqueue Audio', 'Voice Announcement']
+  reason: Telephony webhooks consumed by Twilio, not an agent-facing surface.
+coverage:
+  candidate_tools: 40
+  tools_bound_to_rest: 40
+  tools_with_a_graphql_equivalent: 17
+  rest_operations_total: 43
+  rest_operations_excluded_as_meta: 3
+  rest_operations_with_a_tool: 40
+  rest_only_capabilities: 4
+  graphql_only_capabilities: 11
+  graphql_query_fields_total: 246
+  graphql_mutation_fields_total: 417
+  mcp_only: 0
+mcp_only: []
+mcp_only_note: >-
+  No MCP server is published, so there are no MCP-only tools. If EDF or Kraken ever ship
+  one, the GraphQL-only capabilities above are where the divergence will land.
+idempotency_note: >-
+  Another asymmetry worth binding: idempotency exists only on the GraphQL side, as an
+  idempotencyKey input field on money-moving and ledger mutations (errors KT-CT-3928,
+  KT-CT-9221). No REST operation accepts an idempotency key, including the Stripe
+  payment-intent triple. See conventions/edf-energy-conventions.yml.

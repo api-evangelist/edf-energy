@@ -1,0 +1,85 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  https://api.edfgb-kraken.energy/v1/graphql/ (HTTP 200 text/html — GraphiQL IDE),
+  https://developer.edfgb-kraken.energy/graphql/guides/basics/ (HTTP 200),
+  https://developer.edfgb-kraken.energy/rest/reference/ (HTTP 200),
+  https://api.edfgb-kraken.energy/v1/products/ (HTTP 200 anonymous).
+description: >-
+  EDF Energy publishes no test/live key separation, no sandbox tenant, and no magic test
+  identifiers. What it does publish — and this is genuinely more than most utilities offer
+  — is a public interactive console plus a real production surface that answers
+  anonymously, so a developer can exercise the API for real before holding any credential.
+  The GraphQL IDE at api.edfgb-kraken.energy/v1/graphql/ is served publicly: requesting it
+  with Accept: text/html returns HTTP 200 and a GraphiQL application (Kraken-branded, at
+  /static/graphiql/). Inside it a caller can browse the whole schema, see the permissions
+  each field requires, see the errors each field can raise, and read the complexity and
+  rate-limit cost of a query before running it. Against that console, the retail product
+  and tariff surface resolves with no credential at all. Everything customer-scoped needs
+  a real token issued against a real EDF account or an OAuth application, and there is no
+  synthetic account to stand in for one.
+console:
+  type: GraphiQL
+  url: https://api.edfgb-kraken.energy/v1/graphql/
+  public: true
+  status: 200
+  auth_required: false
+  note: >-
+    GET with Accept: text/html returns the IDE; GET without it returns HTTP 400
+    {"errors":[{"message":"Must provide query string."}]}, and POST returns HTTP 200.
+  capabilities:
+  - Browse the full schema and its documentation
+  - See the permissions required for any query or mutation
+  - See the possible errors a query or mutation can return ("Possible errors" tab)
+  - See per-field and total query complexity ("Query complexity" tab)
+  - See the rate limits applied to the fields in a request ("Rate limits" tab)
+rest_reference_console:
+  type: ReDoc
+  url: https://developer.edfgb-kraken.energy/rest/reference/
+  public: true
+  try_it: false
+  note: ReDoc renders the OpenAPI but does not execute requests.
+test_mode:
+  supported: false
+  key_prefixes: null
+  test_clock: null
+  fixtures: null
+  note: >-
+    No test-vs-live mode, no sandbox key prefix, and no published test credentials,
+    test accounts, test MPANs/MPRNs or simulator values. Nothing was invented here.
+anonymous_exercisable_surface:
+  description: >-
+    The nearest thing to a sandbox: production endpoints that answer without a
+    credential, verified live on 2026-07-27.
+  examples:
+  - request: GET https://api.edfgb-kraken.energy/v1/products/
+    status: 200
+    returns: 21 live EDF products
+    operation: openapi/edf-energy-kraken-openapi.yml#List Products
+  - request: GET https://api.edfgb-kraken.energy/v1/industry/grid-supply-points/?postcode=SW1A1AA
+    status: 200
+    returns: GSP group _C
+    operation: openapi/edf-energy-kraken-openapi.yml#List Industry Grid Supply Points
+  - request: GET https://api.edfgb-kraken.energy/v1/products/EDF_EMPOWER_TRACKER_EX_SEG_12M_V2_HH/
+    status: 200
+    returns: a single live product with its tariffs
+    operation: openapi/edf-energy-kraken-openapi.yml#Product
+  - request: 'POST https://api.edfgb-kraken.energy/v1/graphql/ — energyProducts(postcode: "SW1A1AA", brand: "EDF")'
+    status: 200
+    returns: live EDF retail tariffs, e.g. EDF_FOL_06M_B1_1YR_26-07-24_v1 "Fixed Online 1 Year"
+    note: 'Omitting brand returns KT-GB-9516; brand: "EDF" is the working value.'
+  - request: GET https://api.edfgb-kraken.energy/external-client-healthcheck/
+    status: 200
+    returns: liveness
+    operation: openapi/edf-energy-kraken-openapi.yml#External Client Health Check
+onboarding:
+  self_service: false
+  path: >-
+    Contact EDF/Kraken to request an OAuth application, supplying the client type
+    (public or confidential), the grant type (authorization, client-credentials or
+    device), the allowed redirect URIs, and the resources to be accessed.
+  docs: https://auth.edfgb-kraken.energy/
+related:
+  conventions: conventions/edf-energy-conventions.yml
+  authentication: authentication/edf-energy-authentication.yml
+  rate_limits: rate-limits/edf-energy-rate-limits.yml

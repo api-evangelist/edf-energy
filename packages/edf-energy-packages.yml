@@ -1,0 +1,37 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  npm registry search (edf-energy, edfgb-kraken, kraken-energy, octopus-energy,
+  krakenflex), https://pypi.org/pypi/edf-energy/json (404),
+  https://api.github.com/orgs/edfenergy/repos (HTTP 200),
+  https://developer.edfgb-kraken.energy/ and its REST and GraphQL guides.
+description: >-
+  EDF Energy ships no first-party client libraries. The developer portal documents the
+  API as raw HTTPS — the REST guide's onboarding is "a URL made up of 3 parts", and the
+  GraphQL guide points at the browser IDE — with no SDK, code-sample or install section
+  anywhere on the portal. The GitHub organisation github.com/edfenergy exists (created
+  2014-03-27) but holds only two public repositories, neither API-related: a Power Apps
+  PCF iframe control and a Microsoft 365 DSC configuration repo. Registry searches
+  surfaced no EDF- or Kraken-published package on npm or PyPI. Third-party community
+  libraries and MCP servers do exist for the Octopus Energy branding of the same Kraken
+  platform, but none are EDF-published and none are wired here as first-party. This is a
+  genuine absence, recorded as searched.
+official_packages_found: 0
+packages: []
+registries_searched:
+- {registry: npm, queries: [edf-energy, edfgb-kraken, kraken-energy, octopus-energy, krakenflex], first_party_hits: 0}
+- {registry: pypi, queries: [edf-energy], first_party_hits: 0, status: 404}
+- {registry: github, org: 'https://github.com/edfenergy', public_repos: 2, api_related: 0}
+github_org:
+  url: https://github.com/edfenergy
+  status: 200
+  created: '2014-03-27'
+  public_repos:
+  - {name: bespoke-PP-PCFiframe, description: 'PCF to enable an iframe functionality in canvas apps for Power Apps', api_related: false}
+  - {name: EIT-M365DSC, language: PowerShell, description: 'Manages, configures, extracts and monitors Microsoft 365 tenant configurations', api_related: false}
+third_party_note: >-
+  Not endorsed and not first-party — recorded only so a future round does not mistake
+  them for EDF libraries. Community packages targeting the Octopus Energy variant of the
+  same Kraken platform include octopus-energy-api-client, homebridge-octopus-energy,
+  tako-mcp and octopus-energy-mcp on npm. None of them target EDF GB
+  (api.edfgb-kraken.energy) and none are wired into this repo.

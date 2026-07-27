@@ -1,0 +1,69 @@
+# edfenergy.com: EDF,  electricity and gas UK energy supplier for home and business
+
+> A curated list of high-value, LLM-friendly resources designed for inference-time ingestion by AI systems.
+
+This file guides LLMs to key information on our website.
+
+## Energy Tariffs & Switching
+https://www.edfenergy.com/gas-and-electricity
+https://www.edfenergy.com/gas-and-electricity/switch-energy-supplier
+https://www.edfenergy.com/electric-cars/ev-tariffs
+https://www.edfenergy.com/heating/electric/air-source-heat-pump/tariffs
+https://www.edfenergy.com/solar/solar-tariffs
+https://www.edfenergy.com/energywise/choosing-best-energy-tariff
+https://www.edfenergy.com/energywise/should-i-fix-my-energy-tariff
+
+## Electric Vehicles
+https://www.edfenergy.com/electric-cars/benefits
+https://www.edfenergy.com/electric-cars/costs
+https://www.edfenergy.com/electric-cars/ev-tariffs
+https://www.edfenergy.com/electric-cars/home-charger
+https://www.edfenergy.com/electric-cars/leasing
+https://www.edfenergy.com/energywise/most-common-ev-myths-busted
+
+## Heating, Insulation & Home Efficiency
+https://www.edfenergy.com/heating/electric
+https://www.edfenergy.com/heating/electric/air-source-heat-pump
+https://www.edfenergy.com/heating/heat-pumps/air-source-heat-pump-guide
+https://www.edfenergy.com/heating/advice/energy-performance-certificate-ratings
+https://www.edfenergy.com/heating/advice/what-is-insulation-how-does-work
+https://www.edfenergy.com/heating/insulation/cavity-wall
+https://www.edfenergy.com/heating/insulation/loft
+https://www.edfenergy.com/heating/insulation/solid-wall
+https://www.edfenergy.com/eco4-subsidised-energy-efficiency-measures
+https://www.edfenergy.com/energy-efficiency/the-great-british-insulation-scheme
+
+## Energy Advice & Guides (Energywise)
+https://www.edfenergy.com/energywise/air-source-heat-pumps-vs-gas-boilers
+https://www.edfenergy.com/energywise/first-time-buyers-energy-guide
+https://www.edfenergy.com/energywise/heat-pumps/living-best-life-your-air-source-heat-pump
+https://www.edfenergy.com/energywise/lower-flow-temperature-on-combi-boiler
+https://www.edfenergy.com/energywise/national-meter-read-day
+https://www.edfenergy.com/energywise/small-business-how-to-read-your-meters
+https://www.edfenergy.com/energywise/smart-meter-myths-busted
+https://www.edfenergy.com/energywise/switching-energy-suppliers-guide
+https://www.edfenergy.com/energywise/ways-save-energy-choices-home
+https://www.edfenergy.com/energywise/what-is-the-average-energy-bill-in-the-uk
+https://www.edfenergy.com/energywise/zero-carbon-home
+
+## Solar Energy
+https://www.edfenergy.com/solar/solar-panels
+https://www.edfenergy.com/solar/solar-battery-storage
+https://www.edfenergy.com/solar/solar-tariffs
+
+## Smart Meters & PAYG
+https://www.edfenergy.com/smart-meters
+https://www.edfenergy.com/help-support/smart-pay-as-you-go
+https://www.edfenergy.com/energywise/smart-meter-myths-busted
+
+## Help & Support
+https://www.edfenergy.com/help-support/energy-bill-debt-advice
+https://www.edfenergy.com/help-support/holiday-support-pay-as-you-go-prepayment-customers
+https://www.edfenergy.com/help-support/prepayment-meter
+https://www.edfenergy.com/help-support/PSR
+https://www.edfenergy.com/help-support/warm-home-discount
+
+## OPTIONAL
+https://www.edfenergy.com/sustainability
+https://www.edfenergy.com/about
+https://www.edfenergy.com/fuel-mix

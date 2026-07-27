@@ -1,0 +1,204 @@
+generated: '2026-07-27'
+method: derived
+status: candidate
+source: openapi/edf-energy-kraken-openapi.yml, openapi/edf-energy-kraken-data-import-openapi.yml
+description: 'No official EDF Energy or Kraken MCP server exists. Searched the EDF GB developer portal
+  (developer.edfgb-kraken.energy), the EDF GitHub organisation, npm (edf-energy, edfgb-kraken, kraken-energy,
+  octopus-energy, krakenflex) and the MCP registries on 2026-07-27 — nothing EDF-published. Third-party
+  community MCP servers do exist for the Octopus Energy branding of the same Kraken platform (tako-mcp,
+  octopus-energy-mcp, @pipeworx/mcp-octopus-energy on npm), which is evidence the platform is agent-attractive,
+  but none of them target EDF GB and none are first-party. What follows is therefore a CANDIDATE tool
+  surface derived one-for-one from the operationIds in EDF''s own two OpenAPI documents: each tool''s
+  real input schema is that operation''s parameters and requestBody in the spec. Three schema-serving
+  meta endpoints are excluded. The far larger GraphQL surface (246 queries, 417 mutations) is deliberately
+  not expanded into tools here — see mcp/edf-energy-tool-crosswalk.yml for how the two surfaces diverge.'
+server:
+  name: edf-energy
+  published: false
+  url: null
+  transport: null
+auth:
+  model: Authorization header — "Token <api-key>", a Kraken JWT, or an OAuth 2.0 access token
+  oauth: https://auth.edfgb-kraken.energy/
+  scopes: scopes/edf-energy-scopes.yml
+  anonymous_tools:
+  - list_products
+  - product
+  - list_industry_grid_supply_points
+  - electricity_tariff_standard_unit_rates
+  - electricity_tariff_standing_charges
+  - gas_tariff_standard_unit_rates
+  - gas_tariff_standing_charges
+  - external_client_health_check
+tool_count: 40
+tools:
+- name: external_client_health_check
+  description: Healthcheck endpoint for external clients.
+  source_operation: openapi/edf-energy-kraken-openapi.yml#External Client Health Check
+  http: GET /external-client-healthcheck/
+- name: create_an_account
+  description: 'WARNING: This endpoint is only available to partner organisations.'
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Create an account
+  http: POST /v1/accounts/
+- name: renew_a_business_tariff
+  description: 'This end-point allows a new agreement to be created for an existing account. It is restricted
+    to business accounts. WARNING: This endpoint is only available to '
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Renew a business tariff
+  http: POST /v1/accounts/{account_number}/tariff-renewal/
+- name: get_electricity_meter_point
+  description: Retrieve the details of a meter-point. This endpoint can be used to get the GSP of a given
+    meter-point.
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Get Electricity Meter Point
+  http: GET /v1/electricity-meter-points/{mpan}/
+- name: list_consumption_for_an_electricity_meter
+  description: 'Return a list of consumption values (in kWh) for half-hour periods for a given meter-point
+    and meter. WARNING: Half-hourly consumption data is only available fo'
+  source_operation: openapi/edf-energy-kraken-openapi.yml#List consumption for an electricity meter
+  http: GET /v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption/
+- name: list_consumption_for_a_gas_meter
+  description: 'Return a list of consumption values (in kWh for SMETS1 and in m^3 for SMETS2) for half-hour
+    periods for a given gas meter-point and meter. WARNING: Half-hourly '
+  source_operation: openapi/edf-energy-kraken-openapi.yml#List consumption for a gas meter
+  http: GET /v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption/
+- name: list_industry_grid_supply_points
+  description: Return a list of GSP objects, optionally filtered by postcode. If we’re unable to map the
+    passed postcode to a GSP, an empty list will be returned
+  source_operation: openapi/edf-energy-kraken-openapi.yml#List Industry Grid Supply Points
+  http: GET /v1/industry/grid-supply-points/
+- name: confirm_a_stripe_payment_intent
+  description: Create Stripe charge using Stripe's PaymentIntent model and Elements (js) which automatically
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Confirm a Stripe payment intent
+  http: POST /v1/payment-intents/confirm/
+- name: create_a_stripe_payment_intent
+  description: Create a Stripe payment using Stripe's PaymentIntent and Elements (js) which automatically
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Create a Stripe payment intent
+  http: POST /v1/payment-intents/create/
+- name: mark_a_stripe_payment_intent_as_failed
+  description: Handle a failure when creating a Stripe charge using Stripe's PaymentIntent model and
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Mark a Stripe payment intent as failed
+  http: POST /v1/payment-intents/fail/
+- name: list_products
+  description: 'Return a list of energy products. By default, results will be public energy products but
+    if the authenticated organisations will also see products available to '
+  source_operation: openapi/edf-energy-kraken-openapi.yml#List Products
+  http: GET /v1/products/
+- name: product
+  description: Product
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Product
+  http: GET /v1/products/{product_code}/
+- name: electricity_tariff_day_unit_rates
+  description: Electricity Tariff Day Unit Rates
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Electricity Tariff Day Unit Rates
+  http: GET /v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates/
+- name: electricity_tariff_ev_device_off_peak_unit_rates
+  description: Electricity Tariff Ev Device Off Peak Unit Rates
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Electricity Tariff Ev Device Off Peak Unit Rates
+  http: GET /v1/products/{product_code}/electricity-tariffs/{tariff_code}/ev-device-off-peak-unit-rates/
+- name: electricity_tariff_ev_device_peak_unit_rates
+  description: Electricity Tariff Ev Device Peak Unit Rates
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Electricity Tariff Ev Device Peak Unit Rates
+  http: GET /v1/products/{product_code}/electricity-tariffs/{tariff_code}/ev-device-peak-unit-rates/
+- name: electricity_tariff_night_unit_rates
+  description: Electricity Tariff Night Unit Rates
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Electricity Tariff Night Unit Rates
+  http: GET /v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates/
+- name: electricity_tariff_standard_unit_rates
+  description: Electricity Tariff Standard Unit Rates
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Electricity Tariff Standard Unit Rates
+  http: GET /v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/
+- name: electricity_tariff_standing_charges
+  description: Electricity Tariff Standing Charges
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Electricity Tariff Standing Charges
+  http: GET /v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges/
+- name: gas_tariff_standard_unit_rates
+  description: Gas Tariff Standard Unit Rates
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Gas Tariff Standard Unit Rates
+  http: GET /v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/
+- name: gas_tariff_standing_charges
+  description: Gas Tariff Standing Charges
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Gas Tariff Standing Charges
+  http: GET /v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges/
+- name: create_a_quote
+  description: At least one electricity or gas meter-point must be included. A maximum of one electricity
+    and one gas meter-point can be included at this time. For all meter-p
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Create a quote
+  http: POST /v1/quotes/
+- name: share_a_quote_via_email
+  description: 'Use this endpoint after quote creation to send a quote summary email to the specified
+    recipients if they wish to enact the quote at a later time. A quote share '
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Share a quote via email
+  http: POST /v1/quotes/{code}/products/{product_id}/
+- name: twilio_enqueue_audio
+  description: Twilio Enqueue Audio
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Twilio Enqueue Audio
+  http: POST /v1/voice/twilio/enqueue-audio/
+- name: voice_announcement
+  description: Return TwiML that speaks a translated message to the caller.
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Voice Announcement
+  http: GET /v1/voice/twilio/voice-announcement/
+- name: v1_create_or_update_account_import_process
+  description: Use this endpoint to stage account data before creating an account.
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Or Update Account Import
+    Process
+  http: POST /v1/data-import/account-import-process/create-or-update/
+- name: v1_process_account_import_process
+  description: Use this endpoint to process staged account data into an account in Kraken.
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Process Account Import Process
+  http: POST /v1/data-import/account-import-process/process/
+- name: v1_get_account_transfer_status
+  description: Find out the status of a single account import process
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Get Account Transfer Status
+  http: GET /v1/data-import/account-transfer-status/{import_supplier_code}/{external_account_number}/
+- name: v1_get_all_account_import_processes
+  description: List all accounts for import
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Get All Account Import Processes
+  http: GET /v1/data-import/all-account-import-processes/{import_supplier_code}/
+- name: v1_create_historical_statements
+  description: Use this endpoint to import historical PDF statements onto an account.
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Historical Statements
+  http: POST /v1/data-import/historical-statements/create/
+- name: v1_get_imported_accounts
+  description: List all accounts that have been imported
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Get Imported Accounts
+  http: GET /v1/data-import/imported-account-import-processes/{import_supplier_code}/
+- name: v1_get_meter_point_statuses_for_account
+  description: List meter point statuses for an account
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Get Meter Point Statuses For
+    Account
+  http: GET /v1/data-import/meterpoint-statuses-for-account/{import_supplier_code}/{external_account_number}/
+- name: v1_create_account_notes
+  description: Use this endpoint to add notes to an account.
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Account Notes
+  http: POST /v1/data-import/notes/create/
+- name: v1_create_payment_instruction
+  description: Create a payment instruction.
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Payment Instruction
+  http: POST /v1/data-import/payment-instruction/create/
+- name: v1_get_pending_account_import_processes
+  description: List all accounts pending import
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Get Pending Account Import Processes
+  http: GET /v1/data-import/pending-account-import-processes/{import_supplier_code}/
+- name: v1_send_registration_flows
+  description: Submit registration flows for meter points
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Send Registration Flows
+  http: POST /v1/data-import/send-registration-flows/{import_supplier_code}/{external_account_number}/
+- name: v1_create_transactions
+  description: Use this endpoint to import financial transactions to an account.
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Transactions
+  http: POST /v1/data-import/transactions/create/
+- name: v1_validate_account
+  description: Use this endpoint to validate account data before staging and creating an account.
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Validate Account
+  http: POST /v1/data-import/validate-account/
+- name: v2_schedule_account_creation
+  description: Schedule the creation of an account in Kraken
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V2 Schedule Account Creation
+  http: POST /v2/data-import/accounts/
+- name: v2_account_import_status
+  description: Return the status of an account import process
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V2 Account Import Status
+  http: GET /v2/data-import/accounts/{import_supplier_code}/{external_identifier}/
+- name: v2_validate_account
+  description: Validate the payload for creating an account in Kraken
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V2 Validate Account
+  http: POST /v2/data-import/accounts/validate/

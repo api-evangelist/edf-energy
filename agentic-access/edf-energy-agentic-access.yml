@@ -1,0 +1,565 @@
+generated: '2026-07-27'
+method: generated
+source: openapi/edf-energy-kraken-data-import-openapi.yml, openapi/edf-energy-kraken-openapi.yml
+description: Recommended x-agentic-access execution contracts, classified heuristically from
+  the OpenAPI. A governance starting point for exposing this API to AI agents — review and bind
+  audience per deployment. See research/curity/agentic-governance/.
+summary:
+  operations: 43
+  by_action_class:
+    acting: 18
+    connected: 25
+  by_consequence:
+    write: 13
+    read: 25
+    physical: 5
+  human_in_the_loop_required: 0
+operations:
+- path: /v1/data-import/account-import-process/create-or-update/
+  method: post
+  operationId: V1 Create Or Update Account Import Process
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/data-import/account-import-process/process/
+  method: post
+  operationId: V1 Process Account Import Process
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/data-import/account-transfer-status/{import_supplier_code}/{external_account_number}/
+  method: get
+  operationId: V1 Get Account Transfer Status
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/data-import/all-account-import-processes/{import_supplier_code}/
+  method: get
+  operationId: V1 Get All Account Import Processes
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/data-import/historical-statements/create/
+  method: post
+  operationId: V1 Create Historical Statements
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/data-import/imported-account-import-processes/{import_supplier_code}/
+  method: get
+  operationId: V1 Get Imported Accounts
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/data-import/meterpoint-statuses-for-account/{import_supplier_code}/{external_account_number}/
+  method: get
+  operationId: V1 Get Meter Point Statuses For Account
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/data-import/notes/create/
+  method: post
+  operationId: V1 Create Account Notes
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/data-import/payment-instruction/create/
+  method: post
+  operationId: V1 Create Payment Instruction
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/data-import/pending-account-import-processes/{import_supplier_code}/
+  method: get
+  operationId: V1 Get Pending Account Import Processes
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/data-import/send-registration-flows/{import_supplier_code}/{external_account_number}/
+  method: post
+  operationId: V1 Send Registration Flows
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/data-import/transactions/create/
+  method: post
+  operationId: V1 Create Transactions
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/data-import/validate-account/
+  method: post
+  operationId: V1 Validate Account
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v2/data-import/accounts/
+  method: post
+  operationId: V2 Schedule Account Creation
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v2/data-import/accounts/{import_supplier_code}/{external_identifier}/
+  method: get
+  operationId: V2 Account Import Status
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v2/data-import/accounts/validate/
+  method: post
+  operationId: V2 Validate Account
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /data-import/schema/
+  method: get
+  operationId: Data Import Open Api Schema
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /external-client-healthcheck/
+  method: get
+  operationId: External Client Health Check
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /external-events/schema/
+  method: get
+  operationId: Open Api Schema
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/accounts/
+  method: post
+  operationId: Create an account
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/accounts/{account_number}/tariff-renewal/
+  method: post
+  operationId: Renew a business tariff
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/electricity-meter-points/{mpan}/
+  method: get
+  operationId: Get Electricity Meter Point
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption/
+  method: get
+  operationId: List consumption for an electricity meter
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption/
+  method: get
+  operationId: List consumption for a gas meter
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/industry/grid-supply-points/
+  method: get
+  operationId: List Industry Grid Supply Points
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/payment-intents/confirm/
+  method: post
+  operationId: Confirm a Stripe payment intent
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/payment-intents/create/
+  method: post
+  operationId: Create a Stripe payment intent
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/payment-intents/fail/
+  method: post
+  operationId: Mark a Stripe payment intent as failed
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/products/
+  method: get
+  operationId: List Products
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/
+  method: get
+  operationId: Product
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates/
+  method: get
+  operationId: Electricity Tariff Day Unit Rates
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/electricity-tariffs/{tariff_code}/ev-device-off-peak-unit-rates/
+  method: get
+  operationId: Electricity Tariff Ev Device Off Peak Unit Rates
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/electricity-tariffs/{tariff_code}/ev-device-peak-unit-rates/
+  method: get
+  operationId: Electricity Tariff Ev Device Peak Unit Rates
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates/
+  method: get
+  operationId: Electricity Tariff Night Unit Rates
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/
+  method: get
+  operationId: Electricity Tariff Standard Unit Rates
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges/
+  method: get
+  operationId: Electricity Tariff Standing Charges
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/
+  method: get
+  operationId: Gas Tariff Standard Unit Rates
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges/
+  method: get
+  operationId: Gas Tariff Standing Charges
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/quotes/
+  method: post
+  operationId: Create a quote
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/quotes/{code}/products/{product_id}/
+  method: post
+  operationId: Share a quote via email
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/voice/twilio/enqueue-audio/
+  method: post
+  operationId: Twilio Enqueue Audio
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/voice/twilio/voice-announcement/
+  method: get
+  operationId: Voice Announcement
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v2/orders/schema/
+  method: get
+  operationId: Order Management Open Api Schema
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none

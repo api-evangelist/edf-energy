@@ -1,0 +1,402 @@
+generated: '2026-07-27'
+method: searched
+source: https://developer.edfgb-kraken.energy/graphql/changelog/ (HTTP 200) and https://developer.edfgb-kraken.energy/announcements/
+  (HTTP 200, 6 paginated pages, 59 items), which mirrors https://announcements.kraken.tech/
+docs: https://developer.edfgb-kraken.energy/graphql/changelog/
+description: 'EDF Energy publishes two distinct dated change feeds for the EDF GB Kraken API, both fully
+  public and anonymous. The first is a machine-generated GraphQL schema changelog: 1249 individually timestamped
+  schema releases across 409 distinct days, from July 27, 2026 back to September 08, 2024, recording 4843
+  schema deltas (3037 additions, 1242 removals, 564 other changes) at the granularity of a single type,
+  field, input field, argument or enum value. That averages about twelve schema deltas on each day that had
+  a release, on a continuously-evolving unversioned schema — and 1,242 of those deltas are removals, which
+  is why the deprecation-date discipline in lifecycle/ matters as much as it does. The second feed is a
+  curated announcements list of 59 posts covering breaking changes
+  and new features, each with a publication date, an Action Required flag where relevant, and a named
+  removal date — with an RSS feed and an email subscription. There is no equivalent changelog for the
+  REST API.'
+scheme: continuous — the GraphQL schema is unversioned and changes are published per release, not per
+  version
+current_version: v1 (REST path version); GraphQL schema is unversioned
+feeds:
+- name: GraphQL schema changelog
+  url: https://developer.edfgb-kraken.energy/graphql/changelog/
+  granularity: per schema release (multiple per day)
+  machine_generated: true
+- name: API announcements (EDF portal)
+  url: https://developer.edfgb-kraken.energy/announcements/
+  granularity: per announcement
+  items: 59
+  subscription: email mailing list
+- name: API announcements (upstream Kraken)
+  url: https://announcements.kraken.tech/
+  granularity: per announcement
+  subscription: RSS + email
+coverage:
+  schema_releases: 1249
+  distinct_days: 409
+  first_release: September 08, 2024
+  latest_release: July 27, 2026
+  schema_deltas: 4843
+  added: 3037
+  removed: 1242
+  changed: 564
+entries:
+- date: '2026-07-27'
+  label: July 27, 2026
+  releases: 7
+  added: 19
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - 'Input Field useDefaultProduct: Boolean was added to input type MoveInNewProperty'
+  - Type UserRole was added
+  - Type RoleInterface was added
+  - Type PartnerRole was added
+  - Type PartnerUserRole was added
+  - Type BusinessRole was added
+  - Field hasAutocomplete was added to object type AddressFieldConfigType
+  - Type InstalmentByMonthlyAmountScheduleType was added
+- date: '2026-07-24'
+  label: July 24, 2026
+  releases: 3
+  added: 10
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Type RecordChargedBackPayment was added
+  - Type RecordChargedBackPaymentInput was added
+  - Type ChargedBackPaymentDetailsInput was added
+  - Enum value REFUND_ELIGIBILITY was added to StorylineAnalyzerTypeChoices enum
+  - Field autocompleteAddressFieldOptions was added to object type Query
+  - Field recordChargedBackPayment was added to object type Mutation
+  - Enum value SWEB was added to SiteworksAppointmentAgent enum
+  - Enum value SWEB was added to OnSiteJobsAgent enum
+- date: '2026-07-23'
+  label: July 23, 2026
+  releases: 3
+  added: 8
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Enum value UNCONFIRMED was added to OnSiteJobsAppointmentStatus enum
+  - Enum value UNCONFIRMED was added to AppointmentStatus enum
+  - Field capacityValue was added to object type ElectricityMeterPointDetails
+  - Type TriggerStandalonePaymentRequest was added
+  - Type PaymentNotification was added
+  - Type TriggerStandalonePaymentRequestInput was added
+  - Type AdHocRecipientInput was added
+  - Field triggerStandalonePaymentRequest was added to object type Mutation
+- date: '2026-07-22'
+  label: July 22, 2026
+  releases: 3
+  added: 7
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Type InverterPreferencesInput was added
+  - Field setInverterPreferences was added to object type Mutation
+  - 'Input Field replyToMessageRelayId: ID was added to input type SendInkOutboundMessageInput'
+  - 'Input Field useFullReplyThread: Boolean was added to input type SendInkOutboundMessageInput'
+  - Type UpdatePropertyAddress was added
+  - Type UpdatePropertyAddressInput was added
+  - Field updatePropertyAddress was added to object type Mutation
+- date: '2026-07-21'
+  label: July 21, 2026
+  releases: 4
+  added: 14
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Type SendTrustpilotReviewInvitation was added
+  - Type SendTrustpilotReviewInvitationInput was added
+  - Field sendTrustpilotReviewInvitation was added to object type Mutation
+  - Type ApplicableRateValidityPeriodType was added
+  - Field isSalesTax was added to object type ApplicableRateType
+  - Field unitDisplay was added to object type ApplicableRateType
+  - Field category was added to object type ApplicableRateType
+  - Field currency was added to object type ApplicableRateType
+- date: '2026-07-20'
+  label: July 20, 2026
+  releases: 5
+  added: 28
+  removed: 9
+  changed: 0
+  breaking: true
+  highlights:
+  - Type CallConnectionTypeConnection was added
+  - Type CallConnectionTypeEdge was added
+  - Field calls was added to object type Query
+  - Field tags of type [CallTagType]! was added to interface CallInterface
+  - Field isComplete was added to object type SmartFlexOnboardingWizard
+  - Field tags was added to object type OutboundCallType
+  - Field tags was added to object type InboundCallType
+  - Enum value STRIPE_CONNECT_HD was added to Vendor enum
+- date: '2026-07-17'
+  label: July 17, 2026
+  releases: 1
+  added: 5
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Type SendInkOutboundMessage was added
+  - Type SendInkOutboundMessageInput was added
+  - Type InkSendMessageInput was added
+  - Field externalId was added to object type AccountUserType
+  - Field sendInkOutboundMessage was added to object type Mutation
+- date: '2026-07-16'
+  label: July 16, 2026
+  releases: 2
+  added: 4
+  removed: 1
+  changed: 0
+  breaking: true
+  highlights:
+  - 'Input Field externalReference: String was added to input type CreateOnSiteJobsRequestInputType'
+  - Field termsAndConditions was added to object type SupplyProductType
+  - Deprecation reason on field SupplyProductType.termsAndConditionsTypes changed from None to The 'termsAndConditionsTypes'
+    field is deprecated.This field returned the incorrect terms and conditions. Please use 'termsAndConditions'
+    instead.- Marked as deprecated on 2026-07-14.- Scheduled for removal on or after 2026-09-14.
+  - Enum value ESSENTIAL_WATER_FIELD was added to SiteworksAppointmentAgent enum
+  - Enum value ESSENTIAL_WATER_FIELD was added to OnSiteJobsAgent enum
+- date: '2026-07-15'
+  label: July 15, 2026
+  releases: 4
+  added: 6
+  removed: 3
+  changed: 0
+  breaking: true
+  highlights:
+  - 'Argument supplyPointExternalIdentifier: String added to AccountWithStatusInfoType.marketSupplyAgreements'
+  - 'Argument supplyPointExternalIdentifier: String added to SiteworksBookingAccountType.marketSupplyAgreements'
+  - 'Argument supplyPointExternalIdentifier: String added to AccountType.marketSupplyAgreements'
+  - Field initiated was added to object type InitiateCreditTransferResult
+  - Field processId was removed from object type InitiateCreditTransferResult
+  - Enum value ESSENTIAL_WATER_FIELD was removed from OnSiteJobsAgent enum
+  - Enum value ESSENTIAL_WATER_FIELD was removed from SiteworksAppointmentAgent enum
+  - Enum value ESSENTIAL_WATER_FIELD was added to SiteworksAppointmentAgent enum
+- date: '2026-07-14'
+  label: July 14, 2026
+  releases: 2
+  added: 2
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Enum value DANKORT was added to CardPaymentNetwork enum
+  - Enum value SMARTCAR_V2 was added to ProviderChoices enum
+- date: '2026-07-13'
+  label: July 13, 2026
+  releases: 4
+  added: 8
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Enum value PORSCHE was added to ProviderChoices enum
+  - Type StartGroupedCollectionProcess was added
+  - Type StartGroupedCollectionProcessOutput was added
+  - Type StartGroupedCollectionProcessInput was added
+  - Field startGroupedCollectionProcess was added to object type Mutation
+  - Type CreateOnSiteJobsAppointmentWithoutDateOrTime was added
+  - Field createOnSiteJobsAppointmentWithoutDateOrTime was added to object type Mutation
+  - Enum value BMW_GROUP was added to ProviderChoices enum
+- date: '2026-07-09'
+  label: July 09, 2026
+  releases: 2
+  added: 5
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Enum value AGREEMENT was added to StorylineEntryTypes enum
+  - 'Input Field supplyPointIdentifier: String was added to input type TimeSeriesSpecificationEligibilityScheduleInput'
+  - 'Input Field supplyPointIdentifier: String was added to input type RateGroupEligibilityScheduleInput'
+  - Field supplyPointIdentifier was added to object type TimeSeriesSpecificationEligibilityScheduleType
+  - Field supplyPointIdentifier was added to object type RateGroupEligibilityScheduleType
+- date: '2026-07-08'
+  label: July 08, 2026
+  releases: 3
+  added: 6
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Type ApplicableRateConnection was added
+  - Type ApplicableRateEdge was added
+  - Type ApplicableRateType was added
+  - Field agreementRates was added to object type Query
+  - Enum value NZL_REGISTRY_REQUEST_SUPERSEDED was added to AccountReminderTypes enum
+  - Enum value NZL_REGISTRY_REQUEST_REJECTED was added to AccountReminderTypes enum
+- date: '2026-07-07'
+  label: July 07, 2026
+  releases: 4
+  added: 10
+  removed: 0
+  changed: 1
+  breaking: false
+  highlights:
+  - Type Retry was added
+  - Type CompleteRetryForSmartFlexOnboarding was added
+  - Field completeRetryForSmartFlexOnboarding was added to object type Mutation
+  - CommonAgreementType.ratesAgreedAt type changed from DateTime to DateTime!
+  - Type ImportTrancheRate was added
+  - Type ImportTrancheRateInput was added
+  - Type TrancheMarketName was added
+  - Type TrancheRateUnit was added
+- date: '2026-07-06'
+  label: July 06, 2026
+  releases: 4
+  added: 9
+  removed: 6
+  changed: 4
+  breaking: true
+  highlights:
+  - Field overrideFixedAmount was added to object type PartnerCommissionContractConfigType
+  - Field triggerId was added to object type InkStoryline
+  - 'Input Field overrideFixedAmount: Decimal was added to input type PartnerCommissionContractConfigInput'
+  - 'Input Field triggerId: String was added to input type AddStorylineToInkConversationInput'
+  - Input Field validFrom removed from input type ActualizeContractInput
+  - ActualizeContractInput.validFromDate type changed from IndustryMidnightAlignedDateField to IndustryMidnightAlignedDateField!
+  - Input Field applicableAt removed from input type VaryContractTermsInput
+  - Input Field validTo removed from input type TerminateContractInput
+- date: '2026-07-03'
+  label: July 03, 2026
+  releases: 3
+  added: 4
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - Type AgentAuxiliaryStatusType was added
+  - Field agentAuxiliaryStatus was added to object type Query
+  - Field callDirection was added to object type CallRecordingDetailType
+  - Enum value EXPIRED was added to QuoteConfigurationStatus enum
+- date: '2026-07-02'
+  label: July 02, 2026
+  releases: 4
+  added: 5
+  removed: 0
+  changed: 4
+  breaking: false
+  highlights:
+  - Type ConsentOutput was added
+  - Field consents was added to object type LeadContactDetailsType
+  - Field identifier was added to object type CollectiveBillType
+  - LatePaymentFeesType.percentageIntervalDays type changed from Decimal to Int
+  - LatePaymentFeesType.flatFeeAmount type changed from Decimal to Int
+  - LatePaymentFeesInput.percentageIntervalDays type changed from Decimal to Int
+  - LatePaymentFeesInput.flatFeeAmount type changed from Decimal to Int
+  - Enum value WESTPAC_QUICKSTREAM_RED_ENERGY was added to Vendor enum
+- date: '2026-07-01'
+  label: July 01, 2026
+  releases: 3
+  added: 8
+  removed: 5
+  changed: 8
+  breaking: true
+  highlights:
+  - Field isHeld was added to object type InvoiceType
+  - Field isHeld was added to object type InvoiceBillingDocumentType
+  - Field isHeld was added to object type PeriodBasedDocumentType
+  - 'Argument supplyPointsToMarketNamesMapping: [SupplyPointIdentifierToMarketNameMappingInput] added
+    to Query.getOnSiteJobsJobTypes'
+  - 'Argument supplyPointInternalIds: [Int] added to Query.getOnSiteJobsJobTypes'
+  - Removed argument requestId from Query.getOnSiteJobsJobTypes
+  - Type ConsentOutput was removed
+  - Field consents was removed from object type OpportunityOutput
+- date: '2026-06-30'
+  label: June 30, 2026
+  releases: 2
+  added: 2
+  removed: 0
+  changed: 0
+  breaking: false
+  highlights:
+  - 'Input Field consents: [ConsentTypeInput] was added to input type LeadContactDetailsInput'
+  - Field callId was added to object type CallRecordingDetailType
+- date: '2026-06-29'
+  label: June 29, 2026
+  releases: 1
+  added: 6
+  removed: 302
+  changed: 0
+  breaking: true
+  highlights:
+  - Type OrganisationReferenceType was added
+  - Type ReplacePartnerReferences was added
+  - Type ReplacePartnerReferencesInputType was added
+  - Type OrganisationReferenceInput was added
+  - Field possibleErrors was removed from object type TransferLedgerBalance
+  - Field possibleErrors was removed from object type StartCustomerVerification
+  - Field possibleErrors was removed from object type AssociateItemToCollectionProcess
+  - Field possibleErrors was removed from object type SuspendDeviceControl
+announcements:
+- title: Upcoming Change to GraphQL Mutation Nullability
+  date: '2026-07-27'
+  url: https://announcements.kraken.tech/announcements/public/1485
+- title: 'Deprecation: termsAndConditionsTypes field on SupplyProductType'
+  date: '2026-07-20'
+  url: https://announcements.kraken.tech/announcements/public/1518
+- title: 'Deprecation: contract_identifiers field enrollment mutation'
+  date: '2026-07-01'
+  url: https://announcements.kraken.tech/announcements/public/1418
+- title: Charge point support for flexSupportedDevices via new supportedDeviceType argument
+  date: '2026-06-01'
+  url: https://announcements.kraken.tech/announcements/public/1286
+- title: 'Deprecation: date and time fields in contracts API'
+  date: '2026-04-27'
+  url: https://announcements.kraken.tech/announcements/public/1187
+- title: Deprecation of heatPumpVariants, chargePointVariants, and electricVehicles queries
+  date: '2026-04-24'
+  url: https://announcements.kraken.tech/announcements/public/1154
+- title: Removal of `heat_pump_id` from heat pump queries and mutations
+  date: '2026-04-20'
+  url: https://announcements.kraken.tech/announcements/public/1088
+- title: 'Deprecation: thirdPartyCompleteDeviceRegistration'
+  date: '2026-04-09'
+  url: https://announcements.kraken.tech/announcements/public/1020
+- title: 'Deprecation: startTestChargeForSmartFlexOnboarding'
+  date: '2026-04-09'
+  url: https://announcements.kraken.tech/announcements/public/1019
+- title: InstigateContractTermination Deprecated for terminateContract
+  date: '2026-04-09'
+  url: https://announcements.kraken.tech/announcements/public/978
+- title: Removal of `userInputs` field scheduled
+  date: '2026-04-09'
+  url: https://announcements.kraken.tech/announcements/public/912
+- title: InstigateContractVariation Deprecated for varyContractTerms
+  date: '2026-03-09'
+  url: https://announcements.kraken.tech/announcements/public/811
+- title: varyContractTerms Deprecated for InstigateContractVariation
+  date: '2026-01-19'
+  url: https://announcements.kraken.tech/announcements/public/745
+- title: Update to `SmartFlexDevicePreferenceSchedule`
+  date: '2026-01-13'
+  url: https://announcements.kraken.tech/announcements/public/712
+- title: deviceRegistration API removal date extension
+  date: '2026-01-09'
+  url: https://announcements.kraken.tech/announcements/public/678
+- title: registeredKrakenflexDevice API removal date extension
+  date: '2026-01-09'
+  url: https://announcements.kraken.tech/announcements/public/677
+- title: batteryDevice API removal date extension
+  date: '2026-01-09'
+  url: https://announcements.kraken.tech/announcements/public/676
+- title: vehicleChargingPreferences API removal date extension
+  date: '2026-01-09'
+  url: https://announcements.kraken.tech/announcements/public/675
+- title: Fix for enforcement of required input fields
+  date: '2025-12-08'
+  url: https://announcements.kraken.tech/announcements/public/642
+- title: Tracker Unit Rates API Deprecation
+  date: '2025-11-04'
+  url: https://announcements.kraken.tech/announcements/public/609
+related:
+  lifecycle: lifecycle/edf-energy-lifecycle.yml
+  graphql: graphql/edf-energy-schema.graphql

@@ -1,0 +1,116 @@
+generated: '2026-07-27'
+method: derived
+source: >-
+  Derived from the component schemas and path parameters in
+  openapi/edf-energy-kraken-openapi.yml (57 schemas, 27 paths) and
+  openapi/edf-energy-kraken-data-import-openapi.yml (139 schemas, 16 paths), cross-read
+  against graphql/edf-energy-schema.graphql. Domain naming follows the GB energy retail
+  industry model (MPAN/MPRN/GSP), which is what the Kraken schemas encode.
+docs: https://developer.edfgb-kraken.energy/rest/reference/
+notation: >-
+  relationships use has_one / has_many / belongs_to with the reference field name;
+  direction is from the entity that holds the reference.
+description: >-
+  The entity graph behind EDF's Kraken API is the Great Britain energy-retail industry
+  model, not a generic SaaS model. Its primary keys are national industry identifiers,
+  not vendor ids: an electricity supply point is addressed by its MPAN, a gas supply
+  point by its MPRN, and a physical meter by its serial number under that supply point.
+  Region is derived through the Grid Supply Point group, which a postcode resolves to.
+  Commercially, a Product is the retail offer and it fans out into typed tariffs —
+  standard, Economy 7, four-rate EV, gas, and bespoke business rates — each of which
+  carries its own unit-rate and standing-charge collections addressed by tariff_code.
+  The migration API adds a parallel spine keyed by import_supplier_code plus the losing
+  supplier's external_account_number, which is how a customer book is moved onto the
+  platform.
+entities:
+- {name: Product, key: product_code, domain: retail, description: A retail energy offer; the root of the tariff tree. Publicly readable without a credential.}
+- {name: ElectricityTariff, key: tariff_code, domain: retail, description: 'An electricity tariff under a product. Typed variants in the spec: StandardElectricityTariff, Eco7ElectricityTariff, FourRateEvElectricityTariff.'}
+- {name: GasTariff, key: tariff_code, domain: retail, description: A gas tariff under a product.}
+- {name: UnitRate, key: null, domain: retail, description: 'Priced consumption rate for a tariff. Five addressed collections: standard, day, night, ev-device-peak, ev-device-off-peak.'}
+- {name: StandingCharge, key: null, domain: retail, description: Daily fixed charge for a tariff, electricity or gas.}
+- {name: BespokeTariffRates, key: null, domain: business, description: Negotiated business rates (BespokeElectricityUnitRate, BespokePPSTariffRates, _BespokeRegisterRate, _BespokeTariffRate).}
+- {name: Quote, key: code, domain: sales, description: A priced offer for a prospective customer; can be shared by email against a product_id.}
+- {name: Account, key: account_number, domain: customer, description: The billing relationship. Created via POST /v1/accounts/.}
+- {name: Agreement, key: null, domain: customer, description: The contracted link between an account and a tariff; created on enrolment or business tariff renewal.}
+- {name: ElectricityMeterPoint, key: mpan, domain: industry, description: A national electricity supply point, addressed by its 13-digit MPAN.}
+- {name: GasMeterPoint, key: mprn, domain: industry, description: A national gas supply point, addressed by its MPRN.}
+- {name: Meter, key: serial_number, domain: industry, description: A physical meter installed at a supply point.}
+- {name: Consumption, key: null, domain: industry, description: Metered consumption intervals for a meter. Requires an Authorization token.}
+- {name: GridSupplyPoint, key: group_id, domain: industry, description: The GSP group a postcode resolves to; determines regional pricing.}
+- {name: Address, key: null, domain: customer, description: A property address; the anchor for supply points and quotes.}
+- {name: Business, key: null, domain: business, description: A non-domestic customer entity, with Proprietor and ProprietorAddress.}
+- {name: User, key: null, domain: customer, description: An account user — one of Kraken's three viewer types alongside organisations and OAuth applications.}
+- {name: Payment, key: null, domain: money, description: A payment against an account; PaymentIntent objects wrap the Stripe integration.}
+- {name: PaymentIntent, key: null, domain: money, description: 'Stripe payment intent lifecycle: create, confirm, fail.'}
+- {name: HistoricalCharge, key: null, domain: money, description: A historical charge line, imported or billed.}
+- {name: PSR, key: null, domain: customer, description: Priority Services Register data — the GB vulnerability register for a customer.}
+- {name: Deposit, key: null, domain: money, description: A security deposit held against a business account.}
+- {name: Installation, key: null, domain: assets, description: An installed asset (e.g. export/generation), with ExportDetails.}
+- {name: Affiliate, key: null, domain: partner, description: An affiliate organisation, with commission (_Commission).}
+- {name: AccountImportProcess, key: 'import_supplier_code + external_account_number', domain: migration, description: The unit of customer migration onto Kraken; created, validated, then processed.}
+- {name: ImportSupplier, key: import_supplier_code, domain: migration, description: The losing supplier whose book is being migrated.}
+- {name: HistoricalStatement, key: null, domain: migration, description: A statement imported from the losing supplier.}
+- {name: Transaction, key: null, domain: migration, description: A financial transaction imported from the losing supplier.}
+- {name: PaymentInstruction, key: null, domain: migration, description: A direct debit or other payment instruction imported with the account.}
+- {name: AccountNote, key: null, domain: migration, description: A free-text note imported onto the migrated account.}
+relationships:
+- {from: Product, to: ElectricityTariff, kind: has_many, via: tariff_code}
+- {from: Product, to: GasTariff, kind: has_many, via: tariff_code}
+- {from: ElectricityTariff, to: UnitRate, kind: has_many, via: tariff_code}
+- {from: ElectricityTariff, to: StandingCharge, kind: has_many, via: tariff_code}
+- {from: GasTariff, to: UnitRate, kind: has_many, via: tariff_code}
+- {from: GasTariff, to: StandingCharge, kind: has_many, via: tariff_code}
+- {from: ElectricityTariff, to: BespokeTariffRates, kind: has_one, via: tariff_code}
+- {from: Quote, to: Product, kind: belongs_to, via: product_id}
+- {from: Quote, to: Address, kind: belongs_to, via: address}
+- {from: Account, to: Agreement, kind: has_many, via: account_number}
+- {from: Agreement, to: ElectricityTariff, kind: belongs_to, via: tariff_code}
+- {from: Account, to: User, kind: has_many, via: account_number}
+- {from: Account, to: ElectricityMeterPoint, kind: has_many, via: mpan}
+- {from: Account, to: GasMeterPoint, kind: has_many, via: mprn}
+- {from: Account, to: Payment, kind: has_many, via: account_number}
+- {from: Account, to: PSR, kind: has_one, via: account_number}
+- {from: Account, to: Deposit, kind: has_one, via: account_number}
+- {from: Account, to: HistoricalCharge, kind: has_many, via: account_number}
+- {from: ElectricityMeterPoint, to: Meter, kind: has_many, via: serial_number}
+- {from: GasMeterPoint, to: Meter, kind: has_many, via: serial_number}
+- {from: Meter, to: Consumption, kind: has_many, via: serial_number}
+- {from: ElectricityMeterPoint, to: GridSupplyPoint, kind: belongs_to, via: gsp}
+- {from: Address, to: GridSupplyPoint, kind: belongs_to, via: postcode}
+- {from: Address, to: ElectricityMeterPoint, kind: has_many, via: mpan}
+- {from: Business, to: Proprietor, kind: has_many, via: proprietor}
+- {from: Proprietor, to: ProprietorAddress, kind: has_one, via: address}
+- {from: Business, to: Account, kind: has_many, via: account_number}
+- {from: Payment, to: PaymentIntent, kind: has_one, via: payment_intent}
+- {from: Installation, to: ExportDetails, kind: has_one, via: export_details}
+- {from: Affiliate, to: Quote, kind: has_many, via: affiliate}
+- {from: ImportSupplier, to: AccountImportProcess, kind: has_many, via: import_supplier_code}
+- {from: AccountImportProcess, to: Account, kind: has_one, via: external_account_number}
+- {from: AccountImportProcess, to: HistoricalStatement, kind: has_many, via: external_account_number}
+- {from: AccountImportProcess, to: Transaction, kind: has_many, via: external_account_number}
+- {from: AccountImportProcess, to: PaymentInstruction, kind: has_many, via: external_account_number}
+- {from: AccountImportProcess, to: AccountNote, kind: has_many, via: external_account_number}
+- {from: AccountImportProcess, to: ElectricityMeterPoint, kind: has_many, via: mpan}
+industry_identifiers:
+- id: MPAN
+  meaning: >-
+    Meter Point Administration Number — the national identifier for a GB electricity
+    supply point. Path parameter on /v1/electricity-meter-points/{mpan}/.
+- id: MPRN
+  meaning: >-
+    Meter Point Reference Number — the national identifier for a GB gas supply point.
+    Path parameter on /v1/gas-meter-points/{mprn}/.
+- id: GSP group
+  meaning: >-
+    Grid Supply Point group — the regional distribution zone a postcode resolves to;
+    determines regional unit rates.
+- id: import_supplier_code
+  meaning: >-
+    The migration-side identifier for the losing supplier whose customer book is being
+    imported.
+graphql_note: >-
+  The GraphQL schema is a much wider projection of the same core — 2,492 types adding
+  smart-meter telemetry, SmartFlex/EV device families, heat pumps, loyalty points,
+  collection processes, ledgers, complaints and property/portfolio structures that have
+  no REST equivalent. This graph documents the REST-expressed core; see
+  mcp/edf-energy-tool-crosswalk.yml for the surface divergence.

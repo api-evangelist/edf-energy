@@ -1,0 +1,132 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  https://auth.edfgb-kraken.energy/ (OAuth server documentation, HTTP 200),
+  https://auth.edfgb-kraken.energy/.well-known/openid-configuration (HTTP 200),
+  https://developer.edfgb-kraken.energy/rest/guides/api-basics/ (HTTP 200),
+  https://developer.edfgb-kraken.energy/graphql/guides/basics/ (HTTP 200), and the
+  securitySchemes declared in openapi/edf-energy-kraken-openapi.yml and
+  openapi/edf-energy-kraken-data-import-openapi.yml.
+docs: https://auth.edfgb-kraken.energy/
+description: >-
+  EDF Energy's API authentication is Kraken's. There are two co-existing layers. The
+  first is the platform's own token model, declared in the two OpenAPI documents as
+  six named security schemes, all of which put the credential in the Authorization
+  header (either "Token <key>" or a Kraken JWT, or HTTP Basic where the token is the
+  username). The second is a full OAuth 2.0 / OpenID Connect authorisation server at
+  auth.edfgb-kraken.energy, which is how a third party gets delegated access to a
+  named EDF customer's data. That server documents four grant types — authorization
+  code with PKCE, client credentials, device code (RFC 8628) and token exchange
+  (RFC 8693) — serves its OpenID Provider Metadata anonymously with 111 scopes, and
+  publishes a JWKS. Onboarding is not self-service: the auth server's getting-started
+  section instructs a developer to contact EDF/Kraken to request an OAuth application,
+  supplying the client type (public or confidential), the grant type, the allowed
+  redirect URIs and the resources to be accessed. Some surface needs no credential at
+  all — REST GET /v1/products/ declares an empty security option and the GraphQL
+  energyProducts query resolves anonymously — which is why EDF markets these as
+  "open tariff APIs".
+summary:
+  types: [apiKey, http, oauth2, openIdConnect]
+  api_key_in: [header]
+  oauth2_flows: [authorizationCode, clientCredentials, deviceCode, tokenExchange]
+  pkce: true
+  anonymous_surface: true
+  self_service_signup: false
+schemes:
+- name: KeyAuthentication
+  type: apiKey
+  in: header
+  parameter: Authorization
+  format: 'Token <api-key>'
+  description: Token-based authentication with required prefix "Token "
+  sources: [openapi/edf-energy-kraken-openapi.yml]
+- name: DRFKrakenTokenAuthentication
+  type: apiKey
+  in: header
+  parameter: Authorization
+  format: Kraken JWT
+  description: JWT-based authentication
+  sources:
+  - openapi/edf-energy-kraken-openapi.yml
+  - openapi/edf-energy-kraken-data-import-openapi.yml
+- name: DataImportViewerAPIKeyAuthentication
+  type: apiKey
+  in: header
+  parameter: Authorization
+  format: 'Token <api-key>'
+  description: Token-based authentication with required prefix "Token " (data-import viewer)
+  sources: [openapi/edf-energy-kraken-data-import-openapi.yml]
+- name: AccountUserAPIKeyAuthentication
+  type: http
+  scheme: basic
+  description: Token-based authentication where the token is passed as the username for basic auth
+  sources: [openapi/edf-energy-kraken-openapi.yml]
+- name: AffiliateAuthentication
+  type: http
+  scheme: basic
+  description: Basic authentication for affiliate organisations
+  sources: [openapi/edf-energy-kraken-openapi.yml]
+- name: PartnerUserOnlyAuthentication
+  type: http
+  scheme: basic
+  description: Basic authentication for partner organisations
+  sources: [openapi/edf-energy-kraken-openapi.yml]
+- name: KrakenOAuth2
+  type: oauth2
+  description: >-
+    OAuth 2.0 authorisation server for delegated third-party access to customer-scoped
+    data. Not declared in the OpenAPI documents; documented on the auth server itself
+    and discoverable via OpenID Connect metadata.
+  flows:
+  - flow: authorizationCode
+    pkce: true
+    code_challenge_method: S256
+    authorizationUrl: https://auth.edfgb-kraken.energy/authorize/
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+  - flow: clientCredentials
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+    client_auth: HTTP Basic (base64 client_id:client_secret)
+  - flow: deviceCode
+    rfc: RFC 8628
+    deviceAuthorizationUrl: https://auth.edfgb-kraken.energy/device-authorization/
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+  - flow: tokenExchange
+    rfc: RFC 8693
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+  scopes: scopes/edf-energy-scopes.yml
+  sources: [https://auth.edfgb-kraken.energy/]
+- name: KrakenOpenIDConnect
+  type: openIdConnect
+  openIdConnectUrl: https://auth.edfgb-kraken.energy/.well-known/openid-configuration
+  issuer: https://auth.edfgb-kraken.energy/token/
+  jwks_uri: https://auth.edfgb-kraken.energy/.well-known/jwks.json
+  id_token_signing_alg_values_supported: [HS256, RS256]
+  token_endpoint_auth_methods_supported: [client_secret_post, client_secret_basic]
+  subject_types_supported: [public]
+  claims_supported: [sub]
+  userinfo_endpoint: https://auth.edfgb-kraken.energy/userinfo/
+  revocation_endpoint: https://auth.edfgb-kraken.energy/revoke-token/
+  end_session_endpoint: https://auth.edfgb-kraken.energy/logout/
+  sources: [well-known/edf-energy-openid-configuration.json]
+anonymous_operations:
+- operation: List Products
+  path: GET /v1/products/
+  source: openapi/edf-energy-kraken-openapi.yml
+  evidence: security includes an empty option; returned HTTP 200 with 21 live products anonymously
+- operation: List Industry Grid Supply Points
+  path: GET /v1/industry/grid-supply-points/
+  source: openapi/edf-energy-kraken-openapi.yml
+  evidence: resolved postcode SW1A1AA to GSP group _C anonymously (HTTP 200)
+- operation: energyProducts
+  path: POST /v1/graphql/
+  source: graphql/edf-energy-schema.graphql
+  evidence: returned live EDF tariffs anonymously with brand "EDF" (HTTP 200)
+- operation: IntrospectionQuery
+  path: POST /v1/graphql/
+  source: graphql/edf-energy-schema.graphql
+  evidence: full GraphQL introspection returned HTTP 200 with no credential
+errors:
+  missing_header: KT-CT-1112 — 'Authorization' header not provided
+  unauthorized: KT-CT-1111 / KT-CT-1132 — the viewer is not authorized to execute the query/mutation
+  expired_token: KT-CT-1120 — the Kraken Token has expired
+  catalog: errors/edf-energy-error-codes.yml

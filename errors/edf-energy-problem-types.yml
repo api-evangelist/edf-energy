@@ -1,0 +1,188 @@
+generated: '2026-07-27'
+method: derived
+source: >-
+  openapi/edf-energy-kraken-openapi.yml and
+  openapi/edf-energy-kraken-data-import-openapi.yml — every 4xx/5xx response declared in
+  the two harvested OpenAPI documents. Enriched from
+  https://developer.edfgb-kraken.energy/graphql/reference/error-codes/ (the platform-wide
+  KT-CT-* registry, captured in full at errors/edf-energy-error-codes.yml).
+format: kraken-rest-error-response
+rfc9457: false
+description: >-
+  The REST-side error surface of EDF's Kraken platform. Unlike the GraphQL half — which
+  always returns HTTP 200 and carries errors in the body — the REST API uses conventional
+  HTTP status codes. Errors are NOT RFC 9457 problem+json: responses are application/json
+  and, where a schema is declared, it is an ErrorResponse or ValidationOrDomainError
+  component rather than a Problem Details document. Only 19 of the 43 operations across the
+  two documents declare any 4xx/5xx response at all, which is the notable gap: the majority
+  of the read endpoints (products, tariffs, unit rates, standing charges, consumption)
+  declare a 200 and nothing else, so an agent has no machine-readable contract for what a
+  failure looks like on those paths. The full behavioural error vocabulary lives in the
+  KT-CT-* registry rather than in the spec.
+schemas:
+- name: ErrorResponse
+  source: openapi/edf-energy-kraken-openapi.yml
+- name: ValidationOrDomainError
+  source: openapi/edf-energy-kraken-openapi.yml
+related:
+  code_registry: errors/edf-energy-error-codes.yml
+  conventions: conventions/edf-energy-conventions.yml
+problems:
+- status: 400
+  title: "The submissions incurred validation errors that cannot be fixed by a member of our team. This may occur if the provided reference is a duplicate and the existing enrolment has not previously been rejected."
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Create an account
+  request: POST /v1/accounts/
+  schema: ErrorResponse
+  content_types: [application/json]
+- status: 400
+  title: "Could not create agreement due to domain or validation errors."
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Renew a business tariff
+  request: POST /v1/accounts/{account_number}/tariff-renewal/
+  schema: ValidationOrDomainError
+  content_types: [application/json]
+- status: 404
+  title: "The account does not exist."
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Renew a business tariff
+  request: POST /v1/accounts/{account_number}/tariff-renewal/
+- status: 401
+  title: "Incorrect authentication."
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Renew a business tariff
+  request: POST /v1/accounts/{account_number}/tariff-renewal/
+- status: 403
+  title: "The user does not have sufficient permissions for this action."
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Renew a business tariff
+  request: POST /v1/accounts/{account_number}/tariff-renewal/
+- status: 500
+  title: "Intermittent internal error. If it persists, please get in touch with the support team."
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Renew a business tariff
+  request: POST /v1/accounts/{account_number}/tariff-renewal/
+- status: 400
+  title: "Could not confirm payment intent"
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Confirm a Stripe payment intent
+  request: POST /v1/payment-intents/confirm/
+  schema: PaymentErrorResponse
+  content_types: [application/json]
+- status: 400
+  title: "Could not create payment intent"
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Create a Stripe payment intent
+  request: POST /v1/payment-intents/create/
+  schema: PaymentErrorResponse
+  content_types: [application/json]
+- status: 400
+  title: "Validation errors. The error response payload will take the same field structure as the request payload."
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Create a quote
+  request: POST /v1/quotes/
+  schema: CreateQuoteError
+  content_types: [application/json]
+- status: 404
+  title: "No quote / quoted product found for given quote_code / product_id"
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Share a quote via email
+  request: POST /v1/quotes/{code}/products/{product_id}/
+- status: 400
+  title: "Validation errors per index of the email"
+  source_operation: openapi/edf-energy-kraken-openapi.yml#Share a quote via email
+  request: POST /v1/quotes/{code}/products/{product_id}/
+  schema: ValidationErrors
+  content_types: [application/json]
+- status: 400
+  title: "\nIf account data fails to be staged, then the details of the validation errors will\nbe returned in the response. In this scenario, check that:\n- The payload is valid (refer to the field definitions and validation rules table).\n- The account has not been imported already, or marked to be skipped.\n- The migration for the `import_supplier` is still ongoing (if you receive an error\n  indicating it is paused or complete, get in touch with the Kraken team).\n"
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Or Update Account Import Process
+  request: POST /v1/data-import/account-import-process/create-or-update/
+  schema: BadCreateOrUpdateAccountImportProcess
+  content_types: [application/json]
+- status: 400
+  title: "\nIf there are validation errors, they will be detailed in the body of the response.\nTo resolve these errors, refer to the field definitions and validation rules.\n\nIf an account has already been imported then two additional fields will be present\nin the response: `external_account_number` and `kraken_account_number`.\n\nIf the API request was run with the `dry_run` flag set to `true`, and the request\nwould ordinarily have been successful, then the response will also be returned.\n"
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Process Account Import Process
+  request: POST /v1/data-import/account-import-process/process/
+  schema: BadProcessAccountImportProcess
+  content_types: [application/json]
+- status: 429
+  title: "There is an optional concurrency limit on the number of accounts that can be processed at once. If enabled, any requests to create an account that exceed this limit will be rejected. These requests should be retried once other ongoing accounts have finished processing."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Process Account Import Process
+  request: POST /v1/data-import/account-import-process/process/
+  schema: ErrorResponse
+  content_types: [application/json]
+- status: 404
+  title: "\nIf an account cannot be found for the given `import_supplier` and\n`external_account_number`, this response will be returned.\n\nTo resolve the error, check that the account has been imported and that the\n`import_supplier` and `external_account_number` are correct.\n"
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Get Account Transfer Status
+  request: GET /v1/data-import/account-transfer-status/{import_supplier_code}/{external_account_number}/
+  schema: AccountNotFoundError
+  content_types: [application/json]
+- status: 400
+  title: "Validation error."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Historical Statements
+  request: POST /v1/data-import/historical-statements/create/
+  schema: NonFieldErrors
+  content_types: [application/json]
+- status: 404
+  title: "The account import process or account have not been found. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier code` and `external_account_number` are correct."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Historical Statements
+  request: POST /v1/data-import/historical-statements/create/
+- status: 404
+  title: "Error fetching meter points"
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Get Meter Point Statuses For Account
+  request: GET /v1/data-import/meterpoint-statuses-for-account/{import_supplier_code}/{external_account_number}/
+  schema: GbrMeterPointStatusError
+  content_types: [application/json]
+- status: 400
+  title: "Validation error."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Account Notes
+  request: POST /v1/data-import/notes/create/
+  schema: NonFieldErrors
+  content_types: [application/json]
+- status: 404
+  title: "The account import process or account have not been found. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier code` and `external_account_number` are correct."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Account Notes
+  request: POST /v1/data-import/notes/create/
+- status: 400
+  title: "\nIf there are validation errors, the errors will be detailed in the body of the response. To\nresolve the error, refer to the field definitions and validation rules.\n\nThis error can be returned if we have persistent issues communicating with the upstream payment\nvendor (we call their API to verify the instruction exists, and retrieve the details to store in\nKraken). In this case, **the request should not be retried in its current form**.\n"
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Payment Instruction
+  request: POST /v1/data-import/payment-instruction/create/
+  schema: CreatePaymentInstructionError
+  content_types: [application/json]
+- status: 500
+  title: "\nThis error can be returned if we have intermittent issues communicating with the upstream payment\nvendor (we call their API to verify the instruction exists, and retrieve the details to store in\nKraken). In this case, **the request should be retried as-is**.\n"
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Payment Instruction
+  request: POST /v1/data-import/payment-instruction/create/
+  schema: CreatePaymentInstructionError
+  content_types: [application/json]
+- status: 404
+  title: "If an account is not found, or no meter points are found on the account to register, then a 404 Not Found response will be returned. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier` code and `external_account_number` in the request are correct."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Send Registration Flows
+  request: POST /v1/data-import/send-registration-flows/{import_supplier_code}/{external_account_number}/
+  schema: GbrRegistrationFlowError
+  content_types: [application/json]
+- status: 400
+  title: "Could not create transactions"
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Transactions
+  request: POST /v1/data-import/transactions/create/
+  schema: BadCreateTransactionsRequest
+  content_types: [application/json]
+- status: 404
+  title: "The account import process or account have not been found. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier code` and `external_account_number` are correct."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Create Transactions
+  request: POST /v1/data-import/transactions/create/
+- status: 400
+  title: "If there are validation errors, they will be detailed in the body of the response. To resolve these errors, refer to the field definitions and validation rules."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V1 Validate Account
+  request: POST /v1/data-import/validate-account/
+  schema: BadValidateAccountRequest
+  content_types: [application/json]
+- status: 400
+  title: "Validation errors occurred while processing the request."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V2 Schedule Account Creation
+  request: POST /v2/data-import/accounts/
+  schema: DRFError
+  content_types: [application/json]
+- status: 404
+  title: "Import supplier code or external identifier not found."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V2 Account Import Status
+  request: GET /v2/data-import/accounts/{import_supplier_code}/{external_identifier}/
+  schema: ErrorResponse
+  content_types: [application/json]
+- status: 400
+  title: "Validation errors occurred while processing the request."
+  source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V2 Validate Account
+  request: POST /v2/data-import/accounts/validate/
+  schema: StandardizedValidationErrorResponse
+  content_types: [application/json]

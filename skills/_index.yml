@@ -1,0 +1,36 @@
+generated: '2026-07-27'
+method: generated
+source: >-
+  Packaged Agent Skills generated from the two first-party OpenAPI documents EDF serves
+  for its Kraken platform. Every step is grounded in an operationId verified verbatim in
+  openapi/edf-energy-kraken-openapi.yml or
+  openapi/edf-energy-kraken-data-import-openapi.yml; cross-cutting rules cite
+  conventions/, errors/, authentication/, scopes/, rate-limits/ and lifecycle/. No
+  operation, parameter or error code was invented.
+description: >-
+  Four marquee flows across EDF Energy's API surface, ordered by how open they are. The
+  tariff comparison runs with no credential at all — that is EDF's genuinely open surface.
+  Consumption reading is consented personal data. Quote-and-enrol is the commercial write
+  path. Book migration is the partner-only contract that moves a household's supply, and
+  is the highest consequence flow here.
+skills:
+- file: edf-energy-compare-tariffs.md
+  name: Compare EDF electricity and gas tariffs for a postcode
+  api: openapi/edf-energy-kraken-openapi.yml
+  auth: none
+  operations: ['List Industry Grid Supply Points', 'List Products', 'Product', 'Electricity Tariff Standard Unit Rates', 'Electricity Tariff Standing Charges', 'Gas Tariff Standard Unit Rates', 'Gas Tariff Standing Charges']
+- file: edf-energy-read-consumption.md
+  name: Read a customer's electricity and gas consumption
+  api: openapi/edf-energy-kraken-openapi.yml
+  auth: token or OAuth (request:consumption-data)
+  operations: ['Get Electricity Meter Point', 'List consumption for an electricity meter', 'List consumption for a gas meter']
+- file: edf-energy-quote-and-enrol.md
+  name: Quote a supply and enrol a customer
+  api: openapi/edf-energy-kraken-openapi.yml
+  auth: token
+  operations: ['List Industry Grid Supply Points', 'List Products', 'Create a quote', 'Share a quote via email', 'Create an account', 'Renew a business tariff']
+- file: edf-energy-migrate-customer-book.md
+  name: Migrate a customer book onto Kraken
+  api: openapi/edf-energy-kraken-data-import-openapi.yml
+  auth: token (partner)
+  operations: ['V1 Create Or Update Account Import Process', 'V1 Validate Account', 'V1 Process Account Import Process', 'V1 Get Account Transfer Status', 'V1 Get Pending Account Import Processes', 'V1 Get Imported Accounts', 'V1 Get Meter Point Statuses For Account', 'V1 Create Historical Statements', 'V1 Create Transactions', 'V1 Create Account Notes', 'V1 Create Payment Instruction', 'V1 Send Registration Flows', 'V2 Schedule Account Creation', 'V2 Validate Account', 'V2 Account Import Status']

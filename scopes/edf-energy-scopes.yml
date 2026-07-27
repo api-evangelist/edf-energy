@@ -1,0 +1,257 @@
+generated: '2026-07-27'
+method: searched
+source: https://auth.edfgb-kraken.energy/.well-known/openid-configuration
+docs: https://auth.edfgb-kraken.energy/
+description: >-
+  The OAuth 2.0 / OpenID Connect scope surface of the EDF GB Kraken authorisation
+  server. Harvested verbatim from the anonymously served OpenID Provider Metadata
+  document (HTTP 200, 2026-07-27) at auth.edfgb-kraken.energy, which advertises 111
+  scopes_supported. Scope grammar is verb:resource (query:, view:, create:, update:,
+  manage:, cancel:, request:, change:, set:, add:, join:, edit:, verify:, configure:,
+  accept:, register:, delete:, revoke:), plus the two coarse scopes openid and
+  full-customer-access. There is no separate published scope-reference page: the
+  discovery document is the reference. Scopes are granted to an OAuth application by
+  EDF/Kraken on request — the auth server's own getting-started text states an
+  application must be requested by contacting them with the client type, grant type,
+  redirect URIs and the resources it needs.
+issuer: https://auth.edfgb-kraken.energy/token/
+schemes:
+- name: KrakenOAuth2
+  source: https://auth.edfgb-kraken.energy/.well-known/openid-configuration
+  flows:
+  - flow: authorizationCode
+    pkce: true
+    authorizationUrl: https://auth.edfgb-kraken.energy/authorize/
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+  - flow: clientCredentials
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+  - flow: deviceCode
+    deviceAuthorizationUrl: https://auth.edfgb-kraken.energy/device-authorization/
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+  - flow: tokenExchange
+    tokenUrl: https://auth.edfgb-kraken.energy/token/
+    rfc: RFC 8693
+scope_count: 111
+scopes:
+- scope: "openid"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "full-customer-access"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:reading-consent-granularity"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:payment-method-action-intents"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:property-meters"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:payment-action-intents"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:property"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "cancel:siteworks-appointments"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:smart-meter-data-preferences"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "join:campaigns"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "change:centrepay-deductions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:sensitive-customer-information"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:loyalty-points-balance"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:user-details"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:dd-amount"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:account-campaigns"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:auto-topup-config"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:account-payments"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:smartflex-data"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:customer-flexibility-campaigns"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:complaints"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:quoting-offer-group"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:payment-schedules"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "add:credit-to-smart-meter"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:authorized-applications"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:agreements"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:goods-quotes"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:portfolios"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:fit-schedules"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:fit-installations"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:account-applications"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:payment-instructions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:dd-day"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:complaints"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "configure:auto-topup-config"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "cancel:enrollment"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:payment-instructions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "cancel:centrepay-deductions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:lifecycle-processes"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:contribution-agreements"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:businesses"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:user-details"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:ink-live-chat"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:loyalty-enrollment-eligibility"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "edit:customer-marketing-preference"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "set:loyalty-points-user"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:account-type"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:customer-assets"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:property"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:loyalty-points-ledger-entry"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:contribution-agreements"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:devices"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:customer-marketing-preference"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "accept:fit-terms-and-conditions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "verify:customer-details"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:customer-assets"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:mfa-device"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "register:smartflex-devices"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:account-renewals"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:ssd"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "add:campaign-to-account"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "submit:fit-meter-readings"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:smart-meter-interest"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:electricity-meter-point-details"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "join:campaign-events"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:detailed-usage"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:api-key"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "amend:payments"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "access:customer-queries"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "send:loss-objection-for-change-of-supplier"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:goods-products"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "transfer:loyalty-points"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "update:account-details"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:personally-identifiable-information"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:customer-feedback"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:ev"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:customer-communications"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:account-user-permissions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:ev-data"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "checkout:quote"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:goods-quotes"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "redeem:loyalty-points"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "process:move-outs"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "initiate:standalone-payments"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "occupy:accounts"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:sensitive-customer-information"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:account-number"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:billing-information"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "delete:mfa-device"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "accept:fit-schedules"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "book:smart-meter-appointments"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "accept:terms-and-conditions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "review:quote"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:establishments"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:goods-purchases"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "provide:missing-meter-point-details"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "report:move-out"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "manage:product-enrolment"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "validate:mfa-device"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:centrepay-deductions"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:workflows"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "view:campaign-dashboards"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:mfa-device"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:payment-preferences"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "submit:customer-feedback"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "submit:meter-readings"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "request:consumption-data"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:account-reminders"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "query:contracts"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "create:repayment-request"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]
+- scope: "escalate:ink-conversation"
+  sources: [https://auth.edfgb-kraken.energy/.well-known/openid-configuration]

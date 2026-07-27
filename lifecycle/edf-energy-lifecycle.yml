@@ -1,0 +1,93 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  https://developer.edfgb-kraken.energy/announcements/ (HTTP 200),
+  https://developer.edfgb-kraken.energy/graphql/changelog/ (HTTP 200),
+  https://developer.edfgb-kraken.energy/graphql/guides/basics/ (HTTP 200),
+  https://announcements.kraken.tech/ (HTTP 200); deprecated fields derived from
+  graphql/edf-energy-schema.graphql.
+description: >-
+  EDF Energy's API lifecycle discipline is unusually explicit for a utility, and it is
+  inherited from Kraken. Every one of the 173 @deprecated directives in the harvested
+  GraphQL schema carries BOTH the date the field was marked deprecated and a date it is
+  scheduled for removal on or after — machine-readable deprecation dates in the contract
+  itself, spanning marked-on dates from 2019-12-11 to 2026-07-20 and removal dates out to
+  2027-08-15. Alongside that, EDF runs a public dated announcements feed (59 items,
+  paginated, with an RSS feed and a mailing-list subscription) where every breaking change
+  is posted ahead of time with a named removal date, and a per-day GraphQL schema changelog
+  that records every type, field, enum value and input field added or removed. What is
+  absent is the operational half: there is no public status page and no published SLA or
+  uptime target for the EDF GB Kraken platform.
+versioning:
+  scheme: uri-path
+  current: v1
+  additional: v2
+  detail: >-
+    REST is versioned in the path — /v1/ is the production surface, with a /v2/ present
+    for data-import accounts and an (empty) /v2/orders/ namespace. GraphQL is
+    deliberately unversioned: the single schema evolves continuously and compatibility
+    is managed by deprecation dates rather than by version pinning. There is no
+    version request header.
+  docs: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+deprecation:
+  policy_url: https://developer.edfgb-kraken.energy/announcements/
+  changelog: https://developer.edfgb-kraken.energy/graphql/changelog/
+  upstream_feed: https://announcements.kraken.tech/
+  sunset_header: false
+  rfc8594: false
+  mechanism: >-
+    Two channels, both public and anonymous. (1) In-contract: the GraphQL schema marks
+    the field @deprecated with a reason string that names the replacement, the date it
+    was marked, and the date it is scheduled for removal on or after. (2) Out-of-band:
+    a dated announcement is published on the developer portal and on
+    announcements.kraken.tech, tagged "Deprecation" and "Action Required", stating the
+    replacement and the removal date, with an RSS feed and an email subscription.
+  in_schema_deprecations: 173
+  all_carry_marked_date: true
+  all_carry_scheduled_removal_date: true
+  marked_date_range: ['2019-12-11', '2026-07-20']
+  scheduled_removal_range: ['2022-11-15', '2027-08-15']
+  notice_period: >-
+    Not stated as a fixed policy number. Observed practice from the announcements feed
+    and the schema: roughly two to six months between the deprecation notice and the
+    scheduled removal date, with removal dates repeatedly extended rather than brought
+    forward (four separate "removal date extension" announcements were published on
+    2025-11-03 and three more on 2026-01-09).
+  example: >-
+    "Deprecation: termsAndConditionsTypes field on SupplyProductType" — published
+    2026-07-20, names termsAndConditions as the replacement, scheduled for removal
+    14 September 2026.
+sla:
+  url: null
+  uptime_target: null
+  status_page: null
+  notes: >-
+    No public status page was found for api.edfgb-kraken.energy,
+    developer.edfgb-kraken.energy or www.edfenergy.com (status.edfgb-kraken.energy does
+    not resolve; /status/ on the developer portal returns 404), and no SLA or uptime
+    target is published. There is an unauthenticated liveness endpoint —
+    GET https://api.edfgb-kraken.energy/external-client-healthcheck/ returned HTTP 200 —
+    but that is a probe, not a status page. Availability failures are surfaced in-band
+    via the SERVICE_AVAILABILITY error type (40 codes in the KT-CT-* registry).
+health_check:
+  url: https://api.edfgb-kraken.energy/external-client-healthcheck/
+  operation: openapi/edf-energy-kraken-openapi.yml#External Client Health Check
+  anonymous: true
+  status: 200
+deprecated_operations: []
+deprecated_operations_note: >-
+  Neither OpenAPI document marks any operation deprecated. 33 `deprecated: true` flags
+  appear in openapi/edf-energy-kraken-data-import-openapi.yml, but all of them are on
+  request parameters and schema properties, not on operations.
+recent_deprecation_announcements:
+- {title: 'Deprecation: termsAndConditionsTypes field on SupplyProductType', published: '2026-07-20', url: 'https://announcements.kraken.tech/announcements/public/1518'}
+- {title: 'Deprecation: contract_identifiers field enrollment mutation', published: '2026-07-01', url: 'https://announcements.kraken.tech/announcements/public/1418'}
+- {title: 'Deprecation: date and time fields in contracts API', published: '2026-04-27', url: 'https://announcements.kraken.tech/announcements/public/1187'}
+- {title: 'Deprecation of heatPumpVariants, chargePointVariants, and electricVehicles queries', published: '2026-04-24', url: 'https://announcements.kraken.tech/announcements/public/1154'}
+- {title: 'Removal of `heat_pump_id` from heat pump queries and mutations', published: '2026-04-20', url: 'https://announcements.kraken.tech/announcements/public/1088'}
+- {title: 'Deprecation: thirdPartyCompleteDeviceRegistration', published: '2026-04-09', url: 'https://announcements.kraken.tech/announcements/public/1020'}
+- {title: 'Tracker Unit Rates API Deprecation', published: '2025-11-04', url: 'https://announcements.kraken.tech/announcements/public/609'}
+related:
+  changelog: changelog/edf-energy-changelog.yml
+  conventions: conventions/edf-energy-conventions.yml
+  errors: errors/edf-energy-error-codes.yml

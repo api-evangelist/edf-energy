@@ -1,0 +1,84 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+provider: EDF Energy
+providerId: edf-energy
+generated: '2026-07-27'
+method: searched
+created: '2026-07-27'
+modified: '2026-07-27'
+tags:
+- Rate Limiting
+- Energy
+- GraphQL
+description: >-
+  EDF Energy's published API usage constraints, taken verbatim from the EDF GB Kraken
+  GraphQL API basics guide. The platform does not throttle on requests-per-second. It
+  budgets on three independent axes at once: a per-request complexity ceiling, an
+  hourly "points" allowance sized by viewer type, and per-field static or dynamic rate
+  limits that also apply to unauthenticated callers. A fourth constraint caps the
+  number of nodes a single query may return. An authenticated viewer can read its own
+  remaining budget with the rateLimitInfo query.
+sources:
+- https://developer.edfgb-kraken.energy/graphql/guides/basics/
+headers:
+  requestId: null
+  note: No rate-limit response headers are documented; budget is introspected via the rateLimitInfo query.
+responseCodes:
+  throttled: 200
+  note: >-
+    The GraphQL API returns HTTP 200 even when throttled; the condition is signalled by
+    the error code in the response body.
+errorCodes:
+  complexityExceeded: KT-CT-1188
+  nodeCountExceeded: KT-CT-1189
+  tooManyRequests: KT-CT-1199
+limits:
+- name: Query complexity per request
+  scope: request
+  metric: complexity_points
+  limit: 200
+  timeFrame: request
+  error: KT-CT-1188
+- name: Hourly points allowance (account user)
+  scope: account_user
+  metric: points
+  limit: 50000
+  timeFrame: hour
+  error: KT-CT-1199
+- name: Hourly points allowance (organisation)
+  scope: organisation
+  metric: points
+  limit: 100000
+  timeFrame: hour
+  error: KT-CT-1199
+- name: Hourly points allowance (OAuth application)
+  scope: oauth_application
+  metric: points
+  limit: 300000
+  timeFrame: hour
+  error: KT-CT-1199
+- name: Nodes per request
+  scope: request
+  metric: nodes
+  limit: 10000
+  timeFrame: request
+  error: KT-CT-1189
+enforcementModes:
+- COUNT — monitor points consumed without blocking
+- BLOCK — default; block requests once the allowance is exceeded
+- DENY_LIST — block only named viewers that would exceed the allowance
+dynamicScaling: >-
+  Points allowances scale automatically with the number of supply points a viewer
+  manages, benefiting commercial and industrial customers and multi-site business users.
+requestSpecificLimits:
+  static: A fixed ceiling per field per period; resets when the period elapses.
+  dynamic: >-
+    Progressively stricter on repeat breach (e.g. 100/minute degrading toward 1/hour)
+    and does NOT auto-reset — an administrator must restore the limit via the Kraken Hub.
+  purpose: >-
+    Protects individual GraphQL fields, particularly unauthenticated ones; the guide
+    cites credential-stuffing prevention on login as the motivating example.
+introspection:
+  query: rateLimitInfo
+  returns: points limit and remaining balance, plus the rate limits applying to an IP or viewer
+  ide_tabs: [Query complexity, Rate limits]

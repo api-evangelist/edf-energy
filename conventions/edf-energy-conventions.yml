@@ -1,0 +1,187 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  https://developer.edfgb-kraken.energy/graphql/guides/basics/ (HTTP 200),
+  https://developer.edfgb-kraken.energy/rest/guides/api-basics/ (HTTP 200),
+  https://auth.edfgb-kraken.energy/ (HTTP 200),
+  https://developer.edfgb-kraken.energy/graphql/reference/error-codes/ (HTTP 200);
+  derived detail from graphql/edf-energy-schema.graphql and openapi/*.yml.
+description: >-
+  The cross-cutting request/response semantics of the EDF GB Kraken API, which apply
+  across both the GraphQL and REST halves and are not fully expressed by either
+  contract. The distinctive facts: the GraphQL API always returns HTTP 200 and puts
+  errors in the body with a KT-CT-* code; pagination is Relay cursor connections with
+  a hard cap of first < 100 and mandatory pagination on connection fields; usage is
+  governed by a three-layer budget (per-request complexity, hourly points allowance,
+  per-field rate limits) rather than a simple requests-per-second limit; and there is
+  real idempotency, but it is a GraphQL input field (idempotencyKey) on money-moving
+  and ledger mutations, not an HTTP header on every write.
+base_urls:
+  rest: https://api.edfgb-kraken.energy/v1/
+  graphql: https://api.edfgb-kraken.energy/v1/graphql/
+  auth: https://auth.edfgb-kraken.energy/
+  data_import: https://api.edfgb-kraken.energy/v1/data-import/
+api_style: >-
+  Two co-published surfaces over one core: a GraphQL API (2,492 types, 246 queries,
+  417 mutations) and a JSON REST API described by OpenAPI 3.0.3. HTTPS only.
+
+authentication:
+  scheme: Authorization header — "Token <api-key>", a Kraken JWT, or HTTP Basic with the token as the username
+  oauth: OAuth 2.0 / OIDC at auth.edfgb-kraken.energy (authorization code + PKCE, client credentials, device code, token exchange)
+  anonymous_surface: >-
+    Retail product/tariff data resolves with no credential — REST GET /v1/products/
+    declares an empty security option, and the GraphQL energyProducts query works
+    anonymously with brand "EDF". Full GraphQL introspection is also anonymous.
+  self_service: false
+  detail: authentication/edf-energy-authentication.yml
+  scopes: scopes/edf-energy-scopes.yml
+
+idempotency:
+  supported: true
+  mechanism: idempotencyKey input field on selected GraphQL mutations
+  transport: GraphQL input object field (not an HTTP header)
+  scope: >-
+    Money-moving and ledger-affecting mutations. Verified in
+    graphql/edf-energy-schema.graphql: repayment requests, payment refunds, loyalty
+    points ledger entries, and trigger creation all carry an idempotencyKey field —
+    some String!, some UUID, some optional.
+  key_format: Client-generated unique value; typed as UUID on some inputs and String on others
+  conflict_behavior: >-
+    Replaying a key that was used for a different operation is rejected with a
+    documented error rather than silently duplicating. KT-CT-3928 — "Idempotency key
+    used for another repayment request". KT-CT-9221 — "Idempotency key already used on
+    ledger entry". For triggers the schema states: "If provided and there is an
+    existing trigger with the same idempotency key, a new trigger will not be created."
+  retention: not published
+  rest_coverage: >-
+    None. No Idempotency-Key header, parameter or extension appears anywhere in either
+    OpenAPI document — including the Stripe payment-intent endpoints. Idempotency on
+    this platform is a GraphQL-only guarantee.
+  errors: [KT-CT-3928, KT-CT-9221]
+  docs: https://developer.edfgb-kraken.energy/graphql/reference/
+
+pagination:
+  style: cursor
+  spec: GraphQL Cursor Connections (Relay)
+  request_params:
+    first: Page size. Mandatory on paginated fields and must be < 100.
+    after: Opaque cursor — fetch the page after this cursor.
+    last: Reverse page size.
+    before: Opaque cursor — fetch the page before this cursor.
+  response_fields:
+    pageInfo.hasNextPage: whether more results exist forward
+    pageInfo.hasPreviousPage: whether more results exist backward
+    pageInfo.startCursor: cursor of the first node on the page
+    pageInfo.endCursor: cursor of the last node on the page
+    edges[].cursor: per-node cursor
+    edges[].node: the object
+  enforced: >-
+    Pagination is compulsory on paginated fields — omitting first, or setting it to a
+    value greater than 100, returns an error.
+  gotcha: >-
+    Per the Relay spec, when paginating forward with "after" the hasPreviousPage field
+    is always false. EDF's guide calls this out explicitly.
+  rest_style: >-
+    The REST list endpoints (products, unit rates, standing charges, grid supply points)
+    use their own page/limit style declared per-operation in the OpenAPI, not cursors.
+  docs: https://developer.edfgb-kraken.energy/graphql/guides/basics/
+
+field_expansion:
+  supported: true
+  mechanism: GraphQL field selection — the client declares exactly which fields to return
+  note: >-
+    No expand[] equivalent on the REST side; the REST responses are fixed shapes.
+
+metadata:
+  supported: partial
+  note: >-
+    No general-purpose key/value metadata bag on every object. Domain-specific
+    annotation exists (account notes via the data-import notes/create endpoint,
+    GraphQL note and reference fields), but there is no Stripe-style metadata map.
+
+request_tracing:
+  request_id_header: not published
+  note: >-
+    Neither guide documents a request-id / correlation header, and no such header is
+    declared in either OpenAPI document. Errors are correlated by KT-CT-* code rather
+    than by request id.
+
+versioning:
+  scheme: uri-path
+  current: v1
+  also_present: v2 (data-import accounts, orders namespace)
+  mechanism: >-
+    The major version is in the path — /v1/, /v2/. The GraphQL schema is unversioned
+    and evolves continuously; breaking changes are announced ahead of time and fields
+    are marked @deprecated on the schema before removal.
+  detail: lifecycle/edf-energy-lifecycle.yml
+
+datetimes:
+  format: ISO 8601
+  example: '2018-05-17T16:00:00Z'
+  timezone_rule: >-
+    Timezone information is strongly recommended on all datetime parameters. If it is
+    omitted, Europe/London is assumed and results may vary between GMT and British
+    Summer Time.
+  docs: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+
+error_envelope:
+  graphql:
+    http_status: 200 (always, when the server is available)
+    path: errors[].extensions
+    fields: [errorType, errorCode, errorDescription]
+    error_types: [VALIDATION, NOT_FOUND, APPLICATION, AUTHORIZATION, SERVICE_AVAILABILITY]
+    registry: errors/edf-energy-error-codes.yml
+    registry_size: 1370
+  rest:
+    http_status: conventional 4xx/5xx
+    media_type: application/json
+    schemas: [ErrorResponse, ValidationOrDomainError]
+    rfc9457: false
+    detail: errors/edf-energy-problem-types.yml
+  per_field_docs: >-
+    Each GraphQL query/mutation description lists the exact KT-CT-* codes it can raise;
+    the same list is available in the "Possible errors" tab of the GraphQL IDE.
+
+rate_limiting:
+  model: three independent layers, all documented
+  layers:
+  - name: Query complexity
+    scope: per request
+    limit: 200
+    detail: Every GraphQL field carries a complexity value; the sum for one request must stay under 200.
+    error: KT-CT-1188
+  - name: Hourly points allowance
+    scope: per authenticated viewer, per hour
+    limits:
+      account_user: 50000
+      organisation: 100000
+      oauth_application: 300000
+    modes: [COUNT, BLOCK (default), DENY_LIST]
+    dynamic_scaling: >-
+      Allowances scale automatically with the number of supply points a user manages,
+      for C&I and multi-site business users.
+    introspectable_via: rateLimitInfo query
+  - name: Request-specific rate limiting
+    scope: per field, per IP / user / identifying factor
+    types: [static, dynamic]
+    detail: >-
+      Protects individual fields, especially unauthenticated ones. Dynamic limits get
+      progressively stricter on repeat breach and do not auto-reset; an admin must
+      restore them via the Kraken Hub.
+    error: KT-CT-1199
+  - name: Node count
+    scope: per request
+    limit: 10000
+    error: KT-CT-1189
+  headers: not published
+  detail: rate-limits/edf-energy-rate-limits.yml
+  docs: https://developer.edfgb-kraken.energy/graphql/guides/basics/
+
+related:
+  authentication: authentication/edf-energy-authentication.yml
+  scopes: scopes/edf-energy-scopes.yml
+  errors: errors/edf-energy-error-codes.yml
+  lifecycle: lifecycle/edf-energy-lifecycle.yml
+  rate_limits: rate-limits/edf-energy-rate-limits.yml
+  sandbox: sandbox/edf-energy-sandbox.yml

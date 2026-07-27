@@ -1,0 +1,73 @@
+generated: '2026-07-27'
+method: searched
+source: live probes of every apis.yml baseURL host, the developer/docs host, the auth host and the corporate website
+description: >-
+  The /.well-known/ discovery surface across EDF Energy's four relevant hosts. Only the
+  Kraken authorisation server publishes anything: an OpenID Connect discovery document
+  (RFC 8414-style OIDC metadata) advertising 111 scopes and four grant types, plus the
+  JWKS it points at. The API host, the developer portal and the corporate website
+  publish nothing under /.well-known/ — notably no RFC 9116 security.txt anywhere, and
+  no api-catalog. Every status below was recorded on 2026-07-27.
+hosts:
+- host: https://auth.edfgb-kraken.energy
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: edf-energy-openid-configuration.json
+    spec: OpenID Connect Discovery 1.0
+  - path: /.well-known/jwks.json
+    status: 200
+    file: edf-energy-jwks.json
+    spec: RFC 7517 JSON Web Key Set
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+- host: https://api.edfgb-kraken.energy
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+- host: https://developer.edfgb-kraken.energy
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /llms.txt
+    status: 404
+- host: https://www.edfenergy.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /llms.txt
+    status: 200
+    file: ../llms/edf-energy-llms.txt
+    spec: llms.txt
+    note: >-
+      Not a /.well-known/ document, but the only machine-addressed AI-discovery file
+      EDF publishes. Served at the site root and saved verbatim under llms/.
+security_txt:
+  published: false
+  note: >-
+    No RFC 9116 security.txt on any EDF Energy or EDF GB Kraken host, and no
+    responsible-disclosure or vulnerability-disclosure page found on www.edfenergy.com
+    (all candidate paths returned 404). Recorded as a genuine absence, not a gap in
+    the search.

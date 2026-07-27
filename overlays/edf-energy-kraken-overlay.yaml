@@ -1,0 +1,159 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the EDF Kraken REST API
+  version: 1.0.0
+extends: openapi/edf-energy-kraken-openapi.yml
+x-apievangelist:
+  generated: '2026-07-27'
+  method: generated
+  source: >-
+    Enhancements derived from the artifacts in this repository — conventions/,
+    errors/, lifecycle/, authentication/, scopes/, rate-limits/, sandbox/ — applied over
+    the verbatim OpenAPI 3.0.3 document EDF serves at
+    https://api.edfgb-kraken.energy/v1/schema?namespaces=default. The original spec is
+    never mutated; these actions are what we would ask EDF to merge upstream.
+  note: >-
+    Nothing here invents API behaviour. Every value is either published by EDF elsewhere
+    (the guides, the auth server, the error registry) or observed live and recorded with
+    its HTTP status.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: edf-energy
+    x-apievangelist-platform: >-
+      Kraken, licensed from Octopus Energy Group and hosted for EDF GB. The API is
+      Kraken's, branded for EDF.
+    x-apievangelist-anonymous-surface: >-
+      /v1/products/ and /v1/industry/grid-supply-points/ answer with no credential;
+      everything customer-scoped requires an Authorization token.
+    x-error-registry: https://developer.edfgb-kraken.energy/graphql/reference/error-codes/
+    x-conventions: conventions/edf-energy-conventions.yml
+    x-lifecycle: lifecycle/edf-energy-lifecycle.yml
+- target: $
+  update:
+    servers:
+    - url: https://api.edfgb-kraken.energy/v1/
+      description: >-
+        Production. Declared in the REST API basics guide but absent from the served
+        document, which ships no servers[] array at all — the single most impactful gap
+        in the spec for any generated client.
+- target: $.info
+  update:
+    x-datetime-format: ISO 8601; include timezone or Europe/London is assumed (GMT/BST drift)
+    x-rate-limits:
+      model: complexity + hourly points + per-field limits + node cap
+      complexity_per_request: 200
+      points_per_hour: {account_user: 50000, organisation: 100000, oauth_application: 300000}
+      nodes_per_request: 10000
+      errors: [KT-CT-1188, KT-CT-1189, KT-CT-1199]
+      detail: rate-limits/edf-energy-rate-limits.yml
+- target: $.components.securitySchemes
+  update:
+    KrakenOAuth2:
+      type: oauth2
+      description: >-
+        OAuth 2.0 authorisation server at auth.edfgb-kraken.energy. Documented on the
+        auth server and discoverable via OpenID Connect metadata, but not declared in
+        the served OpenAPI — so a generated client cannot see the delegated-access path
+        at all. 111 scopes; see scopes/edf-energy-scopes.yml.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.edfgb-kraken.energy/authorize/
+          tokenUrl: https://auth.edfgb-kraken.energy/token/
+          refreshUrl: https://auth.edfgb-kraken.energy/token/
+          scopes:
+            openid: OpenID Connect authentication
+            full-customer-access: Full access to the customer's data
+            request:consumption-data: Request the customer's metered consumption data
+            view:smartflex-data: View SmartFlex demand-flexibility data
+            update:smart-meter-data-preferences: Update the customer's smart-meter data preferences
+        clientCredentials:
+          tokenUrl: https://auth.edfgb-kraken.energy/token/
+          scopes: {}
+    KrakenOpenIDConnect:
+      type: openIdConnect
+      openIdConnectUrl: https://auth.edfgb-kraken.energy/.well-known/openid-configuration
+      description: >-
+        OIDC discovery served anonymously at HTTP 200; issuer
+        https://auth.edfgb-kraken.energy/token/, RS256/HS256 id tokens, JWKS at
+        /.well-known/jwks.json.
+- target: $.paths['/v1/products/'].get
+  update:
+    x-anonymous: true
+    x-verified:
+      date: '2026-07-27'
+      status: 200
+      result: 21 live EDF products returned with no credential
+    x-agentic-access:
+      action-class: connected
+      consequence: read
+- target: $.paths['/v1/industry/grid-supply-points/'].get
+  update:
+    x-anonymous: true
+    x-verified:
+      date: '2026-07-27'
+      status: 200
+      result: postcode SW1A1AA resolved to GSP group _C with no credential
+    x-agentic-access:
+      action-class: connected
+      consequence: read
+- target: $.paths['/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption/'].get
+  update:
+    x-consumer-data: true
+    x-oauth-scope: request:consumption-data
+    x-note: >-
+      Consumer consumption data. Available to a third party only with a token held by
+      the account user or an OAuth application authorised by them. No Great Britain
+      mandate requires this endpoint to exist — it is a supplier choice.
+    x-agentic-access:
+      action-class: connected
+      consequence: read
+      audit: required
+- target: $.paths['/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption/'].get
+  update:
+    x-consumer-data: true
+    x-oauth-scope: request:consumption-data
+    x-agentic-access:
+      action-class: connected
+      consequence: read
+      audit: required
+- target: $.paths['/v1/accounts/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: write
+      audit: required
+      human-in-the-loop: recommended
+    x-note: Creates a real supply agreement for a real person; not an agent-autonomous action.
+- target: $.paths['/v1/payment-intents/create/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: physical
+      audit: required
+      human-in-the-loop: required
+    x-idempotency: >-
+      None. No Idempotency-Key header or parameter is accepted on any REST operation,
+      including this one — a retried payment-intent creation has no replay protection on
+      this surface. Idempotency exists only on the GraphQL money mutations via the
+      idempotencyKey input field.
+- target: $.paths['/v1/payment-intents/confirm/'].post
+  update:
+    x-agentic-access:
+      action-class: acting
+      consequence: physical
+      audit: required
+      human-in-the-loop: required
+- target: $.info
+  update:
+    x-spec-gaps:
+    - No servers[] array — the base URL exists only in prose in the REST guide.
+    - No OAuth 2.0 security scheme declared, despite a full OAuth/OIDC server being live.
+    - >-
+      Only 6 of 27 operations declare any 4xx/5xx response; the read endpoints declare a
+      200 and nothing else, so failure has no machine-readable contract on most paths.
+    - No response examples anywhere in the document.
+    - No application/problem+json; errors are bespoke ErrorResponse/ValidationOrDomainError shapes.
+    - >-
+      operationIds are human-readable strings with spaces ("List Products"), which most
+      code generators will mangle.
