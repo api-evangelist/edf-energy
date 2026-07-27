@@ -1,0 +1,142 @@
+# EDF Energy (edf-energy)
+
+EDF Energy Ltd is the British integrated energy business wholly owned by Électricité de France, the French state-owned utility. Formed in 2002 and enlarged by the 2009 acquisition of British Energy, it supplies electricity and gas to roughly five million customer accounts and is Britain's largest generator of zero-carbon electricity, operating the country's fleet of operating nuclear power stations and building Hinkley Point C. Great Britain has no consumer energy data mandate — and EDF has one of the better utility APIs in Europe anyway, because it licenses Octopus Energy Group's Kraken platform.
+
+**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/edf-energy/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/edf-energy/refs/heads/main/apis.yml)
+
+## Tags
+
+- Energy
+- United Kingdom
+- Utilities
+- Electricity
+- Gas
+- Energy Retailer
+- Energy Supplier
+- Smart Metering
+- Nuclear
+- Renewables
+- EV Charging
+- Demand Response
+- Tariffs
+- Energy Markets
+
+## Timestamps
+
+- **Created:** 2026-07-27
+- **Modified:** 2026-07-27
+
+## Mandate Posture
+
+| Question | Answer |
+| --- | --- |
+| Mandate regime | Smart-meter **infrastructure** only — the licensed Smart DCC monopoly under the Smart Energy Code, plus Balancing and Settlement Code and REMIT obligations |
+| Consumer data mandate | **None.** Great Britain has no Consumer Data Right, no Green Button obligation, no energy data-portability duty |
+| Mandate status | **Not applicable** — nothing compels EDF to publish consumer data through an API |
+| Data standard | No standard reference found. The contract shape is Kraken's, proprietary. (OCPP appears only as an EV charge-point integration concept in the schema.) |
+| Consumer data API | **Yes** — documented, and not mandated. Gated by an account token or an OAuth application |
+| Open market data | **No** — EDF operates no open market-data API; its own REMIT XML and CSV export links return HTTP 404 |
+| Open tariff data | **Yes, fully anonymous** — `GET /v1/products/` returned 21 live products with no credential |
+| Access gate | Self-serve — no signup, no key, no form for the open half |
+| Developer portal | [developer.edfgb-kraken.energy](https://developer.edfgb-kraken.energy/) — public, HTTP 200, **not on edfenergy.com** |
+
+EDF is the sector's counter-example. Every mandated utility in this study is tested on whether the obligation became an implementation. EDF has no obligation and a substantial implementation — because it rents the API. In 2023 it licensed Kraken from Octopus Energy Group and completed the migration of 5.8 million customer accounts in fifteen months; what is documented at `developer.edfgb-kraken.energy` is the platform's contract with EDF's logo on it. Britain's unusual result is that one API-native supplier propagated an API into its incumbent competitors by commercial licence, faster and further than a statute did elsewhere. The trade-off is real: EDF's API is better to use and weaker to rely on. There is no legal right for a consumer to compel the transfer, no accreditation regime that makes third-party access a rule rather than a favour, and no standard shape shared across suppliers.
+
+Note also where EDF's own claim failed. Its REMIT transparency page advertises "Download XML" and "Download CSV" for its generation-unavailability disclosures; both return HTTP 404. The working machine-readable channel for exactly the same records is Elexon's BMRS API, where 27 EDF messages under registration code `48X000000000022A` were retrieved anonymously in a single week — Elexon's API, not EDF's.
+
+## APIs
+
+### EDF Kraken GraphQL API
+
+EDF Energy's primary developer API, and the surface EDF markets as its "open tariff APIs". Introspection is enabled anonymously: a standard `IntrospectionQuery` POSTed with no credentials returned HTTP 200 on 2026-07-27, yielding **2,492 types, 246 Query fields and 417 Mutation fields**, saved verbatim as SDL in this repository. Retail product and tariff data resolves without any credential; everything customer-scoped requires an `Authorization` header held by an account user, an organisation, or an OAuth application.
+
+- **Human URL:** [https://developer.edfgb-kraken.energy/graphql/](https://developer.edfgb-kraken.energy/graphql/)
+- **Base URL:** `https://api.edfgb-kraken.energy/v1/graphql/`
+
+#### Tags
+
+- GraphQL
+- Kraken
+- Tariffs
+- Energy Products
+- Smart Metering
+- Consumption
+- EV Charging
+- United Kingdom
+
+#### Properties
+
+- [GraphQL](graphql/edf-energy-graphql.md) — schema at [`graphql/edf-energy-schema.graphql`](graphql/edf-energy-schema.graphql)
+- [Documentation](https://developer.edfgb-kraken.energy/graphql/guides/)
+- [API Reference](https://developer.edfgb-kraken.energy/graphql/reference/)
+- [Changelog](https://developer.edfgb-kraken.energy/graphql/changelog/)
+- [Authentication](authentication/edf-energy-kraken-openid-configuration.json)
+
+### EDF Kraken REST API
+
+The REST half of the platform, described by a first-party **OpenAPI 3.0.3** document EDF serves itself and renders through ReDoc — 27 paths, 57 component schemas, 5 security schemes. Access is split inside the same document: `/v1/products/` carries an empty security option and returned HTTP 200 anonymously with 21 live EDF products, while `/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption/` requires a token.
+
+- **Human URL:** [https://developer.edfgb-kraken.energy/rest/reference/](https://developer.edfgb-kraken.energy/rest/reference/)
+- **Base URL:** `https://api.edfgb-kraken.energy/v1/`
+
+#### Tags
+
+- REST
+- OpenAPI
+- Kraken
+- Tariffs
+- Products
+- Meter Points
+- Consumption
+- Grid Supply Points
+- United Kingdom
+
+#### Properties
+
+- [OpenAPI](openapi/edf-energy-kraken-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [Documentation](https://developer.edfgb-kraken.energy/rest/guides/api-basics/)
+- [API Reference](https://developer.edfgb-kraken.energy/rest/reference/)
+- [Authentication](authentication/edf-energy-kraken-openid-configuration.json)
+
+### EDF Kraken Customer Migration (Data Import) API
+
+A second first-party **OpenAPI 3.0.3** document — 16 paths, 139 component schemas — describing how a customer book moves between suppliers onto Kraken: import processes created, validated and processed, transfer status polled per external account number, and historical statements, transactions, notes and payment instructions imported, all keyed by an `import_supplier_code`. The operational counterpart to EDF's own 5.8-million-account migration. Partner-facing: authentication required, and a migration relationship rather than a signup form.
+
+- **Human URL:** [https://developer.edfgb-kraken.energy/rest/guides/data-import/](https://developer.edfgb-kraken.energy/rest/guides/data-import/)
+- **Base URL:** `https://api.edfgb-kraken.energy/v1/`
+
+#### Tags
+
+- REST
+- OpenAPI
+- Kraken
+- Customer Migration
+- Data Import
+- Switching
+- United Kingdom
+
+#### Properties
+
+- [OpenAPI](openapi/edf-energy-kraken-data-import-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [Documentation](https://developer.edfgb-kraken.energy/rest/guides/data-import/)
+
+## Common Properties
+
+- [Website](https://www.edfenergy.com/)
+- [Developer Portal](https://developer.edfgb-kraken.energy/)
+- [API Announcements](https://developer.edfgb-kraken.energy/announcements/)
+- [Open Tariff APIs announcement](https://www.edfenergy.com/energywise/edfs-open-tariff-apis)
+- [REMIT transparency](https://www.edfenergy.com/energy/remit-summary)
+- [About](https://www.edfenergy.com/about)
+- [Media Centre](https://www.edfenergy.com/media-centre)
+- [Privacy & Cookie Policy](https://www.edfenergy.com/terms-conditions/privacy-cookie-policy)
+- [GitHub Organization](https://github.com/edfenergy)
+- [LinkedIn](https://www.linkedin.com/company/edf-energy)
+
+## Review
+
+See [review.yml](review.yml) for the full mandate-versus-implementation record, every probed URL with its HTTP status, the consumer-data versus market-data split, the access gate, and the authentication model.
+
+## Maintainers
+
+- Kin Lane — kin@apievangelist.com

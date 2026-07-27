@@ -1,0 +1,616 @@
+aid: edf-energy
+name: EDF Energy
+review:
+  question: >-
+    Does EDF Energy expose a real, verifiable public API surface, and does any energy
+    consumer-data mandate apply to it in Great Britain — and if not, why does it have
+    a better API than the retailers that are mandated?
+  answer: >-
+    Yes to the API, and no to the mandate. EDF Energy operates a fully public developer
+    portal, publishes two first-party OpenAPI 3.0.3 documents, and serves a GraphQL API
+    whose complete schema can be introspected anonymously. None of it was compelled. Great
+    Britain has no consumer energy data-portability right; it mandated infrastructure (the
+    Smart DCC under the Smart Energy Code) rather than a data right. EDF has this API
+    because it licensed Octopus Energy Group's Kraken platform and moved 5.8 million
+    customer accounts onto it — the API is the platform's, not the regulator's.
+  date: '2026-07-27'
+  reviewer: API Evangelist
+  homeMarket: United Kingdom
+  tier: utility-retailer
+
+mandate:
+  regime: smart-meter-infrastructure
+  regimeName: >-
+    Great Britain mandated the infrastructure, not the data right. The relevant obligations
+    on a licensed GB electricity and gas supplier are the smart metering rollout duty under
+    the supply licence conditions, and mandatory participation in the Data Communications
+    Company (Smart DCC) — a licensed monopoly regulated by Ofgem under the Smart Energy Code,
+    which carries SMETS2 smart-meter traffic between suppliers, network operators and meters.
+    Wholesale market obligations run separately: the Balancing and Settlement Code administered
+    by Elexon, and REMIT (Regulation (EU) No 1227/2011, retained in UK law) inside-information
+    disclosure. None of these is a consumer data right.
+  status: not-applicable
+  statusRationale: >-
+    Recorded as `not-applicable` for the consumer-data question this study is asking, and that
+    is the honest answer rather than an evasive one. There is no Consumer Data Right, no Green
+    Button obligation, no statutory data-portability duty and no accreditation regime for
+    third-party access to a GB energy consumer's usage or billing data. The Smart DCC mandate
+    that does bind EDF is an industry-messaging infrastructure obligation: it moves data between
+    licensed parties under the Smart Energy Code, and it confers no third-party consumer API and
+    no public developer surface. EDF is a licensed GB supplier operating SMETS2 smart meters, so
+    it is necessarily a DCC user, but no anonymously verifiable public register entry was probed
+    to prove that — smartenergycodecompany.co.uk returned HTTP 403 to every request from this
+    client — so no claim of verified DCC registration is made here.
+  designated: false
+  designationDetail: >-
+    EDF Energy is not a designated data holder under any consumer data-sharing regime. It is
+    not covered by the Australian Consumer Data Right (wrong jurisdiction), not covered by
+    Ontario's Green Button regulation (wrong jurisdiction), and Great Britain has adopted no
+    equivalent. Smart Data legislation exists in the UK (the Data (Use and Access) Act 2025
+    creates enabling powers for smart data schemes beyond banking) but no energy scheme has been
+    made that would bind EDF, and none was found in force on the review date.
+  verifiedHow: >-
+    By absence, and by what was found instead. Every consumer-data-mandate probe returned nothing:
+    no CDR register (not applicable), no Green Button Download My Data or Connect My Data surface
+    on any EDF host, no ESPI endpoint, no accreditation scheme. What EDF does publish was verified
+    positively by anonymous HTTP calls on 2026-07-27 — a developer portal at HTTP 200, two OpenAPI
+    documents parsed and counted, a GraphQL schema introspected in full, live tariff data returned
+    without a credential, and an OpenID Connect discovery document served anonymously. Nothing here
+    rests on a press release or a compliance page.
+  claimVsImplementation: >-
+    This provider inverts the usual failure mode. The common pattern in this sector is an
+    organization that claims compliance and cannot be shown to have implemented anything. EDF
+    claims nothing — there is no mandate to claim compliance with — and has nevertheless
+    implemented a real, callable, documented API. The one place where an EDF claim did not survive
+    contact with the endpoint is its REMIT page: edfenergy.com/energy/remit-summary publishes
+    "Download XML" and "Download CSV" links for its own market disclosures, and both return HTTP
+    404. See consumerVsMarketData.marketDataDetail.
+  whyItHasAnAPIAnyway: >-
+    Because it rents its retail platform. In 2023 EDF signed a licensing agreement with Kraken
+    Technologies (Octopus Energy Group) and became the third GB supplier on the platform after
+    Good Energy and E.ON; EDF announced in September 2024 that it had completed the migration of
+    5.8 million customer accounts in fifteen months. The developer portal at
+    developer.edfgb-kraken.energy is Kraken's portal wearing EDF's logo (the page source loads
+    /static/clients/edfgb/styling.min.css and /static/clients/edfgb/logo.svg), and the API host is
+    api.edfgb-kraken.energy. This is the UK market seam in one provider: the country produced no
+    consumer data mandate, but it produced an API-native supplier whose platform is licensed to
+    its competitors, and that is how a Big Six incumbent ended up with a public GraphQL API.
+
+dataStandard:
+  name: no standard reference found
+  detail: >-
+    No Green Button or ESPI, no IEEE 2030.5, no OpenADR, no IEC CIM 61968/61970, no OCPI, and no
+    CDR Consumer Data Standards reference appears anywhere on EDF's developer portal, in either
+    harvested OpenAPI document, or in the 2,492-type GraphQL schema. The contract shape is
+    proprietary — it is Kraken's data model. The single standards reference found is OCPP, and it
+    is incidental rather than an EDF interface: the GraphQL schema exposes `ocppConnection` and
+    `ocppDetails` queries, which are about smart-charging integration with EV charge points, not
+    about publishing energy data to a standard. The regulatory standards EDF is genuinely bound by
+    (Smart Energy Code / DCC messaging, the Balancing and Settlement Code, REMIT) are
+    industry-to-industry and produce no public API of EDF's own.
+  documents:
+  - title: Kraken REST API (default namespace)
+    format: OpenAPI 3.0.3
+    infoTitle: Kraken
+    infoVersion: v1
+    paths: 27
+    componentSchemas: 57
+    securitySchemes: 5
+    saved: openapi/edf-energy-kraken-openapi.yml
+    sourceURL: https://api.edfgb-kraken.energy/v1/schema?namespaces=default
+    discoveredVia: >-
+      ReDoc `spec-url` attribute in the HTML of https://developer.edfgb-kraken.energy/rest/reference/
+    httpStatus: 200
+    contentType: application/vnd.oai.openapi; charset=utf-8
+    fetched: '2026-07-27'
+    anonymous: true
+    parses: true
+  - title: Kraken Customer Migration / Data Import API
+    format: OpenAPI 3.0.3
+    infoTitle: Kraken
+    infoVersion: v1
+    paths: 16
+    componentSchemas: 139
+    saved: openapi/edf-energy-kraken-data-import-openapi.yml
+    sourceURL: https://api.edfgb-kraken.energy/data-import/schema/
+    httpStatus: 200
+    contentType: application/vnd.oai.openapi; charset=utf-8
+    fetched: '2026-07-27'
+    anonymous: true
+    parses: true
+  - title: Kraken GraphQL schema (EDF GB)
+    format: GraphQL SDL
+    types: 2492
+    queryFields: 246
+    mutationFields: 417
+    subscriptionType: none
+    saved: graphql/edf-energy-schema.graphql
+    sourceURL: https://api.edfgb-kraken.energy/v1/graphql/
+    method: >-
+      Standard GraphQL IntrospectionQuery POSTed anonymously; SDL rendered with graphql-core 3.2.11.
+      Nothing added, removed or renamed.
+    httpStatus: 200
+    fetched: '2026-07-27'
+    anonymous: true
+    parses: true
+  - title: OpenID Connect discovery document (EDF GB Kraken auth server)
+    format: OpenID Provider Metadata (JSON)
+    saved: authentication/edf-energy-kraken-openid-configuration.json
+    sourceURL: https://auth.edfgb-kraken.energy/.well-known/openid-configuration
+    httpStatus: 200
+    fetched: '2026-07-27'
+    anonymous: true
+    parses: true
+  provenanceNote: >-
+    All four documents are EDF-hosted and were fetched anonymously. The two OpenAPI files carry a
+    short comment header recording source URL, HTTP status and fetch date; the comment lines are the
+    only addition and do not change the parsed document. Unlike the mandated retailers in this study,
+    whose "specification" is the regulator's document reproduced identically by every participant,
+    these are EDF's own served artifacts — though the platform underneath them is licensed from a
+    competitor, so the contract is still not strictly EDF's invention.
+  emptyNamespaces:
+  - url: https://api.edfgb-kraken.energy/v2/orders/schema/
+    httpStatus: 200
+    note: Returns a valid OpenAPI 3.0.3 envelope with zero paths. Not saved — no content.
+  - url: https://api.edfgb-kraken.energy/external-events/schema/
+    httpStatus: 403
+    note: Namespace exists but is not served anonymously. Not saved.
+
+consumerVsMarketData:
+  consumerDataAPI: true
+  consumerDataDetail: >-
+    Yes — and this is the finding that matters, because no law required it. A third party can
+    obtain an individual EDF customer's electricity and gas consumption, tariff, account, billing
+    and smart-device data through a documented API. In REST:
+    GET /v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption/ and
+    GET /v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption/, both declared in the
+    harvested OpenAPI with security [KeyAuthentication, DRFKrakenTokenAuthentication] — i.e. an
+    Authorization token, not an open endpoint. In GraphQL: smartMeterTelemetry,
+    annualElectricityConsumption, extendedAnnualElectricityConsumption, annualGasConsumption,
+    applicableRates, smartMeterDataPreferences, readingConsentGranularity,
+    settableConsentGranularities, estimatedSupplyPointReadings and the SmartFlex/EV device
+    families. The third-party path is OAuth: the OpenID Connect discovery document at
+    auth.edfgb-kraken.energy advertises 111 scopes, among them request:consumption-data,
+    view:smartflex-data, update:smart-meter-data-preferences, register:smartflex-devices,
+    manage:ev, view:account-number, view:sensitive-customer-information, full-customer-access and
+    view:api-key. Consent granularity is a first-class concept in the schema, which is more than
+    several mandated regimes manage. Compare directly with a designated Australian CDR energy
+    retailer: there, a third party must become an ACCC-accredited data recipient, hold
+    Register-issued mTLS certificates, and the data holder does not even publish its consumer base
+    URI. Here, the base URI is published, the schema is introspectable by anyone, and the gate is
+    a commercial and account-holder relationship rather than a statutory accreditation.
+  marketDataOpen: false
+  marketDataDetail: >-
+    No. EDF operates no open grid, market or system-data API of its own, and the one place it
+    publishes market data itself is where its machine-readable channel is broken. EDF discloses
+    REMIT inside information — unavailability of its generation units, overwhelmingly its nuclear
+    fleet — at https://www.edfenergy.com/energy/remit-summary (HTTP 200, redirected from
+    /energy/transparency). That page offers "Download XML" and "Download CSV" links, and both
+    return HTTP 404. The genuinely machine-readable channel for exactly the same disclosures is
+    Elexon's BMRS, which EDF does not operate: a single anonymous call to
+    https://data.elexon.co.uk/bmrs/api/v1/remit/list/by-event for 2026-07-20 to 2026-07-27 returned
+    580 messages, 27 of them under EDF's registration code 48X000000000022A, participant BEGL001
+    (British Energy Generation Ltd). A representative record, retrieved anonymously at
+    https://data.elexon.co.uk/bmrs/api/v1/remit/905102, is an unplanned production unavailability
+    on unit T_HRTL-2 (Hartlepool, fuel type Nuclear, normal capacity 620 MW, available 557 MW,
+    unavailable 63 MW, 2026-07-14 to 2026-08-18, cause "De-load for operational reasons"). This
+    is the same structural split seen in Australia's CDR energy Product Reference Data: the open,
+    anonymous, machine-readable layer is real and it is hosted by the central body, not by the
+    company. Marked false deliberately rather than crediting EDF for data Elexon serves. Britain's
+    genuinely open energy APIs — NESO's Carbon Intensity API (verified at HTTP 200 on
+    api.carbonintensity.org.uk/intensity), Elexon's BMRS, and the DNO open-data portals — all
+    belong to system operators and networks, not to suppliers.
+  openTariffData:
+    finding: >-
+      The inversion of the market-data picture. EDF's retail product and tariff data is fully open
+      and anonymous, and EDF serves it itself — no key, no account, no form, no rate-limit
+      registration. That is unusual for a Big Six incumbent and it is a deliberate product
+      position, announced by EDF at
+      https://www.edfenergy.com/energywise/edfs-open-tariff-apis.
+    verified:
+    - url: https://api.edfgb-kraken.energy/v1/products/
+      httpStatus: 200
+      auth: none — fully anonymous
+      result: >-
+        Body begins {"count":21,"next":null,"previous":null,"results":[...]} — 21 live EDF products
+        returned, e.g. EDF_EMPOWER_TRACKER_EX_SEG_12M_V2_HH "Empower Tracker Exclusive 12m v2".
+      note: >-
+        The OpenAPI declares security as [KeyAuthentication, DRFKrakenTokenAuthentication, {}] —
+        the empty option makes authentication optional, and the anonymous call confirms it.
+    - url: https://api.edfgb-kraken.energy/v1/products/EDF_EMPOWER_TRACKER_EX_SEG_12M_V2_HH/
+      httpStatus: 200
+      auth: none
+      note: Product detail resolves anonymously, 14.8 KB of tariff structure.
+    - url: https://api.edfgb-kraken.energy/v1/industry/grid-supply-points/?postcode=SW1A1AA
+      httpStatus: 200
+      auth: none
+      result: '{"count":1,"results":[{"group_id":"_C"}]}'
+    - url: https://api.edfgb-kraken.energy/external-client-healthcheck/
+      httpStatus: 200
+      auth: none
+    - url: https://api.edfgb-kraken.energy/v1/graphql/
+      httpStatus: 200
+      auth: none
+      query: 'energyProducts(postcode: "SW1A1AA", brand: "EDF", first: 2)'
+      result: >-
+        Real EDF tariffs returned — EDF_FOL_06M_B1_1YR_26-07-24_v1 "Fixed Online 1 Year" and
+        EDF_FOL_06M_B1_1YR_RENEWABLE_26-07-24_v1 "Fixed 1 Year Renewable".
+      note: >-
+        The `brand` argument is required in practice. Omitting it, or passing EDFGB / edf / edf_gb /
+        EDF_ENERGY / EDFENERGY, returns errorCode KT-GB-9516 "We were unable to find any products
+        for this brand". The working value is exactly "EDF".
+
+accessGate:
+  gate: self-serve
+  gated: false
+  gateNuance: >-
+    Recorded as self-serve because that is literally true of the surface EDF publishes as its
+    developer programme: the portal is public, the documentation is public, both OpenAPI documents
+    are downloadable anonymously, the GraphQL schema is introspectable anonymously, and the tariff
+    and product endpoints return real data with no credential whatsoever. There is no signup wall,
+    no application form and no approval step to reach any of that. The nuance that must not be lost
+    is that the gate moves as soon as the data becomes personal — see below.
+  whatADeveloperMustDo: >-
+    To read EDF tariffs, products, unit rates, standing charges and grid supply points: nothing at
+    all. Call https://api.edfgb-kraken.energy/v1/products/ or POST the energyProducts query with
+    brand "EDF" to https://api.edfgb-kraken.energy/v1/graphql/. No key, no account, no registration,
+    no terms acceptance. To read a specific customer's consumption, account or billing data: obtain
+    an Authorization token. Kraken recognises three viewer classes — account users, organisations
+    and OAuth applications. An account user is an EDF customer authenticating against their own
+    account and retrieving their own key (the schema carries a view:api-key scope). Organisation and
+    OAuth-application credentials are issued by EDF under a commercial or partner relationship;
+    there is no self-serve OAuth client registration endpoint and none was found. To use the
+    customer-migration (data-import) API: be a supplier or partner with a migration agreement, keyed
+    by an import_supplier_code. There is no accreditation regime of any kind, because there is no
+    regulator requiring one — which is precisely the difference from an Australian CDR retailer.
+  selfServeSignup: false
+  selfServeSignupNote: >-
+    False is the accurate value even though the gate is self-serve, because there is no developer
+    signup at all — not a gated one, not an open one. EDF issues no developer accounts. You either
+    need nothing (open data) or you need to be a customer or a partner (personal data).
+  publicDeveloperPortal: true
+  portalEvidence:
+  - url: https://developer.edfgb-kraken.energy/
+    httpStatus: 200
+    note: >-
+      Real, public, self-serve developer portal. Navigation: GraphQL (Guides, Reference, Changelog),
+      REST (Guides, Reference), API Announcements. Branded EDF via Kraken's multi-client theming
+      (/static/clients/edfgb/). This is NOT a customer login.
+  - url: https://developer.edfgb-kraken.energy/graphql/
+    httpStatus: 200
+  - url: https://developer.edfgb-kraken.energy/graphql/guides/basics/
+    httpStatus: 200
+    note: Documents the endpoint, the auth server host, points-based rate limits and pagination.
+  - url: https://developer.edfgb-kraken.energy/graphql/reference/
+    httpStatus: 200
+  - url: https://developer.edfgb-kraken.energy/graphql/changelog/
+    httpStatus: 200
+    note: 3.0 MB of schema changelog.
+  - url: https://developer.edfgb-kraken.energy/rest/
+    httpStatus: 200
+  - url: https://developer.edfgb-kraken.energy/rest/reference/
+    httpStatus: 200
+    note: ReDoc rendering; the spec-url attribute is how the OpenAPI document was located.
+  - url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+    httpStatus: 200
+    note: >-
+      States the base URL https://api.edfgb-kraken.energy/v1/, HTTPS only, ISO 8601 datetimes, and
+      that the REST API "is a simple way for customers and partner organisations to access the EDF
+      platform".
+  - url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+    httpStatus: 200
+  - url: https://developer.edfgb-kraken.energy/announcements/
+    httpStatus: 200
+    note: >-
+      Dated deprecation and change notices, most recent 27/07/2026 "Upcoming Change to GraphQL
+      Mutation Nullability". A maintained, versioned programme, not a brochure.
+
+authModel:
+  openData: >-
+    None. Anonymous HTTPS GET for /v1/products/, /v1/products/{code}/,
+    /v1/industry/grid-supply-points/ and /external-client-healthcheck/, and anonymous HTTPS POST for
+    GraphQL introspection and energyProducts. No header of any kind is required.
+  restSchemes: >-
+    Five security schemes are declared in the harvested OpenAPI document —
+    AccountUserAPIKeyAuthentication (HTTP basic, token passed as the username),
+    AffiliateAuthentication (HTTP basic, affiliate organisations),
+    DRFKrakenTokenAuthentication (apiKey in the Authorization header, JWT-based),
+    KeyAuthentication (apiKey in the Authorization header, required prefix "Token "), and
+    PartnerUserOnlyAuthentication (HTTP basic, partner organisations).
+  graphql: >-
+    Authorization header carrying a Kraken JWT or an OAuth access token. Viewers are account users,
+    organisations and OAuth applications, with different hourly points allowances (50,000 / 100,000 /
+    300,000).
+  openidConfiguration:
+    probed:
+    - url: https://auth.edfgb-kraken.energy/.well-known/openid-configuration
+      httpStatus: 200
+      served: anonymously
+      saved: authentication/edf-energy-kraken-openid-configuration.json
+    - url: https://auth.edfgb-kraken.energy/.well-known/oauth-authorization-server
+      httpStatus: 404
+    - url: https://api.edfgb-kraken.energy/.well-known/openid-configuration
+      httpStatus: 404
+    - url: https://developer.edfgb-kraken.energy/.well-known/openid-configuration
+      httpStatus: 404
+    - url: https://www.edfenergy.com/.well-known/openid-configuration
+      httpStatus: 404
+    result: >-
+      A full OpenID Provider metadata document is served anonymously. issuer
+      https://auth.edfgb-kraken.energy/token/, authorization_endpoint /authorize/, token_endpoint
+      /token/, userinfo_endpoint /userinfo/, revocation_endpoint /revoke-token/, jwks_uri
+      /.well-known/jwks.json, end_session_endpoint /logout/. response_types_supported covers code,
+      token, id_token and the hybrid combinations. token_endpoint_auth_methods_supported is
+      client_secret_post and client_secret_basic (no private_key_jwt, no mTLS — the contrast with
+      the CDR's FAPI 1.0 Advanced profile is sharp). subject_types public;
+      id_token_signing_alg_values_supported HS256 and RS256; no code_challenge_methods_supported
+      advertised, so PKCE is not announced. 111 scopes are published, including openid,
+      full-customer-access, request:consumption-data, view:smartflex-data,
+      update:smart-meter-data-preferences, register:smartflex-devices, manage:ev,
+      view:sensitive-customer-information, view:account-number, view:api-key,
+      manage:product-enrolment, query:payment-instructions, manage:payment-schedules and
+      checkout:quote.
+
+probes:
+  date: '2026-07-27'
+  method: >-
+    curl, anonymous, following redirects, with a browser User-Agent; plus WebFetch for
+    JavaScript-rendered documentation pages. Every status below was observed, not inferred.
+  corporateSite:
+  - url: https://www.edfenergy.com/
+    httpStatus: 200
+  - url: https://www.edfenergy.com/robots.txt
+    httpStatus: 200
+    note: >-
+      Drupal 10 site. Disallows /energy/transparency and the REMIT RSS directories
+      /sites/default/files/remit/power/rss/ and /sites/default/files/remit/gas/rss/ — both of those
+      directories return HTTP 404, so the RSS channel they imply is not live.
+  - url: https://www.edfenergy.com/developers
+    httpStatus: 403
+    note: Varnish/CloudFront edge denial, not a developer page. No content behind it.
+  - url: https://www.edfenergy.com/api
+    httpStatus: 404
+  - url: https://www.edfenergy.com/docs
+    httpStatus: 404
+  - url: https://www.edfenergy.com/data
+    httpStatus: 404
+  - url: https://www.edfenergy.com/openapi.json
+    httpStatus: 404
+  - url: https://www.edfenergy.com/swagger.json
+    httpStatus: 404
+  - url: https://www.edfenergy.com/api-docs
+    httpStatus: 404
+  - url: https://www.edfenergy.com/.well-known/security.txt
+    httpStatus: 404
+  - url: https://www.edfenergy.com/.well-known/openid-configuration
+    httpStatus: 404
+  - url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+    httpStatus: 200
+    note: >-
+      EDF's own announcement of the open tariff APIs. This is the only link from the corporate
+      domain to the developer portal, and it is how the portal was found — no subdomain probe would
+      have located it, because the portal is not on edfenergy.com at all.
+  - url: https://www.edfenergy.com/energy/remit-summary
+    httpStatus: 200
+    note: Redirect target of /energy/transparency. HTML table of REMIT unavailability notices.
+  - url: https://www.edfenergy.com/remit-summary/xml?page&_format=xml
+    httpStatus: 404
+    note: EDF's own advertised XML export of its REMIT data. Broken.
+  - url: https://www.edfenergy.com/remit-summary/csv?page&_format=csv
+    httpStatus: 404
+    note: EDF's own advertised CSV export of its REMIT data. Broken.
+  - url: https://www.edfenergy.com/energy/remit-summary/xml?_format=xml
+    httpStatus: 404
+    note: 'Variant tried; returns text/xml body {"message":"No route found"}.'
+  - url: https://www.edfenergy.com/about
+    httpStatus: 200
+  - url: https://www.edfenergy.com/media-centre
+    httpStatus: 200
+  - url: https://www.edfenergy.com/terms-conditions/privacy-cookie-policy
+    httpStatus: 200
+  subdomainsThatDoNotExist:
+  - host: developer.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: developers.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: docs.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: data.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: opendata.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: apis.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: sandbox.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: partner.edfenergy.com
+    dnsResolves: false
+    httpStatus: 0
+  - host: api.edfenergy.com
+    dnsResolves: true
+    a: 195.59.168.55
+    httpStatus: 0
+    note: Resolves but the connection times out on both 443 and 80. Not a public API host.
+  - host: my.edfenergy.com
+    dnsResolves: true
+    httpStatus: 0
+    note: >-
+      Customer login. TLS handshake fails for a non-browser client (tlsv1 alert internal error).
+      Not a developer surface and not counted as one.
+  krakenPlatform:
+  - url: https://developer.edfgb-kraken.energy/
+    httpStatus: 200
+  - url: https://api.edfgb-kraken.energy/
+    httpStatus: 404
+    note: Correct — the surface is path-scoped.
+  - url: https://api.edfgb-kraken.energy/v1/graphql/
+    httpStatus: 400 on GET, 200 on POST
+    note: 'GET body: {"errors":[{"message":"Must provide query string."}]}'
+  - url: https://auth.edfgb-kraken.energy/
+    httpStatus: 200
+  - url: https://developer.edfgb-kraken.energy/robots.txt
+    httpStatus: 404
+  - url: https://developer.edfgb-kraken.energy/sitemap.xml
+    httpStatus: 404
+  - url: https://developer.edfgb-kraken.energy/openapi.json
+    httpStatus: 404
+  - url: https://developer.edfgb-kraken.energy/openapi.yaml
+    httpStatus: 404
+  - url: https://developer.edfgb-kraken.energy/schema.graphql
+    httpStatus: 404
+    note: >-
+      None of the conventional spec paths work on the portal host. The OpenAPI lives on the API
+      host and was only found by reading the ReDoc spec-url attribute out of the reference page's
+      HTML.
+  ecosystem:
+  - url: https://api.github.com/orgs/edfenergy
+    httpStatus: 200
+    note: >-
+      GitHub organization "EDF Energy ltd", created 2014-03-27, blog https://www.edfenergy.com,
+      2 public repositories (bespoke-PP-PCFiframe, EIT-M365DSC). No SDKs, no specs, no API
+      artifacts. Effectively an empty presence — the API programme lives entirely on the Kraken
+      platform, not in EDF's own source control.
+  - url: https://github.com/edf-energy
+    httpStatus: 200
+    note: Separate empty org, created 2016-10-11, 0 public repositories.
+  - url: https://data.elexon.co.uk/bmrs/api/v1/remit/list/by-event?from=2026-07-20&to=2026-07-27&latestRevisionOnly=true
+    httpStatus: 200
+    note: >-
+      580 REMIT messages returned anonymously; 27 carry EDF's registration code 48X000000000022A.
+      Elexon's API, not EDF's.
+  - url: https://data.elexon.co.uk/bmrs/api/v1/remit/905102
+    httpStatus: 200
+    note: EDF nuclear unit T_HRTL-2 unplanned unavailability record, retrieved anonymously.
+  - url: https://api.carbonintensity.org.uk/intensity
+    httpStatus: 200
+    note: >-
+      NESO's genuinely open Carbon Intensity API. Included only to mark the contrast — Britain's
+      open energy data belongs to the system operator, not to the supplier.
+  - url: https://smartenergycodecompany.co.uk/
+    httpStatus: 403
+    note: >-
+      Smart Energy Code Company. Blocks non-browser clients entirely, so no DCC/SEC party register
+      entry for EDF could be verified programmatically. No claim of verified registration is made.
+  - url: https://opendata.edf.fr/
+    httpStatus: 200
+    note: >-
+      The French parent EDF SA runs an OpenDataSoft open-data portal. It is the EDF Group's, on a
+      different domain and a different legal entity, and its datasets are French and overseas
+      territories. Deliberately NOT listed as an EDF Energy (UK) API, and it does not make
+      market_data_open true for this profile.
+  - url: https://bmrs.elexon.co.uk/remit
+    httpStatus: 200
+    note: The Elexon platform EDF's own REMIT page points visitors to.
+
+findings:
+  summary: >-
+    EDF Energy is the counter-example this study needs. Every other tier in the energy sector tests
+    whether a mandate produced an implementation; EDF tests what happens when there is no mandate at
+    all. Great Britain never created a consumer energy data right. It created a licensed
+    smart-metering monopoly instead, which moves data between industry parties and gives a developer
+    nothing. By the logic that explains the mandated markets, EDF should have no API. It has one of
+    the better utility APIs in Europe — a public developer portal, two first-party OpenAPI 3.0.3
+    documents, a 2,492-type GraphQL schema that anyone can introspect anonymously, a maintained
+    deprecation changelog, published rate limits, and an OpenID Connect server advertising 111
+    scopes with consent granularity as a modelled concept. The explanation is not virtue and it is
+    not regulation: EDF rents the API. In 2023 it licensed Kraken from Octopus Energy Group and
+    migrated 5.8 million customer accounts in fifteen months, and what is documented at
+    developer.edfgb-kraken.energy is the platform's contract with EDF's logo on it. Britain's
+    unusual result is that competitive pressure from one API-native supplier propagated an API into
+    its incumbent competitors by commercial licence, faster and further than a statute did in
+    Australia. The split inside EDF is then the reverse of the mandated pattern: tariff and product
+    data is wide open and EDF serves it itself with no key at all, while consumer data is documented
+    but gated by an account or a partner relationship — and the market data EDF is legally obliged
+    to disclose is where its own machine-readable channel is broken, with the XML and CSV export
+    links on its REMIT page both returning 404 and the working feed living on Elexon's API instead.
+  mandateIsNotImplementation: >-
+    Recorded as separate facts, in the direction this provider actually runs. Mandate: none for
+    consumer data; infrastructure-only via the Smart DCC, unverifiable from a public register
+    because the Smart Energy Code Company returns 403 to machines, and therefore claimed only as
+    the legal position and not as a verified registration. Implementation: extensive, and verified
+    by calling it — HTTP 200 on the portal, both specs downloaded and parsed, the GraphQL schema
+    introspected in full, live tariffs returned anonymously, the OIDC document retrieved. The only
+    EDF claim that failed verification was its own REMIT export links.
+  contrastWithMandatedMarkets: >-
+    Against a designated Australian CDR energy retailer, EDF publishes more and gates it less: base
+    URIs are published rather than distributed through a register, the schema is introspectable by
+    anyone rather than reproduced from a standards body, there is no accreditation, and the auth is
+    ordinary OAuth 2.0 with client_secret_basic rather than FAPI 1.0 Advanced with mTLS and
+    private_key_jwt. What EDF lacks is exactly what the mandate guarantees and the platform does
+    not: a legal right for a consumer to compel the transfer, an accreditation regime that makes
+    third-party access a rule rather than a favour, and a standard shape that is identical across
+    suppliers. EDF's API is better to use and weaker to rely on.
+  platformDependency: >-
+    Worth recording plainly. EDF Energy's entire public API programme is hosted on
+    *.edfgb-kraken.energy, a domain EDF does not own the platform of. Its own domains resolve
+    nothing developer-facing; api.edfenergy.com times out; its GitHub organization has two
+    unrelated repositories. If the Kraken licence ended, EDF's API would end with it. The same is
+    now true of Good Energy and E.ON Next, and of AGL in Australia via Kaluza — the retail data
+    layer across multiple markets is consolidating onto a small number of licensed platforms, and
+    the API surface consolidates with it.
+
+sources:
+- url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  type: Documentation
+  httpStatus: 200
+  note: EDF's own announcement of the open tariff APIs; the only pointer from edfenergy.com to the portal.
+- url: https://developer.edfgb-kraken.energy/
+  type: Documentation
+  httpStatus: 200
+  note: Confirmed public, self-serve developer portal.
+- url: https://api.edfgb-kraken.energy/v1/schema?namespaces=default
+  type: OpenAPI
+  httpStatus: 200
+  note: Harvested to openapi/edf-energy-kraken-openapi.yml — 27 paths.
+- url: https://api.edfgb-kraken.energy/data-import/schema/
+  type: OpenAPI
+  httpStatus: 200
+  note: Harvested to openapi/edf-energy-kraken-data-import-openapi.yml — 16 paths.
+- url: https://api.edfgb-kraken.energy/v1/graphql/
+  type: GraphQL
+  httpStatus: 200
+  note: Anonymous introspection; SDL saved to graphql/edf-energy-schema.graphql.
+- url: https://auth.edfgb-kraken.energy/.well-known/openid-configuration
+  type: Authentication
+  httpStatus: 200
+  note: Saved to authentication/edf-energy-kraken-openid-configuration.json — 111 scopes.
+- url: https://api.edfgb-kraken.energy/v1/products/
+  type: APIReference
+  httpStatus: 200
+  note: 21 live EDF products returned with no credential.
+- url: https://www.edfenergy.com/energy/remit-summary
+  type: Documentation
+  httpStatus: 200
+  note: REMIT disclosures; its own XML and CSV export links return 404.
+- url: https://data.elexon.co.uk/bmrs/api/v1/remit/905102
+  type: APIReference
+  httpStatus: 200
+  note: EDF REMIT record served by Elexon, anonymously — the working machine-readable channel.
+- url: https://www.edfenergy.com/media-centre/edf-completes-migration-58m-customer-accounts-15-months
+  type: News
+  note: EDF's announcement of completing the migration of 5.8 million accounts onto Kraken.
+- url: https://en.wikipedia.org/wiki/EDF_Energy
+  type: Documentation
+  note: Corporate identity, 2002 formation, British Energy acquisition, nuclear fleet, Pod Point, Pivot Power.
+
+actions:
+  apisYmlCreated: true
+  apisListed: 3
+  openapiHarvested: 2
+  graphqlSchemasHarvested: 1
+  authArtifactsHarvested: 1
+  fabricationCheck: >-
+    No host, endpoint, scope or specification was invented. Every URL in apis.yml is either a live
+    200 recorded above or an EDF corporate page recorded above with its status. The 111 OAuth scopes
+    were read out of the harvested discovery document, not recalled. The GraphQL type, query and
+    mutation counts were computed from the harvested schema. The tariff codes quoted were returned
+    by live calls. The two OpenAPI documents are byte-identical to what EDF served, apart from a
+    comment header recording provenance. No baseURL, sandbox or registration endpoint was recorded
+    that was not observed.
