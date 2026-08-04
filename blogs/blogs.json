@@ -1,0 +1,14 @@
+{
+  "repo": "edf-energy",
+  "feeds": [
+    {
+      "source": "https://www.edfenergy.com/media-centre",
+      "feed_url": "https://www.edfenergy.com/media-centre",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-08-01T15:49:00Z"
+}
