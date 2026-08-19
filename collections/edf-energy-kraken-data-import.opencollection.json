@@ -1,0 +1,434 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Kraken",
+    "version": "v1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "account_import",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Use this endpoint to stage account data before creating an account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/account-import-process/create-or-update/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "As the name suggests, this endpoint stores the data in Kraken but does not create an account from the data. Staged account data can be updated as many times as you like before an account is created."
+        },
+        {
+          "info": {
+            "name": "Use this endpoint to process staged account data into an account in Kraken.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/account-import-process/process/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "The endpoint accepts a JSON payload that contains an object referencing existing staged account data. The `operations_team_name` that the account should be linked to should also be provided. An optional `dry_run` field is available to test the account creation process without actually creating the account. This is useful for testing the process to ensure that an account would be created successfully."
+        },
+        {
+          "info": {
+            "name": "Find out the status of a single account import process",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/data-import/account-transfer-status/:import_supplier_code/:external_account_number/",
+            "params": [
+              {
+                "name": "external_account_number",
+                "value": "",
+                "type": "path",
+                "description": "The account number in the source system."
+              },
+              {
+                "name": "import_supplier_code",
+                "value": "",
+                "type": "path",
+                "description": "The code of an existing Import Supplier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to find out the status of a single account import process."
+        },
+        {
+          "info": {
+            "name": "Use this endpoint to validate account data before staging and creating an account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/validate-account/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to validate account data before staging and creating an account."
+        },
+        {
+          "info": {
+            "name": "Schedule the creation of an account in Kraken",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v2/data-import/accounts/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to schedule the creation of an account in Kraken. It accepts a request containing the necessary information for account creation, validates the data, and creates an account migration task to be executed asynchronously."
+        },
+        {
+          "info": {
+            "name": "Return the status of an account import process",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v2/data-import/accounts/:import_supplier_code/:external_identifier/",
+            "params": [
+              {
+                "name": "external_identifier",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "import_supplier_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to retrieve the current status of an account import."
+        },
+        {
+          "info": {
+            "name": "Validate the payload for creating an account in Kraken",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v2/data-import/accounts/validate/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to validate the payload for creating an account in Kraken. It accepts a request containing the necessary information for account creation but only performs the validation of that data. Nothing will be created in Kraken through this endpoint."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "query",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all accounts for import",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/data-import/all-account-import-processes/:import_supplier_code/",
+            "params": [
+              {
+                "name": "import_supplier_code",
+                "value": "",
+                "type": "path",
+                "description": "The code of an existing Import Supplier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to list all accounts for import, whether they are pending (their data has been staged) or have had a Kraken account created."
+        },
+        {
+          "info": {
+            "name": "List all accounts that have been imported",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/data-import/imported-account-import-processes/:import_supplier_code/",
+            "params": [
+              {
+                "name": "import_supplier_code",
+                "value": "",
+                "type": "path",
+                "description": "The code of an existing Import Supplier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to list all accounts that have been imported and now have a Kraken account."
+        },
+        {
+          "info": {
+            "name": "List meter point statuses for an account",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/data-import/meterpoint-statuses-for-account/:import_supplier_code/:external_account_number/",
+            "params": [
+              {
+                "name": "external_account_number",
+                "value": "",
+                "type": "path",
+                "description": "The account number in the source system."
+              },
+              {
+                "name": "import_supplier_code",
+                "value": "",
+                "type": "path",
+                "description": "The code of an existing Import Supplier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to list all meter point statuses by import supplier code and external account number."
+        },
+        {
+          "info": {
+            "name": "List all accounts pending import",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/data-import/pending-account-import-processes/:import_supplier_code/",
+            "params": [
+              {
+                "name": "import_supplier_code",
+                "value": "",
+                "type": "path",
+                "description": "The code of an existing Import Supplier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to list all accounts pending import (their data has been staged)."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "post_account_import",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Use this endpoint to import historical PDF statements onto an account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/historical-statements/create/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to import historical PDF statements onto an account."
+        },
+        {
+          "info": {
+            "name": "Use this endpoint to add notes to an account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/notes/create/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Some points to note:\n- A note must contain at least one of the fields `body` or `document_paths`.\n- A `created_at` datetime may optionally be provided. Otherwise, it will default to the current local time.\n- The `document_paths` refer to the locations in S3 where attached documents are stored.\n- An optional `is_pinned` boolean can be passed in the payload to control whether this note will be pinned to the top of the Kraken account support site page."
+        },
+        {
+          "info": {
+            "name": "Create a payment instruction.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/payment-instruction/create/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a payment instruction."
+        },
+        {
+          "info": {
+            "name": "Submit registration flows for meter points",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/send-registration-flows/:import_supplier_code/:external_account_number/",
+            "params": [
+              {
+                "name": "external_account_number",
+                "value": "",
+                "type": "path",
+                "description": "The account number in the source system."
+              },
+              {
+                "name": "import_supplier_code",
+                "value": "",
+                "type": "path",
+                "description": "The code of an existing Import Supplier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to submit registration flows for meter points on an existing imported account. Note that this endpoint marks meter points to be registered. Kraken will then pick up these meter points and attempt to register them. Given a successful response from this API, it is still possible for the registration process to fail downstream."
+        },
+        {
+          "info": {
+            "name": "Use this endpoint to import financial transactions to an account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/data-import/transactions/create/",
+            "params": [
+              {
+                "name": "check_previously_added",
+                "value": "",
+                "type": "query",
+                "description": "Boolean flag indicating whether to check if a transaction has already been added."
+              },
+              {
+                "name": "force_add_to_current_statement",
+                "value": "",
+                "type": "query",
+                "description": "boolean flag. If set to true and the payload contains a transaction that is outside the currently-open statement period, this will modify the transaction date so that it is within the currently-open statement period. This then allows the transaction to be added to the statement instead of throwing an error. A description is added to the transaction to explain this, and a note is pinned to the account."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint to import financial transactions to an account."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

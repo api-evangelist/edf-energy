@@ -1,0 +1,1020 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Kraken",
+    "version": "v1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "data-import",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Data Import Open Api Schema",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/data-import/schema/",
+            "params": [
+              {
+                "name": "format",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "username": "{{username}}",
+              "password": "{{password}}"
+            }
+          },
+          "docs": "Base OpenAPI schema endpoint that filters URL patterns by namespace.\n\nSubclasses must define ``schema_namespaces`` to control which URL\nnamespaces appear in the generated schema."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "external-client-healthcheck",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "External Client Health Check",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/external-client-healthcheck/"
+          },
+          "docs": "Healthcheck endpoint for external clients.\n\nWhen called, this API will return a 200 status and increment a metric.\n\nThis endpoint allows clients to implement a healthcheck that is also supported\nby monitoring on the Kraken side."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "external-events",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Open Api Schema",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/external-events/schema/",
+            "params": [
+              {
+                "name": "format",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "OpenApi3 schema for this API. Format can be selected via content negotiation.\n\n- YAML: application/vnd.oai.openapi\n- JSON: application/vnd.oai.openapi+json"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "v1",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create an account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/accounts/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "WARNING: This endpoint is only available to partner organisations."
+        },
+        {
+          "info": {
+            "name": "Renew a business tariff",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/accounts/:account_number/tariff-renewal/",
+            "params": [
+              {
+                "name": "account_number",
+                "value": "",
+                "type": "path",
+                "description": "Number of the account"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "This end-point allows a new agreement to be created for an existing account. It is restricted to business accounts. WARNING: This endpoint is only available to partner organisations."
+        },
+        {
+          "info": {
+            "name": "Get Electricity Meter Point",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/electricity-meter-points/:mpan/",
+            "params": [
+              {
+                "name": "mpan",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve the details of a meter-point. This endpoint can be used to get the GSP of a given meter-point."
+        },
+        {
+          "info": {
+            "name": "List consumption for an electricity meter",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/electricity-meter-points/:mpan/meters/:serial_number/consumption/",
+            "params": [
+              {
+                "name": "group_by",
+                "value": "",
+                "type": "query",
+                "description": "Aggregates consumption over a specified time period. A day is considered to start and end at midnight in the server’s timezone. The default is that consumption is returned in half-hour periods. Accepted values are: * ‘hour’ * ‘day’ * ‘week’ * ‘month’ * ‘quarter’."
+              },
+              {
+                "name": "mpan",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "order_by",
+                "value": "",
+                "type": "query",
+                "description": "Ordering of results returned. Default is that results are returned in reverse order from latest available figure. Valid values: * ‘period’, to give results ordered forward. * ‘-period’, (default), to give results ordered from most recent backwards."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 25000 to give a full year of half-hourly consumption details."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "serial_number",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return a list of consumption values (in kWh) for half-hour periods for a given meter-point and meter. WARNING: Half-hourly consumption data is only available for smart meters. Requests for consumption data for non-smart meters will return an empty response payload."
+        },
+        {
+          "info": {
+            "name": "List consumption for a gas meter",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/gas-meter-points/:mprn/meters/:serial_number/consumption/",
+            "params": [
+              {
+                "name": "group_by",
+                "value": "",
+                "type": "query",
+                "description": "Aggregates consumption over a specified time period. A day is considered to start and end at midnight in the server’s timezone. The default is that consumption is returned in half-hour periods. Accepted values are: * ‘hour’ * ‘day’ * ‘week’ * ‘month’ * ‘quarter’."
+              },
+              {
+                "name": "mprn",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "order_by",
+                "value": "",
+                "type": "query",
+                "description": "Ordering of results returned. Default is that results are returned in reverse order from latest available figure. Valid values: * ‘period’, to give results ordered forward. * ‘-period’, (default), to give results ordered from most recent backwards."
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 25000 to give a full year of half-hourly consumption details."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "serial_number",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return a list of consumption values (in kWh for SMETS1 and in m^3 for SMETS2) for half-hour periods for a given gas meter-point and meter. WARNING: Half-hourly consumption data is only available for smart meters. Requests for consumption data for non-smart meters will return an empty response payload."
+        },
+        {
+          "info": {
+            "name": "List Industry Grid Supply Points",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/industry/grid-supply-points/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "postcode",
+                "value": "",
+                "type": "query",
+                "description": "A postcode to filter GSPs by."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return a list of GSP objects, optionally filtered by postcode. If we’re unable to map the passed postcode to a GSP, an empty list will be returned"
+        },
+        {
+          "info": {
+            "name": "Confirm a Stripe payment intent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/payment-intents/confirm/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create Stripe charge using Stripe's PaymentIntent model and Elements (js) which automatically\napplies for authentication exemptions and performs authentication. The intent will be confirm\nusing the Stripe API, which then creates a charge.\n\nDocs: https://stripe.com/docs/payments/payment-intents/quickstart#manual-confirmation-flow"
+        },
+        {
+          "info": {
+            "name": "Create a Stripe payment intent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/payment-intents/create/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a Stripe payment using Stripe's PaymentIntent and Elements (js) which automatically\napplies for authentication exemptions and performs authentication. Handles both immediate and\nscheduled Stripe card payments.\n\nDocs: https://stripe.com/docs/payments/payment-intents/quickstart#manual-confirmation-flow"
+        },
+        {
+          "info": {
+            "name": "Mark a Stripe payment intent as failed",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/payment-intents/fail/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Handle a failure when creating a Stripe charge using Stripe's PaymentIntent model and\nElements (js) which automatically applies for authentication exemptions and performs\nauthentication.\n\nDocs: https://stripe.com/docs/payments/payment-intents/quickstart#manual-confirmation-flow"
+        },
+        {
+          "info": {
+            "name": "List Products",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/",
+            "params": [
+              {
+                "name": "available_at",
+                "value": "",
+                "type": "query",
+                "description": "Show products available for new agreements on the given datetime. Defaults to current datetime, effectively showing products that are currently available."
+              },
+              {
+                "name": "brand",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "is_business",
+                "value": "",
+                "type": "query",
+                "description": "Show only business products"
+              },
+              {
+                "name": "is_green",
+                "value": "",
+                "type": "query",
+                "description": "Show only green products"
+              },
+              {
+                "name": "is_historical",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "is_prepay",
+                "value": "",
+                "type": "query",
+                "description": "Show only pre-pay products"
+              },
+              {
+                "name": "is_tracker",
+                "value": "",
+                "type": "query",
+                "description": "Show only tracker products"
+              },
+              {
+                "name": "is_variable",
+                "value": "",
+                "type": "query",
+                "description": "Show only variable products"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return a list of energy products. By default, results will be public energy products but if the authenticated organisations will also see products available to their organisation."
+        },
+        {
+          "info": {
+            "name": "Product",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/",
+            "params": [
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Electricity Tariff Day Unit Rates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/electricity-tariffs/:tariff_code/day-unit-rates/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Electricity Tariff Ev Device Off Peak Unit Rates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/electricity-tariffs/:tariff_code/ev-device-off-peak-unit-rates/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Electricity Tariff Ev Device Peak Unit Rates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/electricity-tariffs/:tariff_code/ev-device-peak-unit-rates/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Electricity Tariff Night Unit Rates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/electricity-tariffs/:tariff_code/night-unit-rates/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Electricity Tariff Standard Unit Rates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/electricity-tariffs/:tariff_code/standard-unit-rates/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Electricity Tariff Standing Charges",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/electricity-tariffs/:tariff_code/standing-charges/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Gas Tariff Standard Unit Rates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/gas-tariffs/:tariff_code/standard-unit-rates/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Gas Tariff Standing Charges",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/products/:product_code/gas-tariffs/:tariff_code/standing-charges/",
+            "params": [
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "A page number within the paginated result set."
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices."
+              },
+              {
+                "name": "period_from",
+                "value": "",
+                "type": "query",
+                "description": "Show results from the given datetime (inclusive). This parameter can be provided on its own."
+              },
+              {
+                "name": "period_to",
+                "value": "",
+                "type": "query",
+                "description": "Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range."
+              },
+              {
+                "name": "product_code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tariff_code",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Create a quote",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/quotes/",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "At least one electricity or gas meter-point must be included. A maximum of one electricity and one gas meter-point can be included at this time. For all meter-points, at least one of gsp or postcode must be included. All meter-points must be based in the UK, excluding Northern Ireland. All meter-points must belong to the same gsp or postcode. WARNING: This endpoint is only available to partner organisations."
+        },
+        {
+          "info": {
+            "name": "Share a quote via email",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/quotes/:code/products/:product_id/",
+            "params": [
+              {
+                "name": "code",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "product_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Use this endpoint after quote creation to send a quote summary email to the specified recipients if they wish to enact the quote at a later time. A quote share record is saved to the database for each recipient’s email address. WARNING: This endpoint is only available to partner organisations."
+        },
+        {
+          "info": {
+            "name": "Twilio Enqueue Audio",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/voice/twilio/enqueue-audio/",
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          }
+        },
+        {
+          "info": {
+            "name": "Voice Announcement",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/voice/twilio/voice-announcement/",
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return TwiML that speaks a translated message to the caller.\n\nQuery parameters:\n\n- ``translation_key``: required if ``announcement`` is not provided — the FTL message identifier to translate.\n- ``announcement``: required if ``translation_key`` is not provided — the message to speak to the caller.\n- ``language_code``: optional — BCP-47 / Django language code to use for\n  the translation and Twilio TTS voice. Defaults to the client's configured\n  language when omitted."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "v2",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Order Management Open Api Schema",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v2/orders/schema/",
+            "params": [
+              {
+                "name": "format",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "username": "{{username}}",
+              "password": "{{password}}"
+            }
+          },
+          "docs": "Base OpenAPI schema endpoint that filters URL patterns by namespace.\n\nSubclasses must define ``schema_namespaces`` to control which URL\nnamespaces appear in the generated schema."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

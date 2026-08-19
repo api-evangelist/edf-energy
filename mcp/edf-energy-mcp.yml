@@ -202,3 +202,9 @@ tools:
   description: Validate the payload for creating an account in Kraken
   source_operation: openapi/edf-energy-kraken-data-import-openapi.yml#V2 Validate Account
   http: POST /v2/data-import/accounts/validate/
+deployment:
+  mode: none
+  verified: derived
+  tools: 40
+  checked: '2026-08-12'
+  source: catalog MCP census
