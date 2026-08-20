@@ -135,6 +135,16 @@ apis:
   - OpenAPI
   - Kraken
   - Tariffs
+  - Product
+  - Meter Points
+  - Consumption
+  - Grid Supply Points
+  - United Kingdom
+  tags_raw:
+  - REST
+  - OpenAPI
+  - Kraken
+  - Tariffs
   - Products
   - Meter Points
   - Consumption
