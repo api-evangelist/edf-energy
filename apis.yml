@@ -65,20 +65,18 @@ apis:
 - aid: edf-energy:edf-kraken-graphql-api
   name: EDF Kraken GraphQL API
   description: >-
-    EDF Energy's primary developer API, and the surface EDF markets as its "open tariff
-    APIs". It is the Kraken GraphQL API, licensed from Octopus Energy Group and hosted
-    for EDF GB. Introspection is enabled anonymously: a standard IntrospectionQuery
-    POSTed with no credentials returned HTTP 200 on 2026-07-27, yielding 2,492 types,
-    246 Query fields and 417 Mutation fields, saved verbatim as SDL in this repository.
-    Retail product and tariff data resolves without any credential — energyProducts(postcode:
-    "SW1A1AA", brand: "EDF") returned live EDF tariffs including EDF_FOL_06M_B1_1YR_26-07-24_v1
-    "Fixed Online 1 Year". Everything customer-scoped (smartMeterTelemetry,
-    annualElectricityConsumption, applicableRates, plannedDispatches, vehicleChargingPreferences,
-    fitInstallations, prepay ledgers) requires an Authorization header held by the account
-    user, an organisation, or an OAuth application. Published limits: 50,000 points/hour for
-    account users, 100,000 for organisations, 300,000 for OAuth applications; complexity limit
-    200; 10,000 nodes per request; rate-limit error KT-CT-1199. No consumer data mandate in
-    Great Britain produced any of this.
+    EDF Energy's primary developer API, and the surface EDF markets as its "open tariff APIs". It is the
+    Kraken GraphQL API, licensed from Octopus Energy Group and hosted for EDF GB. Introspection is enabled
+    anonymously: a standard IntrospectionQuery POSTed with no credentials returned HTTP 200 on 2026-07-27,
+    yielding 2,492 types, 246 Query fields and 417 Mutation fields, saved verbatim as SDL in this repository.
+    Retail product and tariff data resolves without any credential — energyProducts(postcode: "SW1A1AA",
+    brand: "EDF") returned live EDF tariffs including EDF_FOL_06M_B1_1YR_26-07-24_v1 "Fixed Online 1 Year".
+    Everything customer-scoped (smartMeterTelemetry, annualElectricityConsumption, applicableRates, plannedDispatches,
+    vehicleChargingPreferences, fitInstallations, prepay ledgers) requires an Authorization header held
+    by the account user, an organisation, or an OAuth application. Published limits: 50,000 points/hour
+    for account users, 100,000 for organisations, 300,000 for OAuth applications; complexity limit 200;
+    10,000 nodes per request; rate-limit error KT-CT-1199. No consumer data mandate in Great Britain produced
+    any of this.
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
@@ -112,47 +110,16 @@ apis:
   - type: Console
     name: GraphiQL IDE
     url: https://api.edfgb-kraken.energy/v1/graphql/
-- aid: edf-energy:edf-kraken-rest-api
-  name: EDF Kraken REST API
-  description: >-
-    The REST half of EDF's Kraken platform API, described by a first-party OpenAPI 3.0.3
-    document that EDF serves itself at https://api.edfgb-kraken.energy/v1/schema?namespaces=default
-    and renders through ReDoc on its developer portal. Harvested verbatim on 2026-07-27 at HTTP
-    200 with no credentials: 27 paths and 57 component schemas covering energy products and
-    their electricity and gas tariffs (day, night, standard, off-peak and peak EV unit rates and
-    standing charges), grid supply points, electricity and gas meter point consumption, account
-    creation, tariff renewal, quotes and payment intents. Access is split inside the same
-    document: /v1/products/ carries an empty security option and returned HTTP 200 anonymously
-    with 21 live EDF products, and /v1/industry/grid-supply-points/ resolved a postcode to GSP
-    group _C anonymously, while /v1/electricity-meter-points/{mpan}/ and the consumption
-    endpoints require KeyAuthentication ("Authorization: Token ...") or a Kraken JWT. Five
-    security schemes are declared: AccountUserAPIKeyAuthentication, AffiliateAuthentication,
-    DRFKrakenTokenAuthentication, KeyAuthentication and PartnerUserOnlyAuthentication.
-  humanURL: https://developer.edfgb-kraken.energy/rest/reference/
-  baseURL: https://api.edfgb-kraken.energy/v1/
+- aid: edf-energy:edf-energy-account-import-api
+  name: EDF Energy Account Import API
+  description: APIs for importing accounts.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
-  - REST
-  - OpenAPI
-  - Kraken
-  - Tariffs
-  - Product
-  - Meter Points
-  - Consumption
-  - Grid Supply Points
-  - United Kingdom
-  tags_raw:
-  - REST
-  - OpenAPI
-  - Kraken
-  - Tariffs
-  - Products
-  - Meter Points
-  - Consumption
-  - Grid Supply Points
-  - United Kingdom
+  - account_import
   properties:
   - type: OpenAPI
-    url: openapi/edf-energy-kraken-openapi.yml
+    url: openapi/edf-energy-account-import-api-openapi.yml
   - type: Documentation
     url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
   - type: APIReference
@@ -161,61 +128,222 @@ apis:
     url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
   - type: Authentication
     url: authentication/edf-energy-kraken-openid-configuration.json
-  - type: Overlay
-    url: overlays/edf-energy-kraken-overlay.yaml
   - type: ErrorCatalog
     url: errors/edf-energy-problem-types.yml
   - type: DataModel
     url: data-model/edf-energy-data-model.yml
-  - type: AgentSkill
-    name: Compare EDF electricity and gas tariffs for a postcode
-    url: skills/edf-energy-compare-tariffs.md
-  - type: AgentSkill
-    name: Read a customer's electricity and gas consumption
-    url: skills/edf-energy-read-consumption.md
-  - type: AgentSkill
-    name: Quote a supply and enrol a customer
-    url: skills/edf-energy-quote-and-enrol.md
   - type: GettingStarted
     url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
-- aid: edf-energy:edf-kraken-customer-migration-api
-  name: EDF Kraken Customer Migration (Data Import) API
-  description: >-
-    A second, separately published first-party OpenAPI 3.0.3 document describing the Kraken
-    customer-migration API, harvested verbatim from https://api.edfgb-kraken.energy/data-import/schema/
-    at HTTP 200 on 2026-07-27 with no credentials — 16 paths and 139 component schemas. It is the
-    machine-readable expression of how a customer book moves between suppliers onto Kraken:
-    account import processes are created, validated and processed, transfer status is polled per
-    external account number, and historical statements, transactions, notes and payment
-    instructions are imported, all keyed by an import_supplier_code. This is the operational
-    counterpart to the fact that EDF itself migrated 5.8 million accounts onto this platform in
-    fifteen months. It is a partner-facing contract: the endpoints require authentication, and
-    a developer needs a migration relationship with EDF rather than a signup form.
-  humanURL: https://developer.edfgb-kraken.energy/rest/guides/data-import/
-  baseURL: https://api.edfgb-kraken.energy/v1/
-  tags:
-  - REST
-  - OpenAPI
-  - Kraken
-  - Customer Migration
-  - Data Import
-  - Switching
-  - United Kingdom
-  properties:
-  - type: OpenAPI
-    url: openapi/edf-energy-kraken-data-import-openapi.yml
   - type: Documentation
     url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
-  - type: APIReference
-    url: https://developer.edfgb-kraken.energy/rest/reference/
-  - type: Overlay
-    url: overlays/edf-energy-kraken-data-import-overlay.yaml
   - type: Authentication
     url: authentication/edf-energy-authentication.yml
-  - type: AgentSkill
-    name: Migrate a customer book onto Kraken
-    url: skills/edf-energy-migrate-customer-book.md
+- aid: edf-energy:edf-energy-data-import-api
+  name: EDF Energy Data Import API
+  description: The data-import API from EDF Energy — 1 operation(s) for data-import.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - data-import
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-data-import-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-external-client-healthcheck-api
+  name: EDF Energy External Client Healthcheck API
+  description: >-
+    The external-client-healthcheck API from EDF Energy — 1 operation(s) for external-client-healthcheck.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - external-client-healthcheck
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-external-client-healthcheck-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-external-events-api
+  name: EDF Energy External Events API
+  description: The external-events API from EDF Energy — 1 operation(s) for external-events.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - external-events
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-external-events-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-post-account-import-api
+  name: EDF Energy Post Account Import API
+  description: APIs for importing additional data after an account has been imported.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - post_account_import
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-post-account-import-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-query-api
+  name: EDF Energy Query API
+  description: APIs for querying import status and retrieving data
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - query
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-query-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-v1-api
+  name: EDF Energy V1 API
+  description: The v1 API from EDF Energy — 23 operation(s) for v1.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - v1
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-v1-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-v2-api
+  name: EDF Energy V2 API
+  description: The v2 API from EDF Energy — 1 operation(s) for v2.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - v2
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-v2-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
 common:
+- type: AgentSkill
+  url: skills/edf-energy-compare-tariffs.md
+- type: AgentSkill
+  url: skills/edf-energy-read-consumption.md
+- type: AgentSkill
+  url: skills/edf-energy-quote-and-enrol.md
+- type: AgentSkill
+  url: skills/edf-energy-migrate-customer-book.md
 - type: AgenticAccess
   url: agentic-access/edf-energy-agentic-access.yml
 - type: DomainSecurity
