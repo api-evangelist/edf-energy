@@ -1,0 +1,27 @@
+slug: edf-energy
+provider: EDF Energy
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Power & Water Utilities
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: account_import
+  spec_file: edf-energy-account-import-api-openapi.yml
+  capability_id: BC-3910.10
+  capability_id_l1: BC-3910
+  capability_name: Utility Customer Account Management
+  confidence: 0.7
+  evidence: '''Use this endpoint to process staged account data into an account in Kraken''; ''V1 Get
+    Account Transfer Status''; schemas GasMeterPoint, ElectricityAgreement, MeterPoint'
+  reason: Operations create and validate energy supply accounts carrying meter points and electricity/gas
+    agreements, i.e. onboarding/transferring utility customer accounts with supply-point identifiers.
+    Some doubt remains because the surface is framed as a bulk data-migration pipeline rather than in-life
+    account servicing.

@@ -348,6 +348,9 @@ apis:
   - type: Authentication
     url: authentication/edf-energy-authentication.yml
 common:
+- type: CapabilityMap
+  url: capabilities/edf-energy-capability-edges.yml
+  name: EDF Energy Business Capability Map
 - type: AgentSkill
   url: skills/edf-energy-compare-tariffs.md
 - type: AgentSkill
