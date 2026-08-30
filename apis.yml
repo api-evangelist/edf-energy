@@ -127,7 +127,8 @@ apis:
   description: APIs for importing accounts.
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
-  tags:
+  tags: []
+  tags_raw:
   - account_import
   properties:
   - type: OpenAPI
@@ -156,6 +157,8 @@ apis:
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
+  - Data Import
+  tags_raw:
   - data-import
   properties:
   - type: OpenAPI
@@ -240,7 +243,8 @@ apis:
   description: APIs for importing additional data after an account has been imported.
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
-  tags:
+  tags: []
+  tags_raw:
   - post_account_import
   properties:
   - type: OpenAPI
@@ -269,6 +273,8 @@ apis:
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
+  - Query
+  tags_raw:
   - query
   properties:
   - type: OpenAPI
@@ -325,6 +331,8 @@ apis:
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
+  - V2
+  tags_raw:
   - v2
   properties:
   - type: OpenAPI
