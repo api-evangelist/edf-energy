@@ -1,0 +1,2439 @@
+openapi: 3.2.0
+info:
+  title: Kraken Post Account Import API
+  version: v1
+  description: APIs for importing additional data after an account has been imported.
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: post_account_import
+  x-title: Post Account Import
+  description: APIs for importing additional data after an account has been imported.
+  x-documentation-order: 6
+paths:
+  /v1/data-import/historical-statements/create/:
+    post:
+      operationId: V1 Create Historical Statements
+      description: Use this endpoint to import historical PDF statements onto an account.
+      summary: Use this endpoint to import historical PDF statements onto an account.
+      tags:
+      - post_account_import
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoricalStatements'
+            examples:
+              ExamplePayload:
+                value:
+                  import_supplier: TENTACLE_ENERGY
+                  external_account_number: EXTERNAL-1234
+                  statements:
+                  - bill_period_from_date: '2022-01-01'
+                    bill_period_to_date: '2022-01-31'
+                    statement_id: '1'
+                    issued_date: '2022-02-02'
+                    number: '1'
+                    gross_amount: 100
+                    statement_path: path/to/statement-1.pdf
+                summary: Example payload
+        required: true
+      security:
+      - DataImportViewerAPIKeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NonFieldErrors'
+              examples:
+                AccountNumberOrExternalAccountNumberMustBeProvided:
+                  value:
+                    non_field_errors:
+                    - Either account_number or external_account_number must be provided.
+                  summary: account_number or external_account_number must be provided
+          description: Validation error.
+        '404':
+          description: The account import process or account have not been found. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier code` and `external_account_number` are correct.
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoricalStatements'
+          description: If the payload is valid, the validated data will be returned in the body of the response.
+      x-doc-alerts: []
+  /v1/data-import/notes/create/:
+    post:
+      operationId: V1 Create Account Notes
+      description: 'Some points to note:
+
+        - A note must contain at least one of the fields `body` or `document_paths`.
+
+        - A `created_at` datetime may optionally be provided. Otherwise, it will default to the current local time.
+
+        - The `document_paths` refer to the locations in S3 where attached documents are stored.
+
+        - An optional `is_pinned` boolean can be passed in the payload to control whether this note will be pinned to the top of the Kraken account support site page.'
+      summary: Use this endpoint to add notes to an account.
+      tags:
+      - post_account_import
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountNote'
+            examples:
+              ExamplePayload:
+                value:
+                  import_supplier: TENTACLE_ENERGY
+                  external_account_number: EXTERNAL-1234
+                  notes:
+                  - body: Some important pinned note.
+                    is_pinned: true
+                    unpin_at: '2020-06-01T12:00:00Z'
+                  - created_at: '2020-02-01T12:00:00Z'
+                    body: Some important note with an attachment.
+                    document_paths:
+                    - document_path: some/path/to/a/document.pdf
+                summary: Example payload
+        required: true
+      security:
+      - DataImportViewerAPIKeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NonFieldErrors'
+              examples:
+                AccountNumberOrExternalAccountNumberMustBeProvided:
+                  value:
+                    non_field_errors:
+                    - Either account_number or external_account_number must be provided.
+                  summary: account_number or external_account_number must be provided
+          description: Validation error.
+        '404':
+          description: The account import process or account have not been found. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier code` and `external_account_number` are correct.
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAccountNotesResponse'
+              examples:
+                CreateNoteSuccessExample:
+                  value:
+                  - created_at: '2020-01-01T12:00:00Z'
+                    body: Something very important to import.
+                    status: NOTE_CREATION_SUCCESS
+                  - created_at: '2020-02-01T12:00:00Z'
+                    body: Something else very important to import.
+                    status: NOTE_ALREADY_EXISTS
+                  summary: Create note success example
+          description: If the payload is valid, a list of the posted notes and their creation status will be returned in the response. A new note will only be created if a note on the account with the same body (and `created_at`, if provided) does not already exist.
+      x-doc-alerts: []
+  /v1/data-import/payment-instruction/create/:
+    post:
+      operationId: V1 Create Payment Instruction
+      description: Create a payment instruction.
+      summary: Create a payment instruction.
+      tags:
+      - post_account_import
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegacyPaymentInstruction'
+            examples:
+              ExamplePayload:
+                value:
+                  import_supplier: TENTACLE_ENERGY
+                  external_account_number: EXTERNAL-1234
+                  vendor: STRIPE
+                  reference: THIS-IS-A-FAKE-REFERENCE
+                  type: CARD
+                summary: Example payload
+        required: true
+      security:
+      - DataImportViewerAPIKeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentInstructionResponse'
+              examples:
+                CreatedPaymentInstruction.:
+                  value:
+                    kraken_account_number: A-C90DC431
+                    reference: THIS-IS-A-FAKE-REFERENCE
+                  summary: Created payment instruction.
+          description: If the payload is valid, the Kraken account number and the reference will be returned.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentInstructionError'
+              examples:
+                AccountAlreadyHasAnActiveInstructionError.:
+                  value:
+                    error_detail: Account already has an active instruction
+                    external_account_number: '7654321'
+                    import_supplier: SOME_IMPORT_SUPPLIER
+                    reference: THIS-IS-A-FAKE-REFERENCE
+                  summary: Account already has an active instruction error.
+          description: '
+
+            If there are validation errors, the errors will be detailed in the body of the response. To
+
+            resolve the error, refer to the field definitions and validation rules.
+
+
+            This error can be returned if we have persistent issues communicating with the upstream payment
+
+            vendor (we call their API to verify the instruction exists, and retrieve the details to store in
+
+            Kraken). In this case, **the request should not be retried in its current form**.
+
+            '
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentInstructionError'
+          description: '
+
+            This error can be returned if we have intermittent issues communicating with the upstream payment
+
+            vendor (we call their API to verify the instruction exists, and retrieve the details to store in
+
+            Kraken). In this case, **the request should be retried as-is**.
+
+            '
+      x-doc-alerts: []
+  /v1/data-import/send-registration-flows/{import_supplier_code}/{external_account_number}/:
+    post:
+      operationId: V1 Send Registration Flows
+      description: Use this endpoint to submit registration flows for meter points on an existing imported account. Note that this endpoint marks meter points to be registered. Kraken will then pick up these meter points and attempt to register them. Given a successful response from this API, it is still possible for the registration process to fail downstream.
+      summary: Submit registration flows for meter points
+      parameters:
+      - in: path
+        name: external_account_number
+        schema:
+          type: string
+        description: The account number in the source system.
+        required: true
+      - in: path
+        name: import_supplier_code
+        schema:
+          type: string
+        description: The code of an existing Import Supplier.
+        required: true
+      tags:
+      - post_account_import
+      security:
+      - DataImportViewerAPIKeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GbrMeterPointRegistrationStatuses'
+              examples:
+                SuccessfulRegistrationFlowRequest:
+                  value:
+                    external_account_number: A-1234
+                    import_supplier_code: TENTACLE_ENERGY
+                    meter_points:
+                    - mpxn: '1013004420117'
+                      status: REGISTRATION_FLOW_SUCCESS
+                    - mpxn: '3406086401'
+                      status: REGISTRATION_FLOW_ERROR
+                      error_detail: TEN not current supplier
+                  summary: Successful Registration Flow Request
+          description: If the request is successful, a 200 OK response will be returned with an array of objects detailing the status of each of the meter points marked for enrolment. If a meter point was successfully marked for enrolment then a REGISTRATION_FLOW_SUCCESS status will be returned along with the MPAN or MPRN (mpxn). If there was an error in marking the meter point for enrolment then a REGISTRATION_FLOW_ERROR status will be returned along with the MPAN or MPRN and an additional error_detail field with more information on the reason for failure.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GbrRegistrationFlowError'
+              examples:
+                AccountNotFound:
+                  value:
+                    external_account_number: A-1234
+                    import_supplier_code: TENTACLE_ENERGY
+                    error_detail: Account not found for A-1234.
+                  summary: Account not found
+          description: If an account is not found, or no meter points are found on the account to register, then a 404 Not Found response will be returned. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier` code and `external_account_number` in the request are correct.
+      x-doc-alerts: []
+  /v1/data-import/transactions/create/:
+    post:
+      operationId: V1 Create Transactions
+      description: Use this endpoint to import financial transactions to an account.
+      summary: Use this endpoint to import financial transactions to an account.
+      parameters:
+      - in: query
+        name: check_previously_added
+        schema:
+          type: boolean
+          default: true
+        description: Boolean flag indicating whether to check if a transaction has already been added.
+      - in: query
+        name: force_add_to_current_statement
+        schema:
+          type: boolean
+          default: true
+        description: boolean flag. If set to true and the payload contains a transaction that is outside the currently-open statement period, this will modify the transaction date so that it is within the currently-open statement period. This then allows the transaction to be added to the statement instead of throwing an error. A description is added to the transaction to explain this, and a note is pinned to the account.
+      tags:
+      - post_account_import
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transactions'
+            examples:
+              ExamplePayload:
+                value:
+                  import_supplier: TENTACLE_ENERGY
+                  external_account_number: EXTERNAL-1234
+                  transactions:
+                  - transaction_id: '1'
+                    transaction_date: '2019-10-01'
+                    amount: 10.0
+                    type: CHARGE
+                    reason: IMPORTED_CHARGE
+                    display_note: Some customer facing note about the charge.
+                    reference: charge-reference-1
+                    note: Some internal note about the charge.
+                  - transaction_id: '2'
+                    transaction_date: '2019-10-01'
+                    amount: 10.0
+                    type: CHARGE
+                    reason: PREPAY_DEBT_ADJUSTMENT
+                    display_note: Some customer facing note about the prepay charge.
+                    reference: prepay-charge-reference-1
+                    note: Some internal note about the prepay charge.
+                    to_prepay_meter_serial_number: Z16N389556
+                  - transaction_id: '3'
+                    transaction_date: '2019-10-01'
+                    amount: 10.0
+                    type: CREDIT
+                    reason: IMPORTED_CREDIT
+                    display_note: Some customer facing note about the credit.
+                    reference: credit-reference-1
+                    note: Some internal note about the credit.
+                  - transaction_id: '4'
+                    transaction_date: '2019-10-01'
+                    amount: 10.0
+                    type: PAYMENT
+                    reason: ACCOUNT_CHARGE_PAYMENT
+                    reference: payment-reference-1
+                    payment_type: DD_REGULAR_COLLECTION
+                    note: Some internal note about the payment.
+                  - transaction_id: '5'
+                    transaction_date: '2019-10-01'
+                    amount: 10.0
+                    type: REPAYMENT
+                    reason: FULL_CREDIT_REFUND
+                    reference: repayment-reference-1
+                    payment_type: DIRECT_CREDIT
+                    note: Some internal note about the repayment.
+                  - transaction_id: '6'
+                    transaction_date: '2019-10-01'
+                    amount: 53.24
+                    type: SUPPLY_CHARGE
+                    display_note: Some customer facing note about the supply charge.
+                    reference: supply-charge-reference-1
+                    product_code: SOME-PRODUCT-CODE-4321
+                    line_items:
+                    - rate_band: CONSUMPTION_STANDARD
+                      start_date: '2019-10-01'
+                      end_date: '2019-11-01'
+                      number_of_units: 4.0
+                      net_amount: 44.0
+                      price_per_unit: 11.0
+                      units:
+                      - 4.0
+                      - 8.0
+                    tax_items:
+                    - amount: 9.24
+                      tax_type: VAT
+                      value_taxed: 44.0
+                      rate: 0.21
+                      unit_type: PROPORTION
+                summary: Example payload
+        required: true
+      security:
+      - DataImportViewerAPIKeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadCreateTransactionsRequest'
+              examples:
+                BadTransactionPayload:
+                  value:
+                    transactions:
+                      '0':
+                        reason:
+                        - Not a valid string.
+                  summary: Bad transaction payload
+                ErrorCreatingTheTransaction:
+                  value:
+                    status: TRANSACTION_IMPORT_ERROR
+                    error_detail: 'UnableToCreateTransaction - 2019-09-28 of Payment #1 of 7100 on 2019-09-28 (ThirdParty) is not within the statement A-00000001 2019-10-01 - 2019-10-15 (OPEN) period'
+                    transaction_data:
+                      transaction_id: '1'
+                      transaction_date: '2019-09-28'
+                      amount: '71.00'
+                      type: PAYMENT
+                      reason: GENERAL_CREDIT
+                      reference: reference 1
+                      payment_type: DEBIT_CARD
+                  summary: Error creating the transaction
+          description: Could not create transactions
+        '404':
+          description: The account import process or account have not been found. To resolve the error, check that the account has been imported (not just staged) and that the `import_supplier code` and `external_account_number` are correct.
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsCreated'
+              examples:
+                TransactionCreationResponseExample:
+                  value:
+                    results:
+                    - status: TRANSACTION_ALREADY_EXISTS
+                      transaction_data:
+                        transaction_id: '1'
+                        transaction_date: '2019-10-01'
+                        amount: '71.00'
+                        type: PAYMENT
+                        reason: GENERAL_CREDIT
+                        reference: reference 1
+                        payment_type: DEBIT_CARD
+                        status: TRANSACTION_IMPORT_SUCCESS
+                    - status: TRANSACTION_ADDED_TO_ACCOUNT
+                      transaction_data:
+                        transaction_id: '2'
+                        transaction_date: '2019-10-04'
+                        amount: '180.00'
+                        type: PAYMENT
+                        reason: GENERAL_CREDIT
+                        reference: reference 2
+                        payment_type: DEBIT_CARD
+                  summary: Transaction creation response example
+          description: If the payload is valid, and there were no errors while importing the transactions, an object will be returned with a list of transactions that were passed in along with their creation statuses.
+      x-doc-alerts: []
+components:
+  schemas:
+    TransactionsCreated:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionAnnotatedWithStatus'
+          description: <p>The response when the transaction was created successfully.</p>
+      required:
+      - results
+    NoteDocument:
+      type: object
+      properties:
+        document_path:
+          type: string
+          description: <p>The S3 relative path to the document to be attached to the note.</p>
+          x-validators:
+          - name: Validate path exists in file store
+            description: Validate that the given path corresponds to a file that has previously been uploaded to the migration file store. Note that this validation is disabled by default and can be enabled using the relevant feature flag.
+            possible_errors:
+            - path_does_not_exist_in_file_store
+      required:
+      - document_path
+    EnergyTransaction:
+      oneOf:
+      - $ref: '#/components/schemas/EnergyCredit'
+      - $ref: '#/components/schemas/EnergyCharge'
+      - $ref: '#/components/schemas/EnergyPayment'
+      - $ref: '#/components/schemas/EnergyRepayment'
+      - $ref: '#/components/schemas/EnergySupplyCharge'
+      discriminator:
+        propertyName: type
+        mapping:
+          CREDIT: '#/components/schemas/EnergyCredit'
+          CHARGE: '#/components/schemas/EnergyCharge'
+          PAYMENT: '#/components/schemas/EnergyPayment'
+          REPAYMENT: '#/components/schemas/EnergyRepayment'
+          SUPPLY_CHARGE: '#/components/schemas/EnergySupplyCharge'
+    TransactionData:
+      oneOf:
+      - $ref: '#/components/schemas/EnergyCredit'
+      - $ref: '#/components/schemas/EnergyCharge'
+      - $ref: '#/components/schemas/EnergyPayment'
+      - $ref: '#/components/schemas/EnergyRepayment'
+      - $ref: '#/components/schemas/EnergySupplyCharge'
+      discriminator:
+        propertyName: type
+        mapping:
+          CREDIT: '#/components/schemas/EnergyCredit'
+          CHARGE: '#/components/schemas/EnergyCharge'
+          PAYMENT: '#/components/schemas/EnergyPayment'
+          REPAYMENT: '#/components/schemas/EnergyRepayment'
+          SUPPLY_CHARGE: '#/components/schemas/EnergySupplyCharge'
+    NonFieldErrors:
+      type: object
+      properties:
+        non_field_errors:
+          type: array
+          items:
+            type: string
+            description: Description of the error.
+          description: Validation error messages.
+      required:
+      - non_field_errors
+    EnergyCharge:
+      type: object
+      properties:
+        type:
+          enum:
+          - CHARGE
+          - PAYMENT
+          - REPAYMENT
+          - CREDIT
+          - SUPPLY_CHARGE
+          type: string
+          x-spec-enum-id: 06d6aba5cee32f9a
+          description: <p>The type of the transaction.</p>
+          x-enum-descriptions:
+            CHARGE: Charge
+            PAYMENT: Payment
+            REPAYMENT: Repayment
+            CREDIT: Credit
+            SUPPLY_CHARGE: Supply Charge
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+          description: <p>The amount of the transaction. e.g. if the customer has a consumption charge worth 23.43, this equates to a transaction of type <code>CHARGE</code> of 23.43. Payments and repayments must be positive numbers. Generally charges and credits are also positive, but may be negative to represent reversed charges or credits, or if an incorrect estimated reading has resulted in a negative consumption charge. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        billing_document_identifier:
+          type: string
+          description: <p>The identifier from the source system that groups a set of transactions together. This will be used in Kraken during the migration of historical statement transactions to create an archived billing document. For now this field is only required if <code>HISTORICAL_STATEMENT_REQUIRE_SINGLE_BILLING_DOCUMENT_IDENTIFIER</code> settings is ON and is meant for only <code>historical_statements_transactions</code>. Passing this to other transactions like <code>current_statement_transactions</code> or <code>transactions_in_open_settlement_period</code> will raise validation error.</p>
+        display_note:
+          type: string
+          description: <p>The customer-facing note that can be displayed in a statement or email to the customer.</p>
+        note:
+          type: string
+          description: <p>Any additional notes about the transaction.</p>
+        reason:
+          enum:
+          - DEFAULT
+          - BALANCE_TRANSFER
+          - CONTRIBUTION_TAX_FREE
+          - DATA_IMPORT_BALANCE_TRANSFER
+          - DEPOSIT
+          - BALANCE_TRANSFER_FOR_FINAL_BILLED_ACCOUNT
+          - IMPORTED_CHARGE
+          - SUPPLEMENTARY_LEDGER_BALANCE_TRANSFER
+          - REVERSED_ACCOUNT_CREDIT
+          - LATE_PAYMENT_FEE_CHARGE
+          - PREPAY_BALANCE_ADJUSTMENT
+          - PREPAY_IMBALANCE_WRITE_OFF
+          - PREPAY_MIGRATION_IMBALANCE
+          - AC_ADJUSTMENT
+          - ADJUSTED_CREDIT_TO_ALLOW_REFUND
+          - AUTO_RECONCILIATION
+          - BUSINESS_ADVANCE_PAYMENT
+          - BUSINESS_PREPAYMENT
+          - CARBON_OFFSET
+          - CREDIT_BALANCE_DONATED_TO_CHARITY
+          - DCA_CHARGE
+          - DEBT_ASSIGNMENT_GAINING_SUPPLIER
+          - DIRECT_DEBIT_REFUND_BALANCING
+          - FEED_IN_TARIFF_PAYMENT_TRANSFER_TO_NOMINATED_RECIPIENT
+          - GREEN_DEAL_CHARGE
+          - INCORRECT_PAYMENT_REVERSAL
+          - METERING_JOB_BUSINESS
+          - METERING_JOB_NATIONAL_GRID
+          - METERING_JOB_SMS
+          - NEST_LEARNING_THERMOSTAT_RENTAL
+          - OUTGOING_BALANCE_TRANSFER
+          - OVER_THE_COUNTER_PAYMENT_FEE
+          - PAPER_BILL_FEE
+          - PENALTY_CHARGE
+          - PREPAY_DEBT_ADJUSTMENT
+          - REASON_EARLY_EXIT_FEE
+          - REFUND
+          - SERVICE_ORDER
+          - SOLR_BALANCE_TRANSFER
+          - WATER
+          - WRITE_BACK
+          - EBSS_CHARGE_REVERSAL
+          - LATE_PAYMENT_FEE
+          - RPS_INVESTIGATION_CHARGE
+          - RPS_WARRANT_CHARGE
+          - RPS_DAMAGE
+          - RPS_RESEAL_FEE
+          - SAP_MIGRATED_DEBITS
+          - ADDITIONAL_CHARGES_0
+          - ADDITIONAL_CHARGES_20
+          - ADDITIONAL_CHARGES_5
+          - RECONNECTION_CHARGE
+          - GREENDEALCHARGE
+          - OPUS_FINAL_BALANCE_TRANSFER
+          - REASON_EARLY_EXIT_FEE_5
+          - TEMP_REFUND
+          - MIGRATION_ADJUSTMENT
+          - WELFARE_VISIT_FEE
+          - WARRANT_FEES_COSTS
+          - WARRANT_EXECUTION_FEE
+          - TERM_DCA_FEE
+          - POST_OFFICE_PAYMENT_CORRECTION
+          - RPS_LOSS_5
+          - RPS_ADJUSTMENT_20
+          - RPS_CCL_ADJUSTMENT
+          - METERING_APPOINTMENT_FAILURE
+          - REASON_EARLY_EXIT_FEE_0
+          - PAYMENT_CORRECTION
+          - OPUS_FINAL_BALANCE_ADJUSTMENT
+          - LATE_PAYMENT_RESI
+          - LATE_PAYMENT_SME
+          - EARLY_TERMINATION_FEE
+          - TRANSFERRED_DEBT_BILL_ADJUSTMENT
+          - INDEMNITY_CLAIM
+          - SAP_WRITE_OFF_RECOVER
+          - DEBTSOLD_PAYMENTREVERSAL
+          - CHAPS_REFUND
+          type: string
+          x-spec-enum-id: dce8c95be7b5e343
+          description: <p>The reason for the transaction.</p>
+          x-enum-descriptions:
+            DEFAULT: DEFAULT
+            BALANCE_TRANSFER: BALANCE_TRANSFER
+            CONTRIBUTION_TAX_FREE: CONTRIBUTION_TAX_FREE
+            DATA_IMPORT_BALANCE_TRANSFER: DATA_IMPORT_BALANCE_TRANSFER
+            DEPOSIT: DEPOSIT
+            BALANCE_TRANSFER_FOR_FINAL_BILLED_ACCOUNT: BALANCE_TRANSFER_FOR_FINAL_BILLED_ACCOUNT
+            IMPORTED_CHARGE: IMPORTED_CHARGE
+            SUPPLEMENTARY_LEDGER_BALANCE_TRANSFER: SUPPLEMENTARY_LEDGER_BALANCE_TRANSFER
+            REVERSED_ACCOUNT_CREDIT: REVERSED_ACCOUNT_CREDIT
+            LATE_PAYMENT_FEE_CHARGE: LATE_PAYMENT_FEE_CHARGE
+            PREPAY_BALANCE_ADJUSTMENT: PREPAY_BALANCE_ADJUSTMENT
+            PREPAY_IMBALANCE_WRITE_OFF: PREPAY_IMBALANCE_WRITE_OFF
+            PREPAY_MIGRATION_IMBALANCE: PREPAY_MIGRATION_IMBALANCE
+            AC_ADJUSTMENT: AC_ADJUSTMENT
+            ADJUSTED_CREDIT_TO_ALLOW_REFUND: ADJUSTED_CREDIT_TO_ALLOW_REFUND
+            AUTO_RECONCILIATION: AUTO_RECONCILIATION
+            BUSINESS_ADVANCE_PAYMENT: BUSINESS_ADVANCE_PAYMENT
+            BUSINESS_PREPAYMENT: BUSINESS_PREPAYMENT
+            CARBON_OFFSET: CARBON_OFFSET
+            CREDIT_BALANCE_DONATED_TO_CHARITY: CREDIT_BALANCE_DONATED_TO_CHARITY
+            DCA_CHARGE: DCA_CHARGE
+            DEBT_ASSIGNMENT_GAINING_SUPPLIER: DEBT_ASSIGNMENT_GAINING_SUPPLIER
+            DIRECT_DEBIT_REFUND_BALANCING: DIRECT_DEBIT_REFUND_BALANCING
+            FEED_IN_TARIFF_PAYMENT_TRANSFER_TO_NOMINATED_RECIPIENT: FEED_IN_TARIFF_PAYMENT_TRANSFER_TO_NOMINATED_RECIPIENT
+            GREEN_DEAL_CHARGE: GREEN_DEAL_CHARGE
+            INCORRECT_PAYMENT_REVERSAL: INCORRECT_PAYMENT_REVERSAL
+            METERING_JOB_BUSINESS: METERING_JOB_BUSINESS
+            METERING_JOB_NATIONAL_GRID: METERING_JOB_NATIONAL_GRID
+            METERING_JOB_SMS: METERING_JOB_SMS
+            NEST_LEARNING_THERMOSTAT_RENTAL: NEST_LEARNING_THERMOSTAT_RENTAL
+            OUTGOING_BALANCE_TRANSFER: OUTGOING_BALANCE_TRANSFER
+            OVER_THE_COUNTER_PAYMENT_FEE: OVER_THE_COUNTER_PAYMENT_FEE
+            PAPER_BILL_FEE: PAPER_BILL_FEE
+            PENALTY_CHARGE: PENALTY_CHARGE
+            PREPAY_DEBT_ADJUSTMENT: PREPAY_DEBT_ADJUSTMENT
+            REASON_EARLY_EXIT_FEE: REASON_EARLY_EXIT_FEE
+            REFUND: REFUND
+            SERVICE_ORDER: SERVICE_ORDER
+            SOLR_BALANCE_TRANSFER: SOLR_BALANCE_TRANSFER
+            WATER: WATER
+            WRITE_BACK: WRITE_BACK
+            EBSS_CHARGE_REVERSAL: EBSS_CHARGE_REVERSAL
+            LATE_PAYMENT_FEE: LATE_PAYMENT_FEE
+            RPS_INVESTIGATION_CHARGE: RPS_INVESTIGATION_CHARGE
+            RPS_WARRANT_CHARGE: RPS_WARRANT_CHARGE
+            RPS_DAMAGE: RPS_DAMAGE
+            RPS_RESEAL_FEE: RPS_RESEAL_FEE
+            SAP_MIGRATED_DEBITS: SAP_MIGRATED_DEBITS
+            ADDITIONAL_CHARGES_0: ADDITIONAL_CHARGES_0
+            ADDITIONAL_CHARGES_20: ADDITIONAL_CHARGES_20
+            ADDITIONAL_CHARGES_5: ADDITIONAL_CHARGES_5
+            RECONNECTION_CHARGE: RECONNECTION_CHARGE
+            GREENDEALCHARGE: GREENDEALCHARGE
+            OPUS_FINAL_BALANCE_TRANSFER: OPUS_FINAL_BALANCE_TRANSFER
+            REASON_EARLY_EXIT_FEE_5: REASON_EARLY_EXIT_FEE_5
+            TEMP_REFUND: TEMP_REFUND
+            MIGRATION_ADJUSTMENT: MIGRATION_ADJUSTMENT
+            WELFARE_VISIT_FEE: WELFARE_VISIT_FEE
+            WARRANT_FEES_COSTS: WARRANT_FEES_COSTS
+            WARRANT_EXECUTION_FEE: WARRANT_EXECUTION_FEE
+            TERM_DCA_FEE: TERM_DCA_FEE
+            POST_OFFICE_PAYMENT_CORRECTION: POST_OFFICE_PAYMENT_CORRECTION
+            RPS_LOSS_5: RPS_LOSS_5
+            RPS_ADJUSTMENT_20: RPS_ADJUSTMENT_20
+            RPS_CCL_ADJUSTMENT: RPS_CCL_ADJUSTMENT
+            METERING_APPOINTMENT_FAILURE: METERING_APPOINTMENT_FAILURE
+            REASON_EARLY_EXIT_FEE_0: REASON_EARLY_EXIT_FEE_0
+            PAYMENT_CORRECTION: PAYMENT_CORRECTION
+            OPUS_FINAL_BALANCE_ADJUSTMENT: OPUS_FINAL_BALANCE_ADJUSTMENT
+            LATE_PAYMENT_RESI: LATE_PAYMENT_RESI
+            LATE_PAYMENT_SME: LATE_PAYMENT_SME
+            EARLY_TERMINATION_FEE: EARLY_TERMINATION_FEE
+            TRANSFERRED_DEBT_BILL_ADJUSTMENT: TRANSFERRED_DEBT_BILL_ADJUSTMENT
+            INDEMNITY_CLAIM: INDEMNITY_CLAIM
+            SAP_WRITE_OFF_RECOVER: SAP_WRITE_OFF_RECOVER
+            DEBTSOLD_PAYMENTREVERSAL: DEBTSOLD_PAYMENTREVERSAL
+            CHAPS_REFUND: CHAPS_REFUND
+        tax_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxItem'
+          description: <p>For <code>SUPPLY_CHARGE</code> and <code>CHARGE</code> transactions only, tax items contain details about the tax. If not provided will be set to default zero tax.</p>
+        to_prepay_meter_serial_number:
+          type: string
+          description: "<p>The serial number of the prepay meter that this transaction has been \"sent to\" (via a PPMIP).</p>\n    <p>In the case of prepay vends, this \"sending\" was carried out by the customer paying\n    at an outlet; as such, this field should always be populated for prepay vend transactions.</p>\n    <p>In the case of credits and non-consumption charges applied to the customer's account\n    pre-migration, this field should be populated only where a request to add the corresponding\n    credit or debt to the prepay meter has been sent and accepted by the PPMIP.</p>"
+        transaction_date:
+          type: string
+          format: date
+          description: <p>The date of the transaction.</p>
+          x-validators:
+          - name: Validate transaction date
+            description: Validates that the transaction date provided in the payload is not in the future.
+            possible_errors:
+            - transaction_in_future
+        transaction_id:
+          type: string
+          description: <p>The unique internal identifier for the transaction.</p>
+      required:
+      - amount
+      - reason
+      - transaction_date
+      - transaction_id
+      - type
+    CreatePaymentInstructionResponse:
+      type: object
+      properties:
+        account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+          maxLength: 128
+        kraken_account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+          maxLength: 128
+        reference:
+          type: string
+          description: <p>The reference of the mandate as known by the vendor.</p>
+          maxLength: 128
+      required:
+      - account_number
+      - kraken_account_number
+      - reference
+    EnergyRepayment:
+      type: object
+      properties:
+        type:
+          enum:
+          - CHARGE
+          - PAYMENT
+          - REPAYMENT
+          - CREDIT
+          - SUPPLY_CHARGE
+          type: string
+          x-spec-enum-id: 06d6aba5cee32f9a
+          description: <p>The type of the transaction.</p>
+          x-enum-descriptions:
+            CHARGE: Charge
+            PAYMENT: Payment
+            REPAYMENT: Repayment
+            CREDIT: Credit
+            SUPPLY_CHARGE: Supply Charge
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+          description: <p>The amount of the transaction. e.g. if the customer has a consumption charge worth 23.43, this equates to a transaction of type <code>CHARGE</code> of 23.43. Payments and repayments must be positive numbers. Generally charges and credits are also positive, but may be negative to represent reversed charges or credits, or if an incorrect estimated reading has resulted in a negative consumption charge. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        billing_document_identifier:
+          type: string
+          description: <p>The identifier from the source system that groups a set of transactions together. This will be used in Kraken during the migration of historical statement transactions to create an archived billing document. For now this field is only required if <code>HISTORICAL_STATEMENT_REQUIRE_SINGLE_BILLING_DOCUMENT_IDENTIFIER</code> settings is ON and is meant for only <code>historical_statements_transactions</code>. Passing this to other transactions like <code>current_statement_transactions</code> or <code>transactions_in_open_settlement_period</code> will raise validation error.</p>
+        display_note:
+          type: string
+          description: <p>The customer-facing note that can be displayed in a statement or email to the customer.</p>
+          deprecated: true
+        note:
+          type: string
+          description: <p>Any additional notes about the transaction.</p>
+        payment_type:
+          enum:
+          - DIRECT_CREDIT
+          - CARD_REFUND
+          - BACS
+          - CHEQUE
+          - BPAY
+          - ''
+          type: string
+          x-spec-enum-id: d2c4d6e823ed27aa
+          description: <p>The payment type for the transaction.</p>
+          x-enum-descriptions:
+            DIRECT_CREDIT: DIRECT_CREDIT
+            CARD_REFUND: CARD_REFUND
+            BACS: BACS
+            CHEQUE: CHEQUE
+            BPAY: BPAY
+            ? ''
+            : ''
+        reason:
+          enum:
+          - FULL_CREDIT_REFUND
+          - PARTIAL_CREDIT_REFUND
+          - FULL_PREPAYMENT_REFUND
+          - PARTIAL_REPAYMENT_REFUND
+          - ET_REFUND
+          - GENERATOR_ACCOUNT_REFUND
+          - DOMESTIC_EXPORT_ONLY_REPAYMENT
+          - FINAL_BALANCE_SETTLEMENT
+          - MISTAKEN_PAYMENT_TAKEN
+          - PAYMENT_CORRECTION
+          - COMPLAINT_COMPENSATION
+          - INDEMNITY_CLAIM
+          - FAILED_PAYMENT
+          - FEED_IN_TARIFF_PAYMENT
+          - GSOS_PAYMENT
+          - SEG_PAYMENT
+          - DEPOSIT_RETURN
+          - LATE_FAILED_PAYMENT
+          - CANCELED_BILL
+          - BILLING_ADJUSTMENT
+          - ETF_CREDIT
+          - FAST_TRACK
+          - CHARGEBACK
+          - ''
+          type: string
+          x-spec-enum-id: 8c2641888a5bbff8
+          description: <p>The reason for the transaction.</p>
+          x-enum-descriptions:
+            FULL_CREDIT_REFUND: Full credit refund
+            PARTIAL_CREDIT_REFUND: Partial credit refund
+            FULL_PREPAYMENT_REFUND: Full prepayment refund
+            PARTIAL_REPAYMENT_REFUND: Partial prepayment refund
+            ET_REFUND: Full credit refund - ET
+            GENERATOR_ACCOUNT_REFUND: Full credit refund - Generator Account
+            DOMESTIC_EXPORT_ONLY_REPAYMENT: Domestic export-only account repayment
+            FINAL_BALANCE_SETTLEMENT: Final balance settlement
+            MISTAKEN_PAYMENT_TAKEN: Objection - payment taken in error
+            PAYMENT_CORRECTION: Payment correction
+            COMPLAINT_COMPENSATION: Complaint Compensation
+            INDEMNITY_CLAIM: Indemnity claim
+            FAILED_PAYMENT: Failed payment
+            FEED_IN_TARIFF_PAYMENT: Feed-in-Tariff payment
+            GSOS_PAYMENT: Guaranteed Standard of Service payment
+            SEG_PAYMENT: SEG Payment
+            DEPOSIT_RETURN: Held deposit return
+            LATE_FAILED_PAYMENT: Late failed payment
+            CANCELED_BILL: Canceled Bill(s)
+            BILLING_ADJUSTMENT: Billing Adjustment
+            ETF_CREDIT: ETF Credit
+            FAST_TRACK: Fast Track
+            CHARGEBACK: Chargeback
+            ? ''
+            : ''
+        reference:
+          type: string
+          description: <p>The reference for the transaction. This could be an external id to help identify this transaction.</p>
+        to_prepay_meter_serial_number:
+          type: string
+          description: "<p>The serial number of the prepay meter that this transaction has been \"sent to\" (via a PPMIP).</p>\n    <p>In the case of prepay vends, this \"sending\" was carried out by the customer paying\n    at an outlet; as such, this field should always be populated for prepay vend transactions.</p>\n    <p>In the case of credits and non-consumption charges applied to the customer's account\n    pre-migration, this field should be populated only where a request to add the corresponding\n    credit or debt to the prepay meter has been sent and accepted by the PPMIP.</p>"
+        transaction_date:
+          type: string
+          format: date
+          description: <p>The date of the transaction.</p>
+          x-validators:
+          - name: Validate transaction date
+            description: Validates that the transaction date provided in the payload is not in the future.
+            possible_errors:
+            - transaction_in_future
+        transaction_id:
+          type: string
+          description: <p>The unique internal identifier for the transaction.</p>
+      required:
+      - amount
+      - transaction_date
+      - transaction_id
+      - type
+    EnergyPayment:
+      type: object
+      properties:
+        type:
+          enum:
+          - CHARGE
+          - PAYMENT
+          - REPAYMENT
+          - CREDIT
+          - SUPPLY_CHARGE
+          type: string
+          x-spec-enum-id: 06d6aba5cee32f9a
+          description: <p>The type of the transaction.</p>
+          x-enum-descriptions:
+            CHARGE: Charge
+            PAYMENT: Payment
+            REPAYMENT: Repayment
+            CREDIT: Credit
+            SUPPLY_CHARGE: Supply Charge
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+          description: <p>The amount of the transaction. e.g. if the customer has a consumption charge worth 23.43, this equates to a transaction of type <code>CHARGE</code> of 23.43. Payments and repayments must be positive numbers. Generally charges and credits are also positive, but may be negative to represent reversed charges or credits, or if an incorrect estimated reading has resulted in a negative consumption charge. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        billing_document_identifier:
+          type: string
+          description: <p>The identifier from the source system that groups a set of transactions together. This will be used in Kraken during the migration of historical statement transactions to create an archived billing document. For now this field is only required if <code>HISTORICAL_STATEMENT_REQUIRE_SINGLE_BILLING_DOCUMENT_IDENTIFIER</code> settings is ON and is meant for only <code>historical_statements_transactions</code>. Passing this to other transactions like <code>current_statement_transactions</code> or <code>transactions_in_open_settlement_period</code> will raise validation error.</p>
+        display_note:
+          type: string
+          description: <p>The customer-facing note that can be displayed in a statement or email to the customer.</p>
+          deprecated: true
+        note:
+          type: string
+          description: <p>Any additional notes about the transaction.</p>
+        payment_type:
+          enum:
+          - DD_FIRST_COLLECTION
+          - DD_REGULAR_COLLECTION
+          - DD_RE_PRESENTATION
+          - DD_FINAL_COLLECTION
+          - CREDIT_CARD
+          - DEBIT_CARD
+          - CHEQUE
+          - BACS_DEPOSIT
+          - ALLPAY_CASH
+          - ALLPAY_CARD
+          - ALLPAY_CHEQUE
+          - PAYPOINT_CASH
+          - PAYPOINT_CARD
+          - PAYPOINT_CHEQUE
+          - DCA_COLLECTION
+          - BRISTOL_POUND
+          - CASH
+          - FUEL_DIRECT
+          - BPAY
+          - AUSTRALIA_POST
+          - HEEA
+          - HEEAS
+          - CENTREPAY
+          - EAPA_VOUCHER
+          - URGS
+          - BPOINT
+          - EFT
+          - ERRONEOUS_PAYMENT
+          - PAYZONE
+          - POST_OFFICE_CASH
+          - POST_OFFICE_CARD
+          - POST_OFFICE_CHEQUE
+          - POST_OFFICE_SAVINGS_STAMPS
+          - KONBINI
+          - ''
+          type: string
+          x-spec-enum-id: e5c2d3475e079058
+          description: <p>The payment type for the transaction.</p>
+          x-enum-descriptions:
+            DD_FIRST_COLLECTION: DD_FIRST_COLLECTION
+            DD_REGULAR_COLLECTION: DD_REGULAR_COLLECTION
+            DD_RE_PRESENTATION: DD_RE_PRESENTATION
+            DD_FINAL_COLLECTION: DD_FINAL_COLLECTION
+            CREDIT_CARD: CREDIT_CARD
+            DEBIT_CARD: DEBIT_CARD
+            CHEQUE: CHEQUE
+            BACS_DEPOSIT: BACS_DEPOSIT
+            ALLPAY_CASH: ALLPAY_CASH
+            ALLPAY_CARD: ALLPAY_CARD
+            ALLPAY_CHEQUE: ALLPAY_CHEQUE
+            PAYPOINT_CASH: PAYPOINT_CASH
+            PAYPOINT_CARD: PAYPOINT_CARD
+            PAYPOINT_CHEQUE: PAYPOINT_CHEQUE
+            DCA_COLLECTION: DCA_COLLECTION
+            BRISTOL_POUND: BRISTOL_POUND
+            CASH: CASH
+            FUEL_DIRECT: FUEL_DIRECT
+            BPAY: BPAY
+            AUSTRALIA_POST: AUSTRALIA_POST
+            HEEA: HEEA
+            HEEAS: HEEAS
+            CENTREPAY: CENTREPAY
+            EAPA_VOUCHER: EAPA_VOUCHER
+            URGS: URGS
+            BPOINT: BPOINT
+            EFT: EFT
+            ERRONEOUS_PAYMENT: ERRONEOUS_PAYMENT
+            PAYZONE: PAYZONE
+            POST_OFFICE_CASH: POST_OFFICE_CASH
+            POST_OFFICE_CARD: POST_OFFICE_CARD
+            POST_OFFICE_CHEQUE: POST_OFFICE_CHEQUE
+            POST_OFFICE_SAVINGS_STAMPS: POST_OFFICE_SAVINGS_STAMPS
+            KONBINI: Konbini
+            ? ''
+            : ''
+        reason:
+          enum:
+          - ACCOUNT_CHARGE_PAYMENT
+          - BALANCE_ADJUSTMENT
+          - GENERAL_CREDIT
+          - SSD_PAYMENT
+          - DEBT_REPAYMENT
+          - PREPAY_RECORD
+          - DEPOSIT
+          - SETTLEMENT
+          - BALANCE_THRESHOLD_CROSSED
+          - BILL_ISSUED
+          - PAYMENT_PLAN
+          - REGULAR_SCHEDULE
+          - REPAYMENT_CORRECTION
+          - ''
+          type: string
+          x-spec-enum-id: 33061fb88f6290b0
+          description: <p>The reason for the transaction.</p>
+          x-enum-descriptions:
+            ACCOUNT_CHARGE_PAYMENT: Account charge payment
+            BALANCE_ADJUSTMENT: Balance adjustment
+            GENERAL_CREDIT: General credit
+            SSD_PAYMENT: SSD payment
+            DEBT_REPAYMENT: Debt repayment
+            PREPAY_RECORD: Prepayment record
+            DEPOSIT: Deposit
+            SETTLEMENT: Settlement
+            BALANCE_THRESHOLD_CROSSED: Balance threshold crossed
+            BILL_ISSUED: Bill issued
+            PAYMENT_PLAN: Planned payment
+            REGULAR_SCHEDULE: Regular scheduled payment
+            REPAYMENT_CORRECTION: Repayment correction
+            ? ''
+            : ''
+        reference:
+          type: string
+          description: <p>The reference for the transaction. This could be an external id to help identify this transaction.</p>
+        to_prepay_meter_serial_number:
+          type: string
+          description: "<p>The serial number of the prepay meter that this transaction has been \"sent to\" (via a PPMIP).</p>\n    <p>In the case of prepay vends, this \"sending\" was carried out by the customer paying\n    at an outlet; as such, this field should always be populated for prepay vend transactions.</p>\n    <p>In the case of credits and non-consumption charges applied to the customer's account\n    pre-migration, this field should be populated only where a request to add the corresponding\n    credit or debt to the prepay meter has been sent and accepted by the PPMIP.</p>"
+        transaction_date:
+          type: string
+          format: date
+          description: <p>The date of the transaction.</p>
+          x-validators:
+          - name: Validate transaction date
+            description: Validates that the transaction date provided in the payload is not in the future.
+            possible_errors:
+            - transaction_in_future
+        transaction_id:
+          type: string
+          description: <p>The unique internal identifier for the transaction.</p>
+      required:
+      - amount
+      - transaction_date
+      - transaction_id
+      - type
+    CreateAccountNotesResponse:
+      type: object
+      properties:
+        body:
+          type: string
+          description: <p>The body of the note. Should include who/what created the note if this is required.</p>
+        created_at:
+          type: string
+          format: date-time
+          description: <p>The date and time the note was created.</p>
+        document_paths:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoteDocument'
+          description: <p>A list of relative paths in S3 for documents to be attached to the note.</p><p>More details on document path parameters can be found <a href="/rest/guides/data-import/basics#document-paths">here</a>.</p>
+        external_id:
+          type: string
+          description: <p>Unique identifier for this note to avoid duplicate entries.</p>
+        is_archived:
+          type: boolean
+          description: <p>If set to true, this will archive the note in the Kraken account support site page.</p>
+        is_pinned:
+          type: boolean
+          description: <p>If set to true, this will pin the note to the top of the Kraken account support site page.</p>
+        status:
+          enum:
+          - NOTE_CREATION_SUCCESS
+          - NOTE_ALREADY_EXISTS
+          type: string
+          x-spec-enum-id: 31aeae5ed4ff8531
+          description: <p>The creation status for each note attempted to be imported.</p>
+          x-enum-descriptions:
+            NOTE_CREATION_SUCCESS: The note has been successfully created.
+            NOTE_ALREADY_EXISTS: A similar note has been found preventing the creation of a new note.
+        unpin_at:
+          type: string
+          format: date-time
+          description: <p>When the pinned note should be unpinned. Has to be later than <code>created_at</code> if this is provided. Has no effect if the note is not pinned.</p>
+      required:
+      - status
+      x-validators:
+      - name: Validate note body or document paths provided
+        description: Validate that at least a note body or document paths are provided.
+        possible_errors:
+        - note_body_or_document_path_not_found
+      - name: Validate note created at is equal to or before unpin at
+        description: Validate that the note's created at date is equal to or before the unpin at date if both are provided.
+        possible_errors:
+        - note_unpin_at_earlier_than_creation_date
+    ErrorCreatingTransactions:
+      type: object
+      properties:
+        error_detail:
+          type: string
+          description: <p>If transaction creation failed, then this field will provide details of the error.</p>
+        status:
+          enum:
+          - TRANSACTION_ADDED_TO_ACCOUNT
+          - TRANSACTION_ALREADY_EXISTS
+          - TRANSACTION_IMPORT_ERROR
+          type: string
+          x-spec-enum-id: 5a92d022962e1cea
+          description: <p>The status of the transaction.</p>
+          x-enum-descriptions:
+            TRANSACTION_ADDED_TO_ACCOUNT: Transaction added to account
+            TRANSACTION_ALREADY_EXISTS: Transaction already exists
+            TRANSACTION_IMPORT_ERROR: Transaction import error
+        transaction_data:
+          allOf:
+          - $ref: '#/components/schemas/TransactionData'
+          description: <p>The data associated with the transaction that caused this error.</p>
+      required:
+      - error_detail
+      - status
+      - transaction_data
+    CreatePaymentInstructionError:
+      type: object
+      properties:
+        error_detail:
+          type: string
+          description: <p>If payment instruction creation failed, then this field will provide details of the error.</p>
+        external_account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+        import_supplier:
+          enum:
+          - EDF_SHELL_ACCOUNT
+          - EDF _DEENERGISED
+          - EDF_SME_PAYG
+          - EDF_PAYG
+          - EDF_TERMED
+          - EDF_FIT
+          - EDF_AUTO_TOPUP
+          - EDF_DEENERGISED
+          - EDF_NEW_CONNECTIONS
+          - EDFSME
+          - EDFSME_MULTISITE
+          - EDF_SMEPAYG
+          - OPUS
+          - EDF
+          - UTILITA
+          type: string
+          x-spec-enum-id: 1106bbca05c54188
+          description: <p>The import supplier code that the account was imported on to. This, along with the <code>external_account_number</code>, will be used to find the account in Kraken.</p>
+          x-enum-descriptions:
+            EDF_SHELL_ACCOUNT: EDF Shell Account
+            EDF _DEENERGISED: EDF Deenergised
+            EDF_SME_PAYG: EDF_SME_PAYG
+            EDF_PAYG: EDF PAYG
+            EDF_TERMED: EDF_TERMED
+            EDF_FIT: EDF FIT
+            EDF_AUTO_TOPUP: EDF Auto Top Up
+            EDF_DEENERGISED: EDF Deenergised
+            EDF_NEW_CONNECTIONS: EDF New Connections
+            EDFSME: EDF Production SME account import
+            EDFSME_MULTISITE: EDF SME Multi-site
+            EDF_SMEPAYG: EDF_SMEPAYG
+            OPUS: Opus Energy
+            EDF: EDF Production Import
+            UTILITA: UTILITA
+        reference:
+          type: string
+          description: <p>The reference of the mandate as known by the vendor.</p>
+          maxLength: 128
+      required:
+      - error_detail
+      - external_account_number
+      - import_supplier
+      - reference
+      x-validators:
+      - name: Validate that account data is staged and account created
+        description: Validate that an account exists for the <code>external_account_number</code> and <code>import_supplier</code> code. This means that the import data must already have been staged and processed into an account.
+        possible_errors:
+        - account_not_found
+        - import_process_does_not_exist
+      - name: Validate that migration is ongoing
+        description: Validate whether or not an import supplier is open for further data migration.
+        possible_errors:
+        - import_supplier_migration_not_ongoing
+    GbrMeterPointRegistrationStatuses:
+      type: object
+      properties:
+        external_account_number:
+          type: string
+          title: The account number on the import suppliers system.
+          description: <p>The account number in the source system.</p>
+        import_supplier_code:
+          type: string
+          title: The code of an existing ImportSupplier in the database.
+          description: <p>The import supplier code that the meter point registration is associated with.</p>
+        meter_points:
+          type: array
+          items:
+            $ref: '#/components/schemas/GbrMeterPointRegistrationStatus'
+          title: List of MPxNs and their registration status
+          description: <p>A list of MPRNs or MPANs and their associated registration statuses.</p>
+      required:
+      - external_account_number
+      - import_supplier_code
+      - meter_points
+    LegacyPaymentInstruction:
+      type: object
+      properties:
+        external_account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+        import_supplier:
+          enum:
+          - EDF_SHELL_ACCOUNT
+          - EDF _DEENERGISED
+          - EDF_SME_PAYG
+          - EDF_PAYG
+          - EDF_TERMED
+          - EDF_FIT
+          - EDF_AUTO_TOPUP
+          - EDF_DEENERGISED
+          - EDF_NEW_CONNECTIONS
+          - EDFSME
+          - EDFSME_MULTISITE
+          - EDF_SMEPAYG
+          - OPUS
+          - EDF
+          - UTILITA
+          type: string
+          x-spec-enum-id: 1106bbca05c54188
+          description: <p>The import supplier code that the account was imported on to. This, along with the <code>external_account_number</code>, will be used to find the account in Kraken.</p>
+          x-enum-descriptions:
+            EDF_SHELL_ACCOUNT: EDF Shell Account
+            EDF _DEENERGISED: EDF Deenergised
+            EDF_SME_PAYG: EDF_SME_PAYG
+            EDF_PAYG: EDF PAYG
+            EDF_TERMED: EDF_TERMED
+            EDF_FIT: EDF FIT
+            EDF_AUTO_TOPUP: EDF Auto Top Up
+            EDF_DEENERGISED: EDF Deenergised
+            EDF_NEW_CONNECTIONS: EDF New Connections
+            EDFSME: EDF Production SME account import
+            EDFSME_MULTISITE: EDF SME Multi-site
+            EDF_SMEPAYG: EDF_SMEPAYG
+            OPUS: Opus Energy
+            EDF: EDF Production Import
+            UTILITA: UTILITA
+        instruction_reference:
+          type: string
+          description: <p>The reference of the mandate as known by the vendor.</p>
+          deprecated: true
+          x-use-instead: reference
+          maxLength: 128
+        ledger_code:
+          type: string
+          description: <p>The code of the relevant Kraken ledger type for the payment instruction. This code must exist in Kraken.</p>
+          x-validators:
+          - name: Validate ledger code
+            description: Validates that the ledger code provided in the payload matches an available ledger type in Kraken.
+            possible_errors:
+            - ledger_code_does_not_exist
+        reference:
+          type: string
+          description: <p>The reference of the mandate as known by the vendor.</p>
+          maxLength: 512
+        type:
+          enum:
+          - BPAY
+          - CARD
+          - CUSTOM
+          - DIRECT_DEBIT
+          - GMO_REFUND
+          - PAYMENT_SLIP
+          type: string
+          x-spec-enum-id: 601d0b035869d4dd
+          description: <p>The payment type of the payment instruction.</p>
+          x-enum-descriptions:
+            BPAY: BPAY
+            CARD: Card
+            CUSTOM: Custom
+            DIRECT_DEBIT: Direct Debit
+            GMO_REFUND: GMO Refund
+            PAYMENT_SLIP: Payment slip
+        use_for_scheduled_payments:
+          type:
+          - boolean
+          - 'null'
+          description: <p>Whether this payment instruction should be used for scheduled payments on a given ledger. If true, this instruction will be set as the payment method for the account's payment schedule.</p>
+        valid_from:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: <p>The date from which the payment instruction is valid.</p>
+        vendor:
+          enum:
+          - STRIPE
+          - BOTTOMLINE_GLOBAL_PAYMENTS_HUB
+          - BOTTOMLINE_PTX
+          - BOTTOMLINE_PTX_BATCHED
+          type: string
+          x-spec-enum-id: cd9cdc0ef05270d9
+          description: <p>The vendor for the payment instruction.</p>
+          x-enum-descriptions:
+            STRIPE: Stripe
+            BOTTOMLINE_GLOBAL_PAYMENTS_HUB: Bottomline Global Payments Hub
+            BOTTOMLINE_PTX: Bottomline PTX
+            BOTTOMLINE_PTX_BATCHED: Bottomline PTX Batched
+      required:
+      - external_account_number
+      - import_supplier
+      - type
+      - vendor
+      x-validators:
+      - name: Validate that account data is staged and account created
+        description: Validate that an account exists for the <code>external_account_number</code> and <code>import_supplier</code> code. This means that the import data must already have been staged and processed into an account.
+        possible_errors:
+        - account_not_found
+        - import_process_does_not_exist
+      - name: Validate that migration is ongoing
+        description: Validate whether or not an import supplier is open for further data migration.
+        possible_errors:
+        - import_supplier_migration_not_ongoing
+      - name: Validate that either <code>⁨instruction_reference⁩</code> or <code>⁨reference⁩</code> are provided
+        description: Validate that exactly one of <code>⁨instruction_reference⁩</code> or <code>⁨reference⁩</code> is provided.
+        possible_errors:
+        - mutually_exclusive_field_required
+    Transactions:
+      type: object
+      properties:
+        account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+          deprecated: true
+          x-use-instead: external_account_number
+        dry_run:
+          type: boolean
+          default: false
+          description: <p>Whether to run the transactions creation process in dry-run mode. Running in dry-run mode will not create any transactions.</p>
+        external_account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+        import_supplier:
+          enum:
+          - EDF_SHELL_ACCOUNT
+          - EDF _DEENERGISED
+          - EDF_SME_PAYG
+          - EDF_PAYG
+          - EDF_TERMED
+          - EDF_FIT
+          - EDF_AUTO_TOPUP
+          - EDF_DEENERGISED
+          - EDF_NEW_CONNECTIONS
+          - EDFSME
+          - EDFSME_MULTISITE
+          - EDF_SMEPAYG
+          - OPUS
+          - EDF
+          - UTILITA
+          type: string
+          x-spec-enum-id: 1106bbca05c54188
+          description: <p>The import supplier code that the account was imported on to. This, along with the <code>external_account_number</code>, will be used to find the account in Kraken.</p>
+          x-enum-descriptions:
+            EDF_SHELL_ACCOUNT: EDF Shell Account
+            EDF _DEENERGISED: EDF Deenergised
+            EDF_SME_PAYG: EDF_SME_PAYG
+            EDF_PAYG: EDF PAYG
+            EDF_TERMED: EDF_TERMED
+            EDF_FIT: EDF FIT
+            EDF_AUTO_TOPUP: EDF Auto Top Up
+            EDF_DEENERGISED: EDF Deenergised
+            EDF_NEW_CONNECTIONS: EDF New Connections
+            EDFSME: EDF Production SME account import
+            EDFSME_MULTISITE: EDF SME Multi-site
+            EDF_SMEPAYG: EDF_SMEPAYG
+            OPUS: Opus Energy
+            EDF: EDF Production Import
+            UTILITA: UTILITA
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyTransaction'
+          description: <p>A list of financial transactions to be imported onto the account.</p>
+      required:
+      - import_supplier
+      x-validators:
+      - name: Validate that account data is staged and account created
+        description: Validate that an account exists for the <code>external_account_number</code> and <code>import_supplier</code> code. This means that the import data must already have been staged and processed into an account.
+        possible_errors:
+        - account_not_found
+        - import_process_does_not_exist
+      - name: Validate that migration is ongoing
+        description: Validate whether or not an import supplier is open for further data migration.
+        possible_errors:
+        - import_supplier_migration_not_ongoing
+      - name: Validate unique transaction IDs
+        description: Validate that all transaction IDs provided are unique.
+        possible_errors:
+        - duplicate_transaction_ids
+        - missing_transaction_id
+    BadCreateTransactionsRequest:
+      oneOf:
+      - $ref: '#/components/schemas/NonFieldErrors'
+      - $ref: '#/components/schemas/ErrorCreatingTransactions'
+    EnergySupplyCharge:
+      type: object
+      properties:
+        type:
+          enum:
+          - CHARGE
+          - PAYMENT
+          - REPAYMENT
+          - CREDIT
+          - SUPPLY_CHARGE
+          type: string
+          x-spec-enum-id: 06d6aba5cee32f9a
+          description: <p>The type of the transaction.</p>
+          x-enum-descriptions:
+            CHARGE: Charge
+            PAYMENT: Payment
+            REPAYMENT: Repayment
+            CREDIT: Credit
+            SUPPLY_CHARGE: Supply Charge
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+          description: <p>The amount of the transaction. e.g. if the customer has a consumption charge worth 23.43, this equates to a transaction of type <code>CHARGE</code> of 23.43. Payments and repayments must be positive numbers. Generally charges and credits are also positive, but may be negative to represent reversed charges or credits, or if an incorrect estimated reading has resulted in a negative consumption charge. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        billing_document_identifier:
+          type: string
+          description: <p>The identifier from the source system that groups a set of transactions together. This will be used in Kraken during the migration of historical statement transactions to create an archived billing document. For now this field is only required if <code>HISTORICAL_STATEMENT_REQUIRE_SINGLE_BILLING_DOCUMENT_IDENTIFIER</code> settings is ON and is meant for only <code>historical_statements_transactions</code>. Passing this to other transactions like <code>current_statement_transactions</code> or <code>transactions_in_open_settlement_period</code> will raise validation error.</p>
+        display_note:
+          type: string
+          description: <p>The customer-facing note that can be displayed in a statement or email to the customer.</p>
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItem'
+          description: <p>For <code>SUPPLY_CHARGE</code> transactions only, line items contain details about the charge, e.g. standing/consumption charge, billing period, number of units etc.</p>
+        note:
+          type: string
+          description: <p>Any additional notes about the transaction.</p>
+        product_code:
+          type: string
+          description: <p>The product code for the product that the transaction is associated with.</p>
+          x-validators:
+          - name: Validate product code exists
+            description: Validate that the product code exists in Kraken.
+            possible_errors:
+            - product_code_does_not_exist
+        supply_point_identifier:
+          type: string
+          description: <p>Supply point identifier associated with the supply point this charge applies to.</p>
+        tax_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxItem'
+          description: <p>For <code>SUPPLY_CHARGE</code> and <code>CHARGE</code> transactions only, tax items contain details about the tax. If not provided will be set to default zero tax.</p>
+        to_prepay_meter_serial_number:
+          type: string
+          description: "<p>The serial number of the prepay meter that this transaction has been \"sent to\" (via a PPMIP).</p>\n    <p>In the case of prepay vends, this \"sending\" was carried out by the customer paying\n    at an outlet; as such, this field should always be populated for prepay vend transactions.</p>\n    <p>In the case of credits and non-consumption charges applied to the customer's account\n    pre-migration, this field should be populated only where a request to add the corresponding\n    credit or debt to the prepay meter has been sent and accepted by the PPMIP.</p>"
+        transaction_date:
+          type: string
+          format: date
+          description: <p>The date of the transaction.</p>
+          x-validators:
+          - name: Validate transaction date
+            description: Validates that the transaction date provided in the payload is not in the future.
+            possible_errors:
+            - transaction_in_future
+        transaction_id:
+          type: string
+          description: <p>The unique internal identifier for the transaction.</p>
+      required:
+      - amount
+      - line_items
+      - product_code
+      - transaction_date
+      - transaction_id
+      - type
+      x-validators:
+      - name: Validates supply charge line item rate
+        description: This validation only applies to transactions of type supply charge. Validates that product code is provided and a product exists with that code. Validates that line items are provided and each line item rate band exists for the product.
+        possible_errors: []
+      - name: Validate that the given price per unit matches an existing rate price per unit
+        description: Validate that the given price per unit matches an existing rate price per unit. If the existing rate is a dynamic rate (i.e. it has a <code>NaN</code> price per unit), then there must be a price per unit in the payload.
+        possible_errors: []
+      - name: Validate line item number of units
+        description: Validate that the line item number of units matches the number of days in the period provided for standing charges.
+        possible_errors: []
+      - name: Validate that the total transaction amount is correct
+        description: Ensure that the total line items amount matches transaction amount.
+        possible_errors:
+        - ledger_transaction_amount_does_not_match_with_line_item_net_amount_and_tax_amount
+      - name: Ensure supply point identifier is provided when line items use rate_specification_code
+        description: Validate that <code>supply_point_identifier</code> is provided when any line item contains a <code>rate_specification_code</code>, as the supply point is required for rate resolution.
+        possible_errors:
+        - supply_point_identifier_required_for_rate_specification_code
+      - name: Validate that the line items do not overlap with any already charged periods
+        description: Validate that the line item periods do not overlap with any already charged periods for a supply point.
+        possible_errors:
+        - line_items_overlap_already_charged_period
+    Note:
+      type: object
+      properties:
+        body:
+          type: string
+          description: <p>The body of the note. Should include who/what created the note if this is required.</p>
+        created_at:
+          type: string
+          format: date-time
+          description: <p>The date and time the note was created.</p>
+        document_paths:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoteDocument'
+          description: <p>A list of relative paths in S3 for documents to be attached to the note.</p><p>More details on document path parameters can be found <a href="/rest/guides/data-import/basics#document-paths">here</a>.</p>
+        external_id:
+          type: string
+          description: <p>Unique identifier for this note to avoid duplicate entries.</p>
+        is_archived:
+          type: boolean
+          description: <p>If set to true, this will archive the note in the Kraken account support site page.</p>
+        is_pinned:
+          type: boolean
+          description: <p>If set to true, this will pin the note to the top of the Kraken account support site page.</p>
+        unpin_at:
+          type: string
+          format: date-time
+          description: <p>When the pinned note should be unpinned. Has to be later than <code>created_at</code> if this is provided. Has no effect if the note is not pinned.</p>
+      x-validators:
+      - name: Validate note body or document paths provided
+        description: Validate that at least a note body or document paths are provided.
+        possible_errors:
+        - note_body_or_document_path_not_found
+      - name: Validate note created at is equal to or before unpin at
+        description: Validate that the note's created at date is equal to or before the unpin at date if both are provided.
+        possible_errors:
+        - note_unpin_at_earlier_than_creation_date
+    GbrMeterPointRegistrationStatus:
+      type: object
+      properties:
+        error_detail:
+          type: string
+          title: Description of the registration error
+          description: <p>The description of the error when attempting to register the meter point.</p>
+        mpxn:
+          type: string
+          title: MPRN or MPAN of the meter point
+          description: <p>The MPRN or MPAN of the meter point.</p>
+        status:
+          enum:
+          - REGISTRATION_FLOW_SUCCESS
+          - REGISTRATION_FLOW_ERROR
+          type: string
+          x-spec-enum-id: f70694660fe4e8d5
+          title: Registration status of the meter point
+          description: <p>The status of the meter point's registration.</p>
+          x-enum-descriptions:
+            REGISTRATION_FLOW_SUCCESS: REGISTRATION_FLOW_SUCCESS
+            REGISTRATION_FLOW_ERROR: REGISTRATION_FLOW_ERROR
+      required:
+      - mpxn
+      - status
+    Statement:
+      type: object
+      properties:
+        bill_period_from_date:
+          type: string
+          format: date
+          description: <p>The statement start date (inclusive).</p>
+        bill_period_to_date:
+          type: string
+          format: date
+          description: <p>The statement end date (inclusive).</p>
+        gross_amount:
+          type:
+          - integer
+          - 'null'
+          description: <p>The gross amount of the statement, in the lowest denomination for the currency.</p>
+        issued_date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: <p>The date the statement was issued.</p>
+        number:
+          type: string
+          description: <p>The external customer-facing statement number.</p>
+        statement_id:
+          type: string
+          description: <p>The ID of the statement.</p>
+        statement_path:
+          type: string
+          description: <p>The relative path in S3 of the statement PDF file.</p>
+          x-validators:
+          - name: Validate path exists in file store
+            description: Validate that the given path corresponds to a file that has previously been uploaded to the migration file store. Note that this validation is disabled by default and can be enabled using the relevant feature flag.
+            possible_errors:
+            - path_does_not_exist_in_file_store
+      required:
+      - bill_period_from_date
+      - bill_period_to_date
+      - statement_id
+      x-validators:
+      - name: null
+        description: null
+        possible_errors:
+        - missing_statement_path_or_pdf_context
+        - received_statement_path_and_pdf_context
+    GbrRegistrationFlowError:
+      type: object
+      properties:
+        error_detail:
+          type: string
+          title: Description of the registration flow error
+          description: <p>The description of the error when attempting to register the flow error.</p>
+        external_account_number:
+          type: string
+          title: The account number on the import suppliers system.
+          description: <p>The account number in the source system.</p>
+        import_supplier_code:
+          type: string
+          title: The code of an existing ImportSupplier in the database.
+          description: <p>The import supplier code that the meter point registration is associated with.</p>
+      required:
+      - error_detail
+      - external_account_number
+      - import_supplier_code
+    LineItem:
+      type: object
+      properties:
+        end_date:
+          type: string
+          format: date
+          description: <p>The end date for the billing period, inclusive.</p>
+        external_rate_identifier:
+          type: string
+          description: <p>The external identifier of the rate used to generate the charge for this line item. Only required if Kraken is configured to use placeholder rates when creating supply charge line items.</p>
+        net_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+          description: <p>Charge amount for the line item. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        number_of_units:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,4})?$
+          description: <p>E.g. cubic meters consumed for the period, days on supply for fixed charges or RV proportion for period for unmetered RV charges.</p>
+        params:
+          type: object
+          default: {}
+          description: <p>Additional parameters for the line item.</p><p><code>meter_legacy_id</code> must be provided where multiple meters are active between the line item's <code>start_date</code> and <code>end_date</code>.</p>
+        price_per_unit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,7})?$
+          description: <p>Price per unit for the line item. If this is not provided, then the price per unit from the relevant product rate will be used instead. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        rate_band:
+          type: string
+          description: <p>Rate of the product this charge is for. Must match an existing rate of a product <code>product_code</code>. Rate must be active from <code>start_date</code> to <code>end_date</code>.</p>
+        rate_specification_code:
+          type: string
+          description: <p>Rate specification code of the product this charge is for. This code must refer to an existing rate specification within the product.</p>
+        start_date:
+          type: string
+          format: date
+          description: <p>The start date for the billing period, inclusive.</p>
+        time_series_specification_code:
+          type: string
+          description: <p>Time series specification code.</p>
+        units:
+          type: array
+          items:
+            type: string
+            format: decimal
+            pattern: ^-?\d{0,12}(?:\.\d{0,4})?$
+          description: <p>For metered accounts only. List of decimal numbers representing the meter readings for the billing period.</p>
+          x-validators:
+          - name: Validate line item units
+            description: Validates that the line item units provided in the payload is a list of two items only.
+            possible_errors:
+            - line_item_units_must_be_two_values
+      required:
+      - end_date
+      - net_amount
+      - number_of_units
+      - start_date
+      x-validators:
+      - name: Validate <code>⁨end_date⁩</code> not before <code>⁨start_date⁩</code>
+        description: Validates that <code>⁨end_date⁩</code>, if given, is on or later than <code>⁨start_date⁩</code>.
+        possible_errors:
+        - start_date_later_than_end_date
+      - name: Validate the line item net amount
+        description: Validate that the line item net amount is equal to the price per unit multiplied by the number of units.
+        possible_errors:
+        - incorrect_line_item_net_amount
+      - name: Ensure that the band or rate specification or time series specification for a line item is specified.
+        description: Validate line items include exactly one of <code>rate_band</code>, <code>rate_specification_code</code>, or <code>time_series_specification_code</code>.
+        possible_errors:
+        - conflicting_rate_band_specification
+    TaxItem:
+      type: object
+      properties:
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+          description: <p>The amount of tax. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        params:
+          type: object
+          default: {}
+          description: <p>Additional parameters for the tax item.</p>
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,15}(?:\.\d{0,5})?$
+          description: <p>The rate at which tax has been applied.</p>
+        tax_type:
+          type: string
+          description: <p>The type of tax.</p>
+        unit_type:
+          enum:
+          - PROPORTION
+          - CURRENCY_PER_KWH
+          type: string
+          x-spec-enum-id: c3c821f5b0c08a37
+          description: <p>The tax unit type.</p>
+          x-enum-descriptions:
+            PROPORTION: Proportion
+            CURRENCY_PER_KWH: Currency Per Kwh
+        value_taxed:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,15}(?:\.\d{0,5})?$
+          description: <p>The value that the tax is applied to.</p>
+      required:
+      - amount
+      - rate
+      - tax_type
+      - unit_type
+      - value_taxed
+    EnergyCredit:
+      type: object
+      properties:
+        type:
+          enum:
+          - CHARGE
+          - PAYMENT
+          - REPAYMENT
+          - CREDIT
+          - SUPPLY_CHARGE
+          type: string
+          x-spec-enum-id: 06d6aba5cee32f9a
+          description: <p>The type of the transaction.</p>
+          x-enum-descriptions:
+            CHARGE: Charge
+            PAYMENT: Payment
+            REPAYMENT: Repayment
+            CREDIT: Credit
+            SUPPLY_CHARGE: Supply Charge
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+          description: <p>The amount of the transaction. e.g. if the customer has a consumption charge worth 23.43, this equates to a transaction of type <code>CHARGE</code> of 23.43. Payments and repayments must be positive numbers. Generally charges and credits are also positive, but may be negative to represent reversed charges or credits, or if an incorrect estimated reading has resulted in a negative consumption charge. Provide this amount in the currency's major unit rather than its minor unit (for example euros rather than cents, or pounds rather than pence). These examples are illustrative only; the same applies to any currency that has a major and minor unit. For currencies without a minor unit, such as the Japanese yen, pass the value as-is.</p>
+        billing_document_identifier:
+          type: string
+          description: <p>The identifier from the source system that groups a set of transactions together. This will be used in Kraken during the migration of historical statement transactions to create an archived billing document. For now this field is only required if <code>HISTORICAL_STATEMENT_REQUIRE_SINGLE_BILLING_DOCUMENT_IDENTIFIER</code> settings is ON and is meant for only <code>historical_statements_transactions</code>. Passing this to other transactions like <code>current_statement_transactions</code> or <code>transactions_in_open_settlement_period</code> will raise validation error.</p>
+        display_note:
+          type: string
+          description: <p>The customer-facing note that can be displayed in a statement or email to the customer.</p>
+        note:
+          type: string
+          description: <p>Any additional notes about the transaction.</p>
+        reason:
+          enum:
+          - BALANCE_ADJUSTMENT
+          - BALANCE_TRANSFER
+          - BANK_TRANSFER
+          - CONTRIBUTION_TAX_FREE
+          - CUSTOMER_SERVICE_GESTURE
+          - DEPOSIT
+          - DIRECT_DEBIT_DISCOUNT
+          - JOINING_REWARD
+          - LOYALTY_REWARD
+          - REVERSED_ACCOUNT_CHARGE
+          - CUSTOMER_REIMBURSEMENT
+          - DATA_IMPORT_BALANCE_TRANSFER
+          - DEBIT_BALANCE_TRANSFER
+          - GOODWILL_PAYMENT
+          - IMPORTED_CREDIT
+          - SUPPLEMENTARY_LEDGER_BALANCE_TRANSFER
+          - WRITE_OFF_PAST_BILLABLE_AUTOMATED
+          - WRITE_OFF_BACK_BILLING
+          - WRITE_OFF_NEGLIGIBLE_VALUE
+          - WRITE_OFF_UNRECOVERABLE_DEBT
+          - WRITE_OFF_PAST_BILLABLE
+          - WRITE_OFF_RECOVERY_DISCOUNT
+          - WRITE_OFF_BANKRUPTCY
+          - WRITE_OFF_DRO
+          - WRITE_OFF_IVA
+          - WRITE_OFF_DECEASED
+          - WRITE_OFF_MISSED_PAYMENT_DELETION
+          - UNLIKELY_TO_RECOVER_WRITE_OFF
+          - REFERRING_ACCOUNT_REFERRAL_REWARD
+          - REFERRED_ACCOUNT_REFERRAL_REWARD
+          - PREPAY_BALANCE_ADJUSTMENT
+          - PREPAY_IMBALANCE_WRITE_OFF
+          - PREPAY_MIGRATION_IMBALANCE
+          - ACCURACY_TEST_ADJUSTMENT
+          - ADDITIONAL_SOP_PAYMENT_APPOINTMENTS
+          - ADDITIONAL_SOP_PAYMENT_CUSTOMER_NOT_RETURNED
+          - ADDITIONAL_SOP_PAYMENT_ELECTRICITY_SWITCH_DELAYED
+          - ADDITIONAL_SOP_PAYMENT_ERRONEOUS_TRANSFER
+          - ADDITIONAL_SOP_PAYMENT_ET_COMMS_OVERDUE
+          - ADDITIONAL_SOP_PAYMENT_ET_GAIN_ACCEPTED
+          - ADDITIONAL_SOP_PAYMENT_ET_GAIN_UNRESOLVED
+          - ADDITIONAL_SOP_PAYMENT_ET_LOSS_UNRESOLVED
+          - ADDITIONAL_STANDARD_PAYMENT
+          - ADJUSTED_CREDIT_TO_ALLOW_REFUND
+          - ADJUSTMENT_ON_RETURNED_DEPOSIT
+          - BALANCE_TRANSFER_FOR_FINAL_BILLED_ACCOUNT
+          - CHEQUE_PAYMENT_RECEIVED
+          - CLOSED_REVERSION
+          - DEBT_ASSIGNMENT_LOSING_SUPPLIER
+          - DEPOSIT_REFUND
+          - DIRECT_DEBIT_BANK_CHARGE_MAY
+          - DISC_WARM_HOME_DISCOUNT
+          - DISPUTED_CARD_PAYMENTS
+          - ECONOMY_7_DIFFERENCE
+          - ERRONEOUS_TRANSFER_REFUND
+          - EXIT_FEE_REFUND
+          - EXPORT_TARIFF_PAYMENT
+          - EXTERNAL_REFERRAL_CREDIT
+          - FEED_IN_TARIFF_PAYMENT
+          - GO_CARDLESS_CHARGEBACK_CANCELLED
+          - GSS_AFFECT
+          - GSS_FAILURE
+          - GSS_FAILURE_MOP
+          - HONOURED_BANK_CHARGES
+          - INCOMING_PAYMENT_GO_CARDLESS
+          - MANAGEMENT_WAIVED_FEES
+          - MARKET_RESEARCH_CLUB_REWARD
+          - MISSED_SAVINGS
+          - OFFSET
+          - PAYMENT_BANK_ACCOUNT
+          - PAYMENT_BPAY
+          - PAYMENT_CENTREPAY
+          - PAYMENT_CHEQUE
+          - PAYMENT_CREDIT_CARD
+          - PAYMENT_TRANSFER_FROM_SAP
+          - PREPAY_DEBT_ADJUSTMENT
+          - QLD_ASSET_OWNERSHIP_DIVIDEND
+          - RECEIVED_VIA_CREDIT_STYLE
+          - REFERRALCANDY_INCENTIVE
+          - REINSTATED_DIRECT_DEBIT
+          - RETURNED_BUSINESS_ADVANCE_PAYMENT
+          - RETURNED_BUSINESS_PREPAYMENT
+          - REVERSE_ENERGY_CHARGE
+          - REVERSIONED_POST_DD_CANX
+          - SALES_COMPENSATION
+          - SHARE_OF_PROFITS
+          - SINGLE_RATE_RMI
+          - SME_REVERSED_PRE_MIGRATION_CHARGE
+          - SOLAR_GOODWILL
+          - SOLR_BALANCE_TRANSFER
+          - SOLR_EX_CUSTOMER_CREDIT
+          - SOLR_WRITE_OFF
+          - STAFF_DISCOUNT
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_FAULTY_METER_ELEC
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_PREPAY_METER_ELEC
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_RECONNECTION_ELEC
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_STANDARD_VISIT_ELEC
+          - STANDARDS_OF_PERFORMANCE_CUSTOMER_NOT_RETURNED
+          - STANDARDS_OF_PERFORMANCE_ERRONEOUS_TRANSFER
+          - STANDARDS_OF_PERFORMANCE_ET_COMMS_OVERDUE
+          - STANDARDS_OF_PERFORMANCE_ET_GAIN_ACCEPTED
+          - STANDARDS_OF_PERFORMANCE_ET_GAIN_UNRESOLVED
+          - STANDARDS_OF_PERFORMANCE_ET_LOSS_UNRESOLVED
+          - STANDARDS_OF_PERFORMANCE_FINAL_BILL_ISSUED_LATE
+          - STANDARDS_OF_PERFORMANCE_PAYMENTS
+          - STANDARDS_OF_PERFORMANCE_REFUND_ISSUED_LATE
+          - TARIFF_DISCOUNT
+          - TARIFF_PRICE_ADJUSTMENT_GOODWILL
+          - WAIVE_TERMINATION_FEES
+          - WITHDRAWAL_NOT_ACTIONED
+          - EBSS_CREDIT
+          - WARM_HOME_DISCOUNT_BROADER_GROUP
+          - WARM_HOME_DISCOUNT_CORE_GROUP
+          - WARM_HOME_DISCOUNT_CORE_GROUP_1
+          - WARM_HOME_DISCOUNT_CORE_GROUP_2
+          - ADDITIONAL_SOP_PAYMENT_GAS_SWITCH_DELAYED
+          - GAS_NETWORK_COMPENSATION
+          - GAS_OFF_SUPPLY_PAYMENT
+          - GOVERNMENT_ENERGY_ASSISTANCE_HEEA
+          - PAYMENT_AUSPOST
+          - PAYMENT_EAPA_VOUCHER
+          - PAYMENT_IVR
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_FAULTY_METER_GAS
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_PREPAY_METER_GAS
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_RECONNECTION_GAS
+          - STANDARDS_OF_PERFORMANCE_APPOINTMENTS_STANDARD_VISIT_GAS
+          - MIGRATION_ADJUSTMENT
+          - BILL_ADJUSTMENT_0
+          - BILL_ADJUSTMENT_20
+          - BILL_ADJUSTMENT_5
+          - GOODWILL
+          - DAILY_STANDING_CHARGE_ROLLBACK
+          - CANCELLED_CHEQUE_RESI
+          - CANCELLED_CHEQUE_SME
+          - PREPAYMENT_ADDITIONAL_SUPPORT_CREDIT
+          - WELFARE_VISIT_FEE_REVERSAL
+          - WARRANT_FEES_COSTS_REVERSAL
+          - WARRANT_EXECUTION_FEE_REVERSAL
+          - MISDIRECTED_CREDIT_PAYMENT
+          - MISSING_PREPAYMENT_TOP_UP
+          - TERM_DCA_FEE_REVERSAL
+          - HAMPTON_FUEL_PAYMENT
+          - DEEMED_0_CONSUMPTION_WRITE_OFF
+          - NET_ZERO_HERO_AWARD
+          - STANDARD_OF_PERFORMANCE_ELEC_SWITCH_DELAY
+          - STANDARD_OF_PERFORMANCE_GAS_SWITCH_DELAY
+          - ADDITIONAL_SOP_FINAL_BILL_OVERDUE
+          - EMAIL_PRIZE_DRAW
+          - GREEN_DEAL
+          - GREEN_DEAL_WRITE_OFF
+          - GREEN_DEAL_BILL_ADJUSTMENT
+          - OPUS_FINAL_BALANCE_TRANSFER
+          - OPUS_FINAL_BALANCE_ADJUSTMENT
+          - WARM_HOME_DISCOUNT_REBATE_5
+          - RECONNECTION_CHARGE_REV
+          - DAP_LOSING_SUPPLIER_10
+          - DAP_LOSING_SUPPLIER_90
+          - LOYALTY_RETAIN
+          - SUNDAY_SAVER
+          - RMGEDF24
+          - SAP_MIGRATED_CREDITS
+          - TESEDF24
+          - WHIEDF24
+          - VODEDF24
+          - NISEDF24
+          - EV_50_CREDIT
+          - PLUG__POWER_300_CREDIT
+          - PLUG__POWER_200_CREDIT
+          - RENEWAL_CREDIT
+          - EV_FLEX_SCHEME_CREDIT
+          - REFER_A_FRIEND_5
+          - WRITE_OFF_UNRECOVERABLE_DEBT_RESI
+          - INDEMNITY_CLAIM
+          - VALENTINES_DAY
+          - RIPPLE_ENERGY_CREDIT_RESI
+          - RIPPLE_ENERGY_CREDIT_BUSINESS
+          - RESQEDF25
+          - PREEDF25
+          - TRANSFERRED_DEBT_BILL_ADJUSTMENT
+          - SBOFFERCREDIT
+          - EVRI100
+          - OPUS_DEENERGISED_ADJUSTMENT
+          - SMART_CHARGING_INCENTIVE
+          - SMART_CHARGING_SAVING
+          - FAFS_TERMED_ACCOUNT
+          - PLUG__POWER_100_CREDIT
+          - SETTLEMENT_LIVE_ACCOUNT
+          - TENNIS_FINALS_CREDIT
+          - SCHOOL_HOLIDAYS_CREDIT
+          - CHRISTMAS_DAY_CREDIT
+          - FREE_PHASE_FREE_ELECTRICITY
+          - EARLY_RENEWAL_50_CREDIT
+          - GOELECTRIC_130_OFFER
+          - EXPORT_TARIFF_PAYMENT_RESI
+          - REFER_A_FRIEND_NEW
+          - DEBTSOLD_PAYMENTREVERSAL
+          - BUPEDF25
+          - CARE_SUPPORT_SCHEME
+          - UTILITA_TRANSFER
+          - WELCOMEGAS1YEAR
+          - UTILITA_FINAL_BALANCE_TRANSFER
+          - WELCOMEGAS2YEAR
+          - WELCOMEGAS3YEAR
+          - WELCOMEGAS4YEAR
+          - EARLY_RENEWAL_75_CREDIT
+          - SUNDAY_SAVER__ERRONEOUS_MESSAGE_COMPENSATION
+          - EV_SWITCH_BONUS_50
+          - SBNEWACQ1YEAR
+          - SBNEWACQ2YEAR
+          - SBNEWACQ3YEAR
+          - SBNEWACQ4YEAR
+          - SBNEWACQ100
+          - SBNEWACQ150
+          - SBNEWACQ175
+          - SBNEWACQ200
+          - LATE_PAYMENT_REVERSAL
+          - OVERDALES_DEBT_WRITE_OFF
+          - SBNEWACQFIX50
+          - SBNEWACQFIX150
+          - SBNEWACQFIX100
+          - SBNEWACQFIX175
+          - OFGEM_DEBT_RELIEF_SCHEME_GROUP_1
+          - SB_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING_20
+          - SB_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING_5_VAT
+          - OFGEM_DEBT_RELIEF_SCHEME_GROUP_2
+          - SB_FREE_ENERGY
+          - ADDITIONAL_SOP_FINAL_BILL_REFUND_OVERDUE
+          - LOW_STANDING_CHARGE_TRIAL_GAS
+          - LOW_STANDING_CHARGE_TRIAL_ELECTRICITY
+          - NEWACQGAS200
+          - UUEDF26
+          - CHAPS_PAYMENT
+          - FOOTBALL_CREDIT
+          - RESI_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING
+          - SBEXTRANEWACQ100
+          - SBEXTRANEWACQ150
+          - SBEXTRANEWACQ25
+          - SBEXTRANEWACQ50
+          - SBEXTRANEWACQ75
+          type: string
+          x-spec-enum-id: abfe684544c12da5
+          description: <p>The reason for the transaction.</p>
+          x-enum-descriptions:
+            BALANCE_ADJUSTMENT: BALANCE_ADJUSTMENT
+            BALANCE_TRANSFER: BALANCE_TRANSFER
+            BANK_TRANSFER: BANK_TRANSFER
+            CONTRIBUTION_TAX_FREE: CONTRIBUTION_TAX_FREE
+            CUSTOMER_SERVICE_GESTURE: CUSTOMER_SERVICE_GESTURE
+            DEPOSIT: DEPOSIT
+            DIRECT_DEBIT_DISCOUNT: DIRECT_DEBIT_DISCOUNT
+            JOINING_REWARD: JOINING_REWARD
+            LOYALTY_REWARD: LOYALTY_REWARD
+            REVERSED_ACCOUNT_CHARGE: REVERSED_ACCOUNT_CHARGE
+            CUSTOMER_REIMBURSEMENT: CUSTOMER_REIMBURSEMENT
+            DATA_IMPORT_BALANCE_TRANSFER: DATA_IMPORT_BALANCE_TRANSFER
+            DEBIT_BALANCE_TRANSFER: DEBIT_BALANCE_TRANSFER
+            GOODWILL_PAYMENT: GOODWILL_PAYMENT
+            IMPORTED_CREDIT: IMPORTED_CREDIT
+            SUPPLEMENTARY_LEDGER_BALANCE_TRANSFER: SUPPLEMENTARY_LEDGER_BALANCE_TRANSFER
+            WRITE_OFF_PAST_BILLABLE_AUTOMATED: WRITE_OFF_PAST_BILLABLE_AUTOMATED
+            WRITE_OFF_BACK_BILLING: WRITE_OFF_BACK_BILLING
+            WRITE_OFF_NEGLIGIBLE_VALUE: WRITE_OFF_NEGLIGIBLE_VALUE
+            WRITE_OFF_UNRECOVERABLE_DEBT: WRITE_OFF_UNRECOVERABLE_DEBT
+            WRITE_OFF_PAST_BILLABLE: WRITE_OFF_PAST_BILLABLE
+            WRITE_OFF_RECOVERY_DISCOUNT: WRITE_OFF_RECOVERY_DISCOUNT
+            WRITE_OFF_BANKRUPTCY: WRITE_OFF_BANKRUPTCY
+            WRITE_OFF_DRO: WRITE_OFF_DRO
+            WRITE_OFF_IVA: WRITE_OFF_IVA
+            WRITE_OFF_DECEASED: WRITE_OFF_DECEASED
+            WRITE_OFF_MISSED_PAYMENT_DELETION: WRITE_OFF_MISSED_PAYMENT_DELETION
+            UNLIKELY_TO_RECOVER_WRITE_OFF: UNLIKELY_TO_RECOVER_WRITE_OFF
+            REFERRING_ACCOUNT_REFERRAL_REWARD: REFERRING_ACCOUNT_REFERRAL_REWARD
+            REFERRED_ACCOUNT_REFERRAL_REWARD: REFERRED_ACCOUNT_REFERRAL_REWARD
+            PREPAY_BALANCE_ADJUSTMENT: PREPAY_BALANCE_ADJUSTMENT
+            PREPAY_IMBALANCE_WRITE_OFF: PREPAY_IMBALANCE_WRITE_OFF
+            PREPAY_MIGRATION_IMBALANCE: PREPAY_MIGRATION_IMBALANCE
+            ACCURACY_TEST_ADJUSTMENT: ACCURACY_TEST_ADJUSTMENT
+            ADDITIONAL_SOP_PAYMENT_APPOINTMENTS: ADDITIONAL_SOP_PAYMENT_APPOINTMENTS
+            ADDITIONAL_SOP_PAYMENT_CUSTOMER_NOT_RETURNED: ADDITIONAL_SOP_PAYMENT_CUSTOMER_NOT_RETURNED
+            ADDITIONAL_SOP_PAYMENT_ELECTRICITY_SWITCH_DELAYED: ADDITIONAL_SOP_PAYMENT_ELECTRICITY_SWITCH_DELAYED
+            ADDITIONAL_SOP_PAYMENT_ERRONEOUS_TRANSFER: ADDITIONAL_SOP_PAYMENT_ERRONEOUS_TRANSFER
+            ADDITIONAL_SOP_PAYMENT_ET_COMMS_OVERDUE: ADDITIONAL_SOP_PAYMENT_ET_COMMS_OVERDUE
+            ADDITIONAL_SOP_PAYMENT_ET_GAIN_ACCEPTED: ADDITIONAL_SOP_PAYMENT_ET_GAIN_ACCEPTED
+            ADDITIONAL_SOP_PAYMENT_ET_GAIN_UNRESOLVED: ADDITIONAL_SOP_PAYMENT_ET_GAIN_UNRESOLVED
+            ADDITIONAL_SOP_PAYMENT_ET_LOSS_UNRESOLVED: ADDITIONAL_SOP_PAYMENT_ET_LOSS_UNRESOLVED
+            ADDITIONAL_STANDARD_PAYMENT: ADDITIONAL_STANDARD_PAYMENT
+            ADJUSTED_CREDIT_TO_ALLOW_REFUND: ADJUSTED_CREDIT_TO_ALLOW_REFUND
+            ADJUSTMENT_ON_RETURNED_DEPOSIT: ADJUSTMENT_ON_RETURNED_DEPOSIT
+            BALANCE_TRANSFER_FOR_FINAL_BILLED_ACCOUNT: BALANCE_TRANSFER_FOR_FINAL_BILLED_ACCOUNT
+            CHEQUE_PAYMENT_RECEIVED: CHEQUE_PAYMENT_RECEIVED
+            CLOSED_REVERSION: CLOSED_REVERSION
+            DEBT_ASSIGNMENT_LOSING_SUPPLIER: DEBT_ASSIGNMENT_LOSING_SUPPLIER
+            DEPOSIT_REFUND: DEPOSIT_REFUND
+            DIRECT_DEBIT_BANK_CHARGE_MAY: DIRECT_DEBIT_BANK_CHARGE_MAY
+            DISC_WARM_HOME_DISCOUNT: DISC_WARM_HOME_DISCOUNT
+            DISPUTED_CARD_PAYMENTS: DISPUTED_CARD_PAYMENTS
+            ECONOMY_7_DIFFERENCE: ECONOMY_7_DIFFERENCE
+            ERRONEOUS_TRANSFER_REFUND: ERRONEOUS_TRANSFER_REFUND
+            EXIT_FEE_REFUND: EXIT_FEE_REFUND
+            EXPORT_TARIFF_PAYMENT: EXPORT_TARIFF_PAYMENT
+            EXTERNAL_REFERRAL_CREDIT: EXTERNAL_REFERRAL_CREDIT
+            FEED_IN_TARIFF_PAYMENT: FEED_IN_TARIFF_PAYMENT
+            GO_CARDLESS_CHARGEBACK_CANCELLED: GO_CARDLESS_CHARGEBACK_CANCELLED
+            GSS_AFFECT: GSS_AFFECT
+            GSS_FAILURE: GSS_FAILURE
+            GSS_FAILURE_MOP: GSS_FAILURE_MOP
+            HONOURED_BANK_CHARGES: HONOURED_BANK_CHARGES
+            INCOMING_PAYMENT_GO_CARDLESS: INCOMING_PAYMENT_GO_CARDLESS
+            MANAGEMENT_WAIVED_FEES: MANAGEMENT_WAIVED_FEES
+            MARKET_RESEARCH_CLUB_REWARD: MARKET_RESEARCH_CLUB_REWARD
+            MISSED_SAVINGS: MISSED_SAVINGS
+            OFFSET: OFFSET
+            PAYMENT_BANK_ACCOUNT: PAYMENT_BANK_ACCOUNT
+            PAYMENT_BPAY: PAYMENT_BPAY
+            PAYMENT_CENTREPAY: PAYMENT_CENTREPAY
+            PAYMENT_CHEQUE: PAYMENT_CHEQUE
+            PAYMENT_CREDIT_CARD: PAYMENT_CREDIT_CARD
+            PAYMENT_TRANSFER_FROM_SAP: PAYMENT_TRANSFER_FROM_SAP
+            PREPAY_DEBT_ADJUSTMENT: PREPAY_DEBT_ADJUSTMENT
+            QLD_ASSET_OWNERSHIP_DIVIDEND: QLD_ASSET_OWNERSHIP_DIVIDEND
+            RECEIVED_VIA_CREDIT_STYLE: RECEIVED_VIA_CREDIT_STYLE
+            REFERRALCANDY_INCENTIVE: REFERRALCANDY_INCENTIVE
+            REINSTATED_DIRECT_DEBIT: REINSTATED_DIRECT_DEBIT
+            RETURNED_BUSINESS_ADVANCE_PAYMENT: RETURNED_BUSINESS_ADVANCE_PAYMENT
+            RETURNED_BUSINESS_PREPAYMENT: RETURNED_BUSINESS_PREPAYMENT
+            REVERSE_ENERGY_CHARGE: REVERSE_ENERGY_CHARGE
+            REVERSIONED_POST_DD_CANX: REVERSIONED_POST_DD_CANX
+            SALES_COMPENSATION: SALES_COMPENSATION
+            SHARE_OF_PROFITS: SHARE_OF_PROFITS
+            SINGLE_RATE_RMI: SINGLE_RATE_RMI
+            SME_REVERSED_PRE_MIGRATION_CHARGE: SME_REVERSED_PRE_MIGRATION_CHARGE
+            SOLAR_GOODWILL: SOLAR_GOODWILL
+            SOLR_BALANCE_TRANSFER: SOLR_BALANCE_TRANSFER
+            SOLR_EX_CUSTOMER_CREDIT: SOLR_EX_CUSTOMER_CREDIT
+            SOLR_WRITE_OFF: SOLR_WRITE_OFF
+            STAFF_DISCOUNT: STAFF_DISCOUNT
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_FAULTY_METER_ELEC: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_FAULTY_METER_ELEC
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_PREPAY_METER_ELEC: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_PREPAY_METER_ELEC
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_RECONNECTION_ELEC: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_RECONNECTION_ELEC
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_STANDARD_VISIT_ELEC: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_STANDARD_VISIT_ELEC
+            STANDARDS_OF_PERFORMANCE_CUSTOMER_NOT_RETURNED: STANDARDS_OF_PERFORMANCE_CUSTOMER_NOT_RETURNED
+            STANDARDS_OF_PERFORMANCE_ERRONEOUS_TRANSFER: STANDARDS_OF_PERFORMANCE_ERRONEOUS_TRANSFER
+            STANDARDS_OF_PERFORMANCE_ET_COMMS_OVERDUE: STANDARDS_OF_PERFORMANCE_ET_COMMS_OVERDUE
+            STANDARDS_OF_PERFORMANCE_ET_GAIN_ACCEPTED: STANDARDS_OF_PERFORMANCE_ET_GAIN_ACCEPTED
+            STANDARDS_OF_PERFORMANCE_ET_GAIN_UNRESOLVED: STANDARDS_OF_PERFORMANCE_ET_GAIN_UNRESOLVED
+            STANDARDS_OF_PERFORMANCE_ET_LOSS_UNRESOLVED: STANDARDS_OF_PERFORMANCE_ET_LOSS_UNRESOLVED
+            STANDARDS_OF_PERFORMANCE_FINAL_BILL_ISSUED_LATE: STANDARDS_OF_PERFORMANCE_FINAL_BILL_ISSUED_LATE
+            STANDARDS_OF_PERFORMANCE_PAYMENTS: STANDARDS_OF_PERFORMANCE_PAYMENTS
+            STANDARDS_OF_PERFORMANCE_REFUND_ISSUED_LATE: STANDARDS_OF_PERFORMANCE_REFUND_ISSUED_LATE
+            TARIFF_DISCOUNT: TARIFF_DISCOUNT
+            TARIFF_PRICE_ADJUSTMENT_GOODWILL: TARIFF_PRICE_ADJUSTMENT_GOODWILL
+            WAIVE_TERMINATION_FEES: WAIVE_TERMINATION_FEES
+            WITHDRAWAL_NOT_ACTIONED: WITHDRAWAL_NOT_ACTIONED
+            EBSS_CREDIT: EBSS_CREDIT
+            WARM_HOME_DISCOUNT_BROADER_GROUP: WARM_HOME_DISCOUNT_BROADER_GROUP
+            WARM_HOME_DISCOUNT_CORE_GROUP: WARM_HOME_DISCOUNT_CORE_GROUP
+            WARM_HOME_DISCOUNT_CORE_GROUP_1: WARM_HOME_DISCOUNT_CORE_GROUP_1
+            WARM_HOME_DISCOUNT_CORE_GROUP_2: WARM_HOME_DISCOUNT_CORE_GROUP_2
+            ADDITIONAL_SOP_PAYMENT_GAS_SWITCH_DELAYED: ADDITIONAL_SOP_PAYMENT_GAS_SWITCH_DELAYED
+            GAS_NETWORK_COMPENSATION: GAS_NETWORK_COMPENSATION
+            GAS_OFF_SUPPLY_PAYMENT: GAS_OFF_SUPPLY_PAYMENT
+            GOVERNMENT_ENERGY_ASSISTANCE_HEEA: GOVERNMENT_ENERGY_ASSISTANCE_HEEA
+            PAYMENT_AUSPOST: PAYMENT_AUSPOST
+            PAYMENT_EAPA_VOUCHER: PAYMENT_EAPA_VOUCHER
+            PAYMENT_IVR: PAYMENT_IVR
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_FAULTY_METER_GAS: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_FAULTY_METER_GAS
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_PREPAY_METER_GAS: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_PREPAY_METER_GAS
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_RECONNECTION_GAS: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_RECONNECTION_GAS
+            STANDARDS_OF_PERFORMANCE_APPOINTMENTS_STANDARD_VISIT_GAS: STANDARDS_OF_PERFORMANCE_APPOINTMENTS_STANDARD_VISIT_GAS
+            MIGRATION_ADJUSTMENT: MIGRATION_ADJUSTMENT
+            BILL_ADJUSTMENT_0: BILL_ADJUSTMENT_0
+            BILL_ADJUSTMENT_20: BILL_ADJUSTMENT_20
+            BILL_ADJUSTMENT_5: BILL_ADJUSTMENT_5
+            GOODWILL: GOODWILL
+            DAILY_STANDING_CHARGE_ROLLBACK: DAILY_STANDING_CHARGE_ROLLBACK
+            CANCELLED_CHEQUE_RESI: CANCELLED_CHEQUE_RESI
+            CANCELLED_CHEQUE_SME: CANCELLED_CHEQUE_SME
+            PREPAYMENT_ADDITIONAL_SUPPORT_CREDIT: PREPAYMENT_ADDITIONAL_SUPPORT_CREDIT
+            WELFARE_VISIT_FEE_REVERSAL: WELFARE_VISIT_FEE_REVERSAL
+            WARRANT_FEES_COSTS_REVERSAL: WARRANT_FEES_COSTS_REVERSAL
+            WARRANT_EXECUTION_FEE_REVERSAL: WARRANT_EXECUTION_FEE_REVERSAL
+            MISDIRECTED_CREDIT_PAYMENT: MISDIRECTED_CREDIT_PAYMENT
+            MISSING_PREPAYMENT_TOP_UP: MISSING_PREPAYMENT_TOP_UP
+            TERM_DCA_FEE_REVERSAL: TERM_DCA_FEE_REVERSAL
+            HAMPTON_FUEL_PAYMENT: HAMPTON_FUEL_PAYMENT
+            DEEMED_0_CONSUMPTION_WRITE_OFF: DEEMED_0_CONSUMPTION_WRITE_OFF
+            NET_ZERO_HERO_AWARD: NET_ZERO_HERO_AWARD
+            STANDARD_OF_PERFORMANCE_ELEC_SWITCH_DELAY: STANDARD_OF_PERFORMANCE_ELEC_SWITCH_DELAY
+            STANDARD_OF_PERFORMANCE_GAS_SWITCH_DELAY: STANDARD_OF_PERFORMANCE_GAS_SWITCH_DELAY
+            ADDITIONAL_SOP_FINAL_BILL_OVERDUE: ADDITIONAL_SOP_FINAL_BILL_OVERDUE
+            EMAIL_PRIZE_DRAW: EMAIL_PRIZE_DRAW
+            GREEN_DEAL: GREEN_DEAL
+            GREEN_DEAL_WRITE_OFF: GREEN_DEAL_WRITE_OFF
+            GREEN_DEAL_BILL_ADJUSTMENT: GREEN_DEAL_BILL_ADJUSTMENT
+            OPUS_FINAL_BALANCE_TRANSFER: OPUS_FINAL_BALANCE_TRANSFER
+            OPUS_FINAL_BALANCE_ADJUSTMENT: OPUS_FINAL_BALANCE_ADJUSTMENT
+            WARM_HOME_DISCOUNT_REBATE_5: WARM_HOME_DISCOUNT_REBATE_5
+            RECONNECTION_CHARGE_REV: RECONNECTION_CHARGE_REV
+            DAP_LOSING_SUPPLIER_10: DAP_LOSING_SUPPLIER_10
+            DAP_LOSING_SUPPLIER_90: DAP_LOSING_SUPPLIER_90
+            LOYALTY_RETAIN: LOYALTY_RETAIN
+            SUNDAY_SAVER: SUNDAY_SAVER
+            RMGEDF24: RMGEDF24
+            SAP_MIGRATED_CREDITS: SAP_MIGRATED_CREDITS
+            TESEDF24: TESEDF24
+            WHIEDF24: WHIEDF24
+            VODEDF24: VODEDF24
+            NISEDF24: NISEDF24
+            EV_50_CREDIT: EV_50_CREDIT
+            PLUG__POWER_300_CREDIT: PLUG__POWER_300_CREDIT
+            PLUG__POWER_200_CREDIT: PLUG__POWER_200_CREDIT
+            RENEWAL_CREDIT: RENEWAL_CREDIT
+            EV_FLEX_SCHEME_CREDIT: EV_FLEX_SCHEME_CREDIT
+            REFER_A_FRIEND_5: REFER_A_FRIEND_5
+            WRITE_OFF_UNRECOVERABLE_DEBT_RESI: WRITE_OFF_UNRECOVERABLE_DEBT_RESI
+            INDEMNITY_CLAIM: INDEMNITY_CLAIM
+            VALENTINES_DAY: VALENTINES_DAY
+            RIPPLE_ENERGY_CREDIT_RESI: RIPPLE_ENERGY_CREDIT_RESI
+            RIPPLE_ENERGY_CREDIT_BUSINESS: RIPPLE_ENERGY_CREDIT_BUSINESS
+            RESQEDF25: RESQEDF25
+            PREEDF25: PREEDF25
+            TRANSFERRED_DEBT_BILL_ADJUSTMENT: TRANSFERRED_DEBT_BILL_ADJUSTMENT
+            SBOFFERCREDIT: SBOFFERCREDIT
+            EVRI100: EVRI100
+            OPUS_DEENERGISED_ADJUSTMENT: OPUS_DEENERGISED_ADJUSTMENT
+            SMART_CHARGING_INCENTIVE: SMART_CHARGING_INCENTIVE
+            SMART_CHARGING_SAVING: SMART_CHARGING_SAVING
+            FAFS_TERMED_ACCOUNT: FAFS_TERMED_ACCOUNT
+            PLUG__POWER_100_CREDIT: PLUG__POWER_100_CREDIT
+            SETTLEMENT_LIVE_ACCOUNT: SETTLEMENT_LIVE_ACCOUNT
+            TENNIS_FINALS_CREDIT: TENNIS_FINALS_CREDIT
+            SCHOOL_HOLIDAYS_CREDIT: SCHOOL_HOLIDAYS_CREDIT
+            CHRISTMAS_DAY_CREDIT: CHRISTMAS_DAY_CREDIT
+            FREE_PHASE_FREE_ELECTRICITY: FREE_PHASE_FREE_ELECTRICITY
+            EARLY_RENEWAL_50_CREDIT: EARLY_RENEWAL_50_CREDIT
+            GOELECTRIC_130_OFFER: GOELECTRIC_130_OFFER
+            EXPORT_TARIFF_PAYMENT_RESI: EXPORT_TARIFF_PAYMENT_RESI
+            REFER_A_FRIEND_NEW: REFER_A_FRIEND_NEW
+            DEBTSOLD_PAYMENTREVERSAL: DEBTSOLD_PAYMENTREVERSAL
+            BUPEDF25: BUPEDF25
+            CARE_SUPPORT_SCHEME: CARE_SUPPORT_SCHEME
+            UTILITA_TRANSFER: UTILITA_TRANSFER
+            WELCOMEGAS1YEAR: WELCOMEGAS1YEAR
+            UTILITA_FINAL_BALANCE_TRANSFER: UTILITA_FINAL_BALANCE_TRANSFER
+            WELCOMEGAS2YEAR: WELCOMEGAS2YEAR
+            WELCOMEGAS3YEAR: WELCOMEGAS3YEAR
+            WELCOMEGAS4YEAR: WELCOMEGAS4YEAR
+            EARLY_RENEWAL_75_CREDIT: EARLY_RENEWAL_75_CREDIT
+            SUNDAY_SAVER__ERRONEOUS_MESSAGE_COMPENSATION: SUNDAY_SAVER__ERRONEOUS_MESSAGE_COMPENSATION
+            EV_SWITCH_BONUS_50: EV_SWITCH_BONUS_50
+            SBNEWACQ1YEAR: SBNEWACQ1YEAR
+            SBNEWACQ2YEAR: SBNEWACQ2YEAR
+            SBNEWACQ3YEAR: SBNEWACQ3YEAR
+            SBNEWACQ4YEAR: SBNEWACQ4YEAR
+            SBNEWACQ100: SBNEWACQ100
+            SBNEWACQ150: SBNEWACQ150
+            SBNEWACQ175: SBNEWACQ175
+            SBNEWACQ200: SBNEWACQ200
+            LATE_PAYMENT_REVERSAL: LATE_PAYMENT_REVERSAL
+            OVERDALES_DEBT_WRITE_OFF: OVERDALES_DEBT_WRITE_OFF
+            SBNEWACQFIX50: SBNEWACQFIX50
+            SBNEWACQFIX150: SBNEWACQFIX150
+            SBNEWACQFIX100: SBNEWACQFIX100
+            SBNEWACQFIX175: SBNEWACQFIX175
+            OFGEM_DEBT_RELIEF_SCHEME_GROUP_1: OFGEM_DEBT_RELIEF_SCHEME_GROUP_1
+            SB_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING_20: SB_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING_20
+            SB_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING_5_VAT: SB_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING_5_VAT
+            OFGEM_DEBT_RELIEF_SCHEME_GROUP_2: OFGEM_DEBT_RELIEF_SCHEME_GROUP_2
+            SB_FREE_ENERGY: SB_FREE_ENERGY
+            ADDITIONAL_SOP_FINAL_BILL_REFUND_OVERDUE: ADDITIONAL_SOP_FINAL_BILL_REFUND_OVERDUE
+            LOW_STANDING_CHARGE_TRIAL_GAS: LOW_STANDING_CHARGE_TRIAL_GAS
+            LOW_STANDING_CHARGE_TRIAL_ELECTRICITY: LOW_STANDING_CHARGE_TRIAL_ELECTRICITY
+            NEWACQGAS200: NEWACQGAS200
+            UUEDF26: UUEDF26
+            CHAPS_PAYMENT: CHAPS_PAYMENT
+            FOOTBALL_CREDIT: FOOTBALL_CREDIT
+            RESI_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING: RESI_DEBT_WRITTEN_OFF_DEBT_RECOVERY_ACTION_CONTINUING
+            SBEXTRANEWACQ100: SBEXTRANEWACQ100
+            SBEXTRANEWACQ150: SBEXTRANEWACQ150
+            SBEXTRANEWACQ25: SBEXTRANEWACQ25
+            SBEXTRANEWACQ50: SBEXTRANEWACQ50
+            SBEXTRANEWACQ75: SBEXTRANEWACQ75
+        to_prepay_meter_serial_number:
+          type: string
+          description: "<p>The serial number of the prepay meter that this transaction has been \"sent to\" (via a PPMIP).</p>\n    <p>In the case of prepay vends, this \"sending\" was carried out by the customer paying\n    at an outlet; as such, this field should always be populated for prepay vend transactions.</p>\n    <p>In the case of credits and non-consumption charges applied to the customer's account\n    pre-migration, this field should be populated only where a request to add the corresponding\n    credit or debt to the prepay meter has been sent and accepted by the PPMIP.</p>"
+        transaction_date:
+          type: string
+          format: date
+          description: <p>The date of the transaction.</p>
+          x-validators:
+          - name: Validate transaction date
+            description: Validates that the transaction date provided in the payload is not in the future.
+            possible_errors:
+            - transaction_in_future
+        transaction_id:
+          type: string
+          description: <p>The unique internal identifier for the transaction.</p>
+      required:
+      - amount
+      - reason
+      - transaction_date
+      - transaction_id
+      - type
+    TransactionAnnotatedWithStatus:
+      type: object
+      properties:
+        added_transaction_id:
+          type: integer
+          description: <p>The transaction id.</p>
+        status:
+          enum:
+          - TRANSACTION_ADDED_TO_ACCOUNT
+          - TRANSACTION_ALREADY_EXISTS
+          - TRANSACTION_IMPORT_ERROR
+          type: string
+          x-spec-enum-id: 5a92d022962e1cea
+          description: <p>The status of the transaction.</p>
+          x-enum-descriptions:
+            TRANSACTION_ADDED_TO_ACCOUNT: Transaction added to account
+            TRANSACTION_ALREADY_EXISTS: Transaction already exists
+            TRANSACTION_IMPORT_ERROR: Transaction import error
+        transaction_data:
+          allOf:
+          - $ref: '#/components/schemas/TransactionData'
+          description: <p>The data associated with the transaction that caused this error.</p>
+      required:
+      - status
+      - transaction_data
+    HistoricalStatements:
+      type: object
+      properties:
+        external_account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+        import_supplier:
+          enum:
+          - EDF_SHELL_ACCOUNT
+          - EDF _DEENERGISED
+          - EDF_SME_PAYG
+          - EDF_PAYG
+          - EDF_TERMED
+          - EDF_FIT
+          - EDF_AUTO_TOPUP
+          - EDF_DEENERGISED
+          - EDF_NEW_CONNECTIONS
+          - EDFSME
+          - EDFSME_MULTISITE
+          - EDF_SMEPAYG
+          - OPUS
+          - EDF
+          - UTILITA
+          type: string
+          x-spec-enum-id: 1106bbca05c54188
+          description: <p>The import supplier code that the account was imported on to. This, along with the <code>external_account_number</code>, will be used to find the account in Kraken.</p>
+          x-enum-descriptions:
+            EDF_SHELL_ACCOUNT: EDF Shell Account
+            EDF _DEENERGISED: EDF Deenergised
+            EDF_SME_PAYG: EDF_SME_PAYG
+            EDF_PAYG: EDF PAYG
+            EDF_TERMED: EDF_TERMED
+            EDF_FIT: EDF FIT
+            EDF_AUTO_TOPUP: EDF Auto Top Up
+            EDF_DEENERGISED: EDF Deenergised
+            EDF_NEW_CONNECTIONS: EDF New Connections
+            EDFSME: EDF Production SME account import
+            EDFSME_MULTISITE: EDF SME Multi-site
+            EDF_SMEPAYG: EDF_SMEPAYG
+            OPUS: Opus Energy
+            EDF: EDF Production Import
+            UTILITA: UTILITA
+        statements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Statement'
+          description: <p>List of historical statements for the account.</p>
+      required:
+      - external_account_number
+      - import_supplier
+      - statements
+      x-validators:
+      - name: Validate that account data is staged and account created
+        description: Validate that an account exists for the <code>external_account_number</code> and <code>import_supplier</code> code. This means that the import data must already have been staged and processed into an account.
+        possible_errors:
+        - account_not_found
+        - import_process_does_not_exist
+      - name: Validate that migration is ongoing
+        description: Validate whether or not an import supplier is open for further data migration.
+        possible_errors:
+        - import_supplier_migration_not_ongoing
+      - name: Validate that the account doesn't have historical statements
+        description: Validate the the historical statements that are being imported do not already exist on the account. To check this the <code>statement_id</code>'s in the payload are checked against any historical statement IDs already associated with the account.
+        possible_errors:
+        - account_not_found
+        - historical_statement_already_exists
+    AccountNote:
+      type: object
+      properties:
+        account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+          deprecated: true
+          x-use-instead: external_account_number
+        external_account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+        import_supplier:
+          enum:
+          - EDF_SHELL_ACCOUNT
+          - EDF _DEENERGISED
+          - EDF_SME_PAYG
+          - EDF_PAYG
+          - EDF_TERMED
+          - EDF_FIT
+          - EDF_AUTO_TOPUP
+          - EDF_DEENERGISED
+          - EDF_NEW_CONNECTIONS
+          - EDFSME
+          - EDFSME_MULTISITE
+          - EDF_SMEPAYG
+          - OPUS
+          - EDF
+          - UTILITA
+          type: string
+          x-spec-enum-id: 1106bbca05c54188
+          description: <p>The import supplier code that the account was imported on to. This, along with the <code>external_account_number</code>, will be used to find the account in Kraken.</p>
+          x-enum-descriptions:
+            EDF_SHELL_ACCOUNT: EDF Shell Account
+            EDF _DEENERGISED: EDF Deenergised
+            EDF_SME_PAYG: EDF_SME_PAYG
+            EDF_PAYG: EDF PAYG
+            EDF_TERMED: EDF_TERMED
+            EDF_FIT: EDF FIT
+            EDF_AUTO_TOPUP: EDF Auto Top Up
+            EDF_DEENERGISED: EDF Deenergised
+            EDF_NEW_CONNECTIONS: EDF New Connections
+            EDFSME: EDF Production SME account import
+            EDFSME_MULTISITE: EDF SME Multi-site
+            EDF_SMEPAYG: EDF_SMEPAYG
+            OPUS: Opus Energy
+            EDF: EDF Production Import
+            UTILITA: UTILITA
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+          description: <p>List of notes linked to the account. A note <code>body</code> or <code>document_paths</code> must be provided.</p>
+      required:
+      - import_supplier
+      - notes
+      x-validators:
+      - name: Validate that account data is staged and account created
+        description: Validate that an account exists for the <code>external_account_number</code> and <code>import_supplier</code> code. This means that the import data must already have been staged and processed into an account.
+        possible_errors:
+        - account_not_found
+        - import_process_does_not_exist
+      - name: Validate that migration is ongoing
+        description: Validate whether or not an import supplier is open for further data migration.
+        possible_errors:
+        - import_supplier_migration_not_ongoing
+  securitySchemes:
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    DataImportViewerAPIKeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "

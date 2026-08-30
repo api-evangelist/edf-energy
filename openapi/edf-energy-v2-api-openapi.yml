@@ -1,0 +1,76 @@
+openapi: 3.2.0
+info:
+  title: Kraken V2 API
+  version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: v2
+paths:
+  /v2/orders/schema/:
+    get:
+      operationId: Order Management Open Api Schema
+      description: 'Base OpenAPI schema endpoint that filters URL patterns by namespace.
+
+
+        Subclasses must define ``schema_namespaces`` to control which URL
+
+        namespaces appear in the generated schema.'
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      tags:
+      - v2
+      security:
+      - AccountUserAPIKeyAuthentication: []
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - AffiliateAuthentication: []
+      - PartnerUserOnlyAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+            application/yaml:
+              schema:
+                type: object
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+            application/json:
+              schema:
+                type: object
+          description: ''
+components:
+  securitySchemes:
+    AccountUserAPIKeyAuthentication:
+      type: http
+      scheme: basic
+      description: Token-based authentication where token is passed as the username for basic auth
+    AffiliateAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for affiliate organisations
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    KeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "
+    PartnerUserOnlyAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for partner organisations

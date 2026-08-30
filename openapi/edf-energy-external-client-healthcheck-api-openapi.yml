@@ -1,0 +1,53 @@
+openapi: 3.2.0
+info:
+  title: Kraken External Client Healthcheck API
+  version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: external-client-healthcheck
+paths:
+  /external-client-healthcheck/:
+    get:
+      operationId: External Client Health Check
+      description: 'Healthcheck endpoint for external clients.
+
+
+        When called, this API will return a 200 status and increment a metric.
+
+
+        This endpoint allows clients to implement a healthcheck that is also supported
+
+        by monitoring on the Kraken side.'
+      tags:
+      - external-client-healthcheck
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  securitySchemes:
+    AccountUserAPIKeyAuthentication:
+      type: http
+      scheme: basic
+      description: Token-based authentication where token is passed as the username for basic auth
+    AffiliateAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for affiliate organisations
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    KeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "
+    PartnerUserOnlyAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for partner organisations
