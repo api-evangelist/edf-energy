@@ -331,7 +331,7 @@ apis:
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
-  - V2
+  - v2
   tags_raw:
   - v2
   properties:
