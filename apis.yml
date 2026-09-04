@@ -14,6 +14,22 @@ deliveryModel:
   - pricing
   generated: '2026-08-28'
   method: derived
+accessModel:
+  pricing: unknown
+  onboarding: open
+  trial: false
+  try_now: false
+  public: true
+  label: Open access
+  confidence: medium
+  source:
+  - authentication
+  - scopes
+  - rate-limits
+  - security
+  - sandbox
+  generated: '2026-09-02'
+  method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
 - Energy
@@ -409,8 +425,9 @@ common:
   url: well-known/edf-energy-well-known.yml
 - type: Packages
   url: packages/edf-energy-packages.yml
-- type: MCPServer
+- type: X-MCPServerCandidate
   url: mcp/edf-energy-mcp.yml
+  note: 'Renamed from MCPServer 2026-09-03 (roadmap#247): the manifest self-describes as status: candidate — a tool list derived from the published API contracts, not an existing server. The scorer already read the manifest and reported mcp_server correctly; the MCPServer type was crediting the artifact-type surfaces with a server that does not exist.'
 - type: ToolCrosswalk
   url: mcp/edf-energy-tool-crosswalk.yml
 - type: AgentSkill
