@@ -7,7 +7,7 @@ servers:
 - url: https://api.edfgb-kraken.energy/v1/
   description: Base URL declared by the provider in apis.yml (roadmap#122).
 tags:
-- name: query
+- name: Query
   x-title: Query APIs
   description: APIs for querying import status and retrieving data
 paths:
@@ -24,7 +24,7 @@ paths:
         description: The code of an existing Import Supplier.
         required: true
       tags:
-      - query
+      - Query
       security:
       - DataImportViewerAPIKeyAuthentication: []
       - DRFKrakenTokenAuthentication: []
@@ -61,7 +61,7 @@ paths:
         description: The code of an existing Import Supplier.
         required: true
       tags:
-      - query
+      - Query
       security:
       - DataImportViewerAPIKeyAuthentication: []
       - DRFKrakenTokenAuthentication: []
@@ -101,7 +101,7 @@ paths:
         description: The code of an existing Import Supplier.
         required: true
       tags:
-      - query
+      - Query
       security:
       - DataImportViewerAPIKeyAuthentication: []
       - DRFKrakenTokenAuthentication: []
@@ -145,7 +145,7 @@ paths:
         description: The code of an existing Import Supplier.
         required: true
       tags:
-      - query
+      - Query
       security:
       - DataImportViewerAPIKeyAuthentication: []
       - DRFKrakenTokenAuthentication: []
@@ -169,15 +169,6 @@ paths:
       x-doc-alerts: []
 components:
   schemas:
-    GbrMeterPointStatusError:
-      type: object
-      properties:
-        error:
-          type: string
-          title: Description of the error.
-          description: <p>The details of the error.</p>
-      required:
-      - error
     ImportProcess:
       type: object
       properties:
@@ -310,6 +301,15 @@ components:
       required:
       - mpxn
       - status
+    GbrMeterPointStatusError:
+      type: object
+      properties:
+        error:
+          type: string
+          title: Description of the error.
+          description: <p>The details of the error.</p>
+      required:
+      - error
   securitySchemes:
     DRFKrakenTokenAuthentication:
       type: apiKey

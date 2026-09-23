@@ -6,7 +6,7 @@ servers:
 - url: https://api.edfgb-kraken.energy/v1/
   description: Base URL declared by the provider in apis.yml (roadmap#122).
 tags:
-- name: external-events
+- name: External Events
 paths:
   /external-events/schema/:
     get:
@@ -26,7 +26,7 @@ paths:
           - json
           - yaml
       tags:
-      - external-events
+      - External Events
       security:
       - {}
       responses:
@@ -45,6 +45,8 @@ paths:
               schema:
                 type: object
           description: ''
+      summary: Open api schema
+      x-summary-source: derived
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

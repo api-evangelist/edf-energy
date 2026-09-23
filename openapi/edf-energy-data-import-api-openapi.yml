@@ -6,7 +6,7 @@ servers:
 - url: https://api.edfgb-kraken.energy/v1/
   description: Base URL declared by the provider in apis.yml (roadmap#122).
 tags:
-- name: data-import
+- name: Data Import
 paths:
   /data-import/schema/:
     get:
@@ -26,7 +26,7 @@ paths:
           - json
           - yaml
       tags:
-      - data-import
+      - Data Import
       security:
       - AccountUserAPIKeyAuthentication: []
       - KeyAuthentication: []
@@ -50,6 +50,8 @@ paths:
               schema:
                 type: object
           description: ''
+      summary: Data import open api schema
+      x-summary-source: derived
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

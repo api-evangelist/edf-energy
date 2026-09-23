@@ -50,6 +50,8 @@ paths:
               schema:
                 type: object
           description: ''
+      summary: Order management open api schema
+      x-summary-source: derived
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

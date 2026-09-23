@@ -27,6 +27,8 @@ paths:
       responses:
         '200':
           description: No response body
+      summary: External client health check
+      x-summary-source: derived
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

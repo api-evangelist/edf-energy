@@ -9,6 +9,9 @@ openapi: 3.0.3
 info:
   title: Kraken
   version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
 paths:
   /data-import/schema/:
     get:

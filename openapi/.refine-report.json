@@ -1,0 +1,41 @@
+{
+  "provider": "edf-energy",
+  "sources": [
+    "_original/edf-energy-kraken-data-import-openapi.yml",
+    "_original/edf-energy-kraken-openapi.yml"
+  ],
+  "outputs": [
+    "edf-energy-account-import-api-openapi.yml",
+    "edf-energy-post-account-import-api-openapi.yml",
+    "edf-energy-query-api-openapi.yml",
+    "edf-energy-data-import-api-openapi.yml",
+    "edf-energy-external-client-healthcheck-api-openapi.yml",
+    "edf-energy-external-events-api-openapi.yml",
+    "edf-energy-v1-api-openapi.yml",
+    "edf-energy-v2-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "edf-energy-kraken-data-import-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "edf-energy-kraken-openapi.yml: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "edf-energy-kraken-openapi.yml: declared missing tag: data-import",
+    "edf-energy-kraken-openapi.yml: declared missing tag: external-client-healthcheck",
+    "edf-energy-kraken-openapi.yml: declared missing tag: external-events",
+    "edf-energy-kraken-openapi.yml: declared missing tag: v1",
+    "edf-energy-kraken-openapi.yml: declared missing tag: v2",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "edf-energy-account-import-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "edf-energy-data-import-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "edf-energy-external-client-healthcheck-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "edf-energy-external-events-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "edf-energy-post-account-import-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "edf-energy-query-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "edf-energy-v1-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "edf-energy-v2-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}
