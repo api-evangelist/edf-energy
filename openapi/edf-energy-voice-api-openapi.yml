@@ -1,0 +1,81 @@
+openapi: 3.2.0
+info:
+  title: Kraken Voice API
+  version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: Voice
+paths:
+  /v1/voice/twilio/enqueue-audio/:
+    post:
+      operationId: TwilioEnqueueAudio
+      tags:
+      - Voice
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+      summary: Twilio enqueue audio
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Twilio Enqueue Audio
+  /v1/voice/twilio/voice-announcement/:
+    get:
+      operationId: VoiceAnnouncement
+      description: 'Return TwiML that speaks a translated message to the caller.
+
+
+        Query parameters:
+
+
+        - ``translation_key``: required if ``announcement`` is not provided — the FTL message identifier to translate.
+
+        - ``announcement``: required if ``translation_key`` is not provided — the message to speak to the caller.
+
+        - ``language_code``: optional — BCP-47 / Django language code to use for
+
+        the translation and Twilio TTS voice. Defaults to the client''s configured
+
+        language when omitted.'
+      tags:
+      - Voice
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+      summary: Voice announcement
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Voice Announcement
+components:
+  securitySchemes:
+    AccountUserAPIKeyAuthentication:
+      type: http
+      scheme: basic
+      description: Token-based authentication where token is passed as the username for basic auth
+    AffiliateAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for affiliate organisations
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    KeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "
+    PartnerUserOnlyAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for partner organisations

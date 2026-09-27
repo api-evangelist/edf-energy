@@ -10,7 +10,7 @@ tags:
 paths:
   /external-events/schema/:
     get:
-      operationId: Open Api Schema
+      operationId: OpenApiSchema
       description: 'OpenApi3 schema for this API. Format can be selected via content negotiation.
 
 
@@ -47,6 +47,8 @@ paths:
           description: ''
       summary: Open api schema
       x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Open Api Schema
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

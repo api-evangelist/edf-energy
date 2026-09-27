@@ -1,0 +1,294 @@
+openapi: 3.2.0
+info:
+  title: Kraken Payment Intents API
+  version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: Payment Intents
+paths:
+  /v1/payment-intents/confirm/:
+    post:
+      operationId: ConfirmAStripePaymentIntent
+      description: 'Create Stripe charge using Stripe''s PaymentIntent model and Elements (js) which automatically
+
+        applies for authentication exemptions and performs authentication. The intent will be confirm
+
+        using the Stripe API, which then creates a charge.
+
+
+        Docs: https://stripe.com/docs/payments/payment-intents/quickstart#manual-confirmation-flow'
+      tags:
+      - Payment Intents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmStripePaymentIntent'
+            examples:
+              ConfirmPaymentIntent:
+                value:
+                  account: A-12341234
+                  amount: '12.99'
+                  payment_intent_id: xxx_123123
+                  description: Manual payment
+                summary: Confirm payment intent
+        required: true
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntentConfirmed'
+              examples:
+                PaymentIntentConfirmed:
+                  value:
+                    success: true
+                  summary: Payment intent confirmed
+          description: Payment intent successfully confirmed
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentErrorResponse'
+              examples:
+                CardDeclined:
+                  value:
+                    error: The card was declined
+                  summary: Card declined
+          description: Could not confirm payment intent
+      summary: Confirm a stripe payment intent
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Confirm a Stripe payment intent
+  /v1/payment-intents/create/:
+    post:
+      operationId: CreateAStripePaymentIntent
+      description: 'Create a Stripe payment using Stripe''s PaymentIntent and Elements (js) which automatically
+
+        applies for authentication exemptions and performs authentication. Handles both immediate and
+
+        scheduled Stripe card payments.
+
+
+        Docs: https://stripe.com/docs/payments/payment-intents/quickstart#manual-confirmation-flow'
+      tags:
+      - Payment Intents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStripePaymentIntent'
+            examples:
+              CreatePaymentIntent:
+                value:
+                  account: A-12341234
+                  amount: '12.99'
+                  payment_method_id: card_1234abcd
+                  description: Manual payment
+                summary: Create payment intent
+        required: true
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntentCreated'
+              examples:
+                PaymentIntentCreated:
+                  value:
+                    requires_action: true
+                    payment_intent_id: pi_3MtwBwLkdIwHu7ix28a3tqPa
+                    payment_intent_client_secret: pi_3MtwBwLkdIwHu7ix28a3tqPa_secret_YrKJUKribcBjcG8HVhfZluoGH
+                  summary: Payment intent created
+          description: Payment intent successfully created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentErrorResponse'
+              examples:
+                CardDeclined:
+                  value:
+                    error: The card was declined
+                  summary: Card declined
+          description: Could not create payment intent
+      summary: Create a stripe payment intent
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Create a Stripe payment intent
+  /v1/payment-intents/fail/:
+    post:
+      operationId: MarkAStripePaymentIntentAsFailed
+      description: 'Handle a failure when creating a Stripe charge using Stripe''s PaymentIntent model and
+
+        Elements (js) which automatically applies for authentication exemptions and performs
+
+        authentication.
+
+
+        Docs: https://stripe.com/docs/payments/payment-intents/quickstart#manual-confirmation-flow'
+      tags:
+      - Payment Intents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FailedStripePaymentIntent'
+            examples:
+              MarkPaymentIntentAsFailed:
+                value:
+                  account: A-12345
+                  payment_intent_id: xxx_123123
+                  error: Something went wrong
+                summary: Mark payment intent as failed
+        required: true
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+      summary: Mark a stripe payment intent as failed
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Mark a Stripe payment intent as failed
+components:
+  schemas:
+    PaymentErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
+    ConfirmStripePaymentIntent:
+      type: object
+      description: Serializer for confirming Stripe payments using Payment Intents and Stripe JS Elements.
+      properties:
+        account:
+          type: string
+          title: The account number of the payment.
+        ledger_number:
+          type:
+          - string
+          - 'null'
+          title: The ledger the payment belongs to.
+          pattern: ^[-a-zA-Z0-9_]+$
+        amount:
+          type: string
+          format: decimal
+          title: The amount of the payment in pounds.
+        description:
+          type: string
+          default: ''
+        payment_intent_id:
+          type: string
+      required:
+      - account
+      - amount
+      - payment_intent_id
+    FailedStripePaymentIntent:
+      type: object
+      description: Serializer for handling failed Stripe payments using Payment Intents and Stripe JS Elements.
+      properties:
+        account:
+          type: string
+          title: The account number of the payment.
+        ledger_number:
+          type:
+          - string
+          - 'null'
+          title: The ledger the payment belongs to.
+          pattern: ^[-a-zA-Z0-9_]+$
+        payment_intent_id:
+          type: string
+        error:
+          type: string
+          title: The failure message to record.
+      required:
+      - account
+      - payment_intent_id
+    PaymentIntentCreated:
+      type: object
+      properties:
+        requires_action:
+          type: boolean
+        payment_intent_id:
+          type: string
+        payment_intent_client_secret:
+          type: string
+          title: Will be provided if an action is required
+      required:
+      - payment_intent_client_secret
+      - payment_intent_id
+      - requires_action
+    CreateStripePaymentIntent:
+      type: object
+      description: Serializer for Stripe payments creation using Payment Intents and Stripe JS Elements.
+      properties:
+        account:
+          type: string
+          title: The account number of the payment.
+        ledger_number:
+          type:
+          - string
+          - 'null'
+          title: The ledger the payment belongs to.
+          pattern: ^[-a-zA-Z0-9_]+$
+        amount:
+          type: string
+          format: decimal
+          title: The amount of the payment in pounds.
+        description:
+          type: string
+        payment_method_id:
+          type: string
+          title: See https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method
+        use_saved_card:
+          type: boolean
+          default: false
+      required:
+      - account
+      - amount
+      - payment_method_id
+    PaymentIntentConfirmed:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+      - success
+  securitySchemes:
+    AccountUserAPIKeyAuthentication:
+      type: http
+      scheme: basic
+      description: Token-based authentication where token is passed as the username for basic auth
+    AffiliateAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for affiliate organisations
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    KeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "
+    PartnerUserOnlyAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for partner organisations

@@ -10,7 +10,7 @@ tags:
 paths:
   /data-import/schema/:
     get:
-      operationId: Data Import Open Api Schema
+      operationId: DataImportOpenApiSchema
       description: 'Base OpenAPI schema endpoint that filters URL patterns by namespace.
 
 
@@ -52,6 +52,8 @@ paths:
           description: ''
       summary: Data import open api schema
       x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Data Import Open Api Schema
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

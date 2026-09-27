@@ -10,7 +10,7 @@ tags:
 paths:
   /external-client-healthcheck/:
     get:
-      operationId: External Client Health Check
+      operationId: ExternalClientHealthCheck
       description: 'Healthcheck endpoint for external clients.
 
 
@@ -29,6 +29,8 @@ paths:
           description: No response body
       summary: External client health check
       x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: External Client Health Check
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

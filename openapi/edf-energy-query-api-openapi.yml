@@ -13,7 +13,7 @@ tags:
 paths:
   /v1/data-import/all-account-import-processes/{import_supplier_code}/:
     get:
-      operationId: V1 Get All Account Import Processes
+      operationId: V1GetAllAccountImportProcesses
       description: Use this endpoint to list all accounts for import, whether they are pending (their data has been staged) or have had a Kraken account created.
       summary: List all accounts for import
       parameters:
@@ -48,9 +48,11 @@ paths:
                   summary: All account import processes
           description: If any pending or imported accounts are found for the given `import_supplier_code`, they will be returned in the response. If the account is pending import then the `kraken_account_number` and `account_created_at will` be null.
       x-doc-alerts: []
+      x-operation-id-source: normalized
+      x-operation-id-original: V1 Get All Account Import Processes
   /v1/data-import/imported-account-import-processes/{import_supplier_code}/:
     get:
-      operationId: V1 Get Imported Accounts
+      operationId: V1GetImportedAccounts
       description: Use this endpoint to list all accounts that have been imported and now have a Kraken account.
       summary: List all accounts that have been imported
       parameters:
@@ -82,9 +84,11 @@ paths:
                   summary: Successfully imported import processes
           description: If any imported accounts are found for the given `import_supplier_code`, they will be returned in the response.
       x-doc-alerts: []
+      x-operation-id-source: normalized
+      x-operation-id-original: V1 Get Imported Accounts
   /v1/data-import/meterpoint-statuses-for-account/{import_supplier_code}/{external_account_number}/:
     get:
-      operationId: V1 Get Meter Point Statuses For Account
+      operationId: V1GetMeterPointStatusesForAccount
       description: Use this endpoint to list all meter point statuses by import supplier code and external account number.
       summary: List meter point statuses for an account
       parameters:
@@ -132,9 +136,11 @@ paths:
                   summary: No meter point found
           description: Error fetching meter points
       x-doc-alerts: []
+      x-operation-id-source: normalized
+      x-operation-id-original: V1 Get Meter Point Statuses For Account
   /v1/data-import/pending-account-import-processes/{import_supplier_code}/:
     get:
-      operationId: V1 Get Pending Account Import Processes
+      operationId: V1GetPendingAccountImportProcesses
       description: Use this endpoint to list all accounts pending import (their data has been staged).
       summary: List all accounts pending import
       parameters:
@@ -167,6 +173,8 @@ paths:
                   description: If any accounts pending import are found for the given `import_supplier_code`, they will be returned in the response. For consistency with the other APIs the `kraken_account_number` and `account_created_at` fields will be returned but will always be `null`.
           description: Pending import processes matching request parameters.
       x-doc-alerts: []
+      x-operation-id-source: normalized
+      x-operation-id-original: V1 Get Pending Account Import Processes
 components:
   schemas:
     ImportProcess:
@@ -186,6 +194,15 @@ components:
           maxLength: 128
       required:
       - external_account_number
+    GbrMeterPointStatusError:
+      type: object
+      properties:
+        error:
+          type: string
+          title: Description of the error.
+          description: <p>The details of the error.</p>
+      required:
+      - error
     GbrMeterPointStatus:
       type: object
       properties:
@@ -301,15 +318,6 @@ components:
       required:
       - mpxn
       - status
-    GbrMeterPointStatusError:
-      type: object
-      properties:
-        error:
-          type: string
-          title: Description of the error.
-          description: <p>The details of the error.</p>
-      required:
-      - error
   securitySchemes:
     DRFKrakenTokenAuthentication:
       type: apiKey

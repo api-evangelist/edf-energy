@@ -1,16 +1,16 @@
 openapi: 3.2.0
 info:
-  title: Kraken V2 API
+  title: Kraken Orders API
   version: v1
 servers:
 - url: https://api.edfgb-kraken.energy/v1/
   description: Base URL declared by the provider in apis.yml (roadmap#122).
 tags:
-- name: v2
+- name: Orders
 paths:
   /v2/orders/schema/:
     get:
-      operationId: Order Management Open Api Schema
+      operationId: OrderManagementOpenApiSchema
       description: 'Base OpenAPI schema endpoint that filters URL patterns by namespace.
 
 
@@ -26,7 +26,7 @@ paths:
           - json
           - yaml
       tags:
-      - v2
+      - Orders
       security:
       - AccountUserAPIKeyAuthentication: []
       - KeyAuthentication: []
@@ -52,6 +52,8 @@ paths:
           description: ''
       summary: Order management open api schema
       x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Order Management Open Api Schema
 components:
   securitySchemes:
     AccountUserAPIKeyAuthentication:

@@ -313,16 +313,16 @@ apis:
     url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
   - type: Authentication
     url: authentication/edf-energy-authentication.yml
-- aid: edf-energy:edf-energy-v1-api
-  name: EDF Energy V1 API
-  description: The v1 API from EDF Energy — 23 operation(s) for v1.
+- aid: edf-energy:edf-energy-accounts-api
+  name: EDF Energy Accounts API
+  description: The Accounts API from EDF Energy — 2 operation(s) for accounts.
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
-  - v1
+  - Accounts
   properties:
   - type: OpenAPI
-    url: openapi/edf-energy-v1-api-openapi.yml
+    url: openapi/edf-energy-accounts-api-openapi.yml
   - type: Documentation
     url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
   - type: APIReference
@@ -341,18 +341,213 @@ apis:
     url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
   - type: Authentication
     url: authentication/edf-energy-authentication.yml
-- aid: edf-energy:edf-energy-v2-api
-  name: EDF Energy V2 API
-  description: The v2 API from EDF Energy — 1 operation(s) for v2.
+- aid: edf-energy:edf-energy-electricity-meter-points-api
+  name: EDF Energy Electricity Meter Points API
+  description: >-
+    The Electricity Meter Points API from EDF Energy — 2 operation(s) for electricity meter points.
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
-  - v2
-  tags_raw:
-  - v2
+  - Electricity Meter Points
   properties:
   - type: OpenAPI
-    url: openapi/edf-energy-v2-api-openapi.yml
+    url: openapi/edf-energy-electricity-meter-points-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-gas-meter-points-api
+  name: EDF Energy Gas Meter Points API
+  description: The Gas Meter Points API from EDF Energy — 1 operation(s) for gas meter points.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - Gas Meter Points
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-gas-meter-points-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-industry-api
+  name: EDF Energy Industry API
+  description: The Industry API from EDF Energy — 1 operation(s) for industry.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - Industry
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-industry-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-orders-api
+  name: EDF Energy Orders API
+  description: The Orders API from EDF Energy — 1 operation(s) for orders.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - Orders
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-orders-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-payment-intents-api
+  name: EDF Energy Payment Intents API
+  description: The Payment Intents API from EDF Energy — 3 operation(s) for payment intents.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - Payment Intents
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-payment-intents-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-products-api
+  name: EDF Energy Products API
+  description: The Products API from EDF Energy — 10 operation(s) for products.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - Products
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-products-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-quotes-api
+  name: EDF Energy Quotes API
+  description: The Quotes API from EDF Energy — 2 operation(s) for quotes.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - Quotes
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-quotes-api-openapi.yml
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: APIReference
+    url: https://developer.edfgb-kraken.energy/rest/reference/
+  - type: Documentation
+    url: https://www.edfenergy.com/energywise/edfs-open-tariff-apis
+  - type: Authentication
+    url: authentication/edf-energy-kraken-openid-configuration.json
+  - type: ErrorCatalog
+    url: errors/edf-energy-problem-types.yml
+  - type: DataModel
+    url: data-model/edf-energy-data-model.yml
+  - type: GettingStarted
+    url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
+  - type: Documentation
+    url: https://developer.edfgb-kraken.energy/rest/guides/data-import/
+  - type: Authentication
+    url: authentication/edf-energy-authentication.yml
+- aid: edf-energy:edf-energy-voice-api
+  name: EDF Energy Voice API
+  description: The Voice API from EDF Energy — 2 operation(s) for voice.
+  humanURL: https://developer.edfgb-kraken.energy/graphql/
+  baseURL: https://api.edfgb-kraken.energy/v1/graphql/
+  tags:
+  - Voice
+  properties:
+  - type: OpenAPI
+    url: openapi/edf-energy-voice-api-openapi.yml
   - type: Documentation
     url: https://developer.edfgb-kraken.energy/rest/guides/api-basics/
   - type: APIReference

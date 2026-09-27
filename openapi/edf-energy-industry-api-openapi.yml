@@ -1,0 +1,109 @@
+openapi: 3.2.0
+info:
+  title: Kraken Industry API
+  version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: Industry
+paths:
+  /v1/industry/grid-supply-points/:
+    get:
+      operationId: ListIndustryGridSupplyPoints
+      description: Return a list of GSP objects, optionally filtered by postcode. If we’re unable to map the passed postcode to a GSP, an empty list will be returned
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: postcode
+        schema:
+          type: string
+        description: A postcode to filter GSPs by.
+      tags:
+      - Industry
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGridSupplyPointList'
+              examples:
+                ListGridSupplyPoints:
+                  value:
+                    count: 123
+                    next: https://api.edfgb-kraken.energy/v1/industry/grid-supply-points/?page=4
+                    previous: https://api.edfgb-kraken.energy/v1/industry/grid-supply-points/?page=2
+                    results:
+                    - - group_id: _A
+                      - group_id: _B
+                  summary: List grid supply points
+          description: ''
+      summary: List industry grid supply points
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: List Industry Grid Supply Points
+components:
+  schemas:
+    GridSupplyPoint:
+      type: object
+      properties:
+        group_id:
+          type: string
+      required:
+      - group_id
+    PaginatedGridSupplyPointList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/industry/grid-supply-points/?page=4
+        previous:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/industry/grid-supply-points/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GridSupplyPoint'
+  securitySchemes:
+    AccountUserAPIKeyAuthentication:
+      type: http
+      scheme: basic
+      description: Token-based authentication where token is passed as the username for basic auth
+    AffiliateAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for affiliate organisations
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    KeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "
+    PartnerUserOnlyAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for partner organisations

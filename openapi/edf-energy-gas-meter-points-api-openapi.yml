@@ -1,0 +1,160 @@
+openapi: 3.2.0
+info:
+  title: Kraken Gas Meter Points API
+  version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: Gas Meter Points
+paths:
+  /v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption/:
+    get:
+      operationId: ListConsumptionForAGasMeter
+      description: 'Return a list of consumption values (in kWh for SMETS1 and in m^3 for SMETS2) for half-hour periods for a given gas meter-point and meter. WARNING: Half-hourly consumption data is only available for smart meters. Requests for consumption data for non-smart meters will return an empty response payload.'
+      parameters:
+      - name: group_by
+        required: false
+        in: query
+        description: 'Aggregates consumption over a specified time period. A day is considered to start and end at midnight in the server’s timezone. The default is that consumption is returned in half-hour periods. Accepted values are: * ‘hour’ * ‘day’ * ‘week’ * ‘month’ * ‘quarter’.'
+        schema:
+          type: string
+      - in: path
+        name: mprn
+        schema:
+          type: string
+        required: true
+      - name: order_by
+        required: false
+        in: query
+        description: 'Ordering of results returned. Default is that results are returned in reverse order from latest available figure. Valid values: * ‘period’, to give results ordered forward. * ‘-period’, (default), to give results ordered from most recent backwards.'
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 25000 to give a full year of half-hourly consumption details.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: serial_number
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gas Meter Points
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsumptionList'
+              examples:
+                ListOfConsumptionValues:
+                  value:
+                    count: 123
+                    next: https://api.edfgb-kraken.energy/v1/gas-meter-points/1234987426/meters/Z16N389556/consumption/?page=4
+                    previous: https://api.edfgb-kraken.energy/v1/gas-meter-points/1234987426/meters/Z16N389556/consumption/?page=2
+                    results:
+                    - - consumption: 0.063
+                        interval_start: 2018-05-19T00:30:00+0100
+                        interval_end: 2018-05-19T01:00:00+0100
+                      - consumption: 0.071
+                        interval_start: 2018-05-19T00:00:00+0100
+                        interval_end: 2018-05-19T00:30:00+0100
+                      - consumption: 0.073
+                        interval_start: 2018-05-18T23:30:00+0100
+                        interval_end: 2018-05-18T00:00:00+0100
+                  summary: List of consumption values
+          description: ''
+      summary: List consumption for a gas meter
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: List consumption for a gas meter
+components:
+  schemas:
+    Consumption:
+      type: object
+      properties:
+        consumption:
+          type: string
+          readOnly: true
+        interval_start:
+          type: string
+          format: date-time
+        interval_end:
+          type: string
+          format: date-time
+      required:
+      - consumption
+      - interval_end
+      - interval_start
+    PaginatedConsumptionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/electricity-meter-points/S1212345678901/meters/Z16N389556/consumption/?page=4
+        previous:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/electricity-meter-points/S1212345678901/meters/Z16N389556/consumption/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Consumption'
+  securitySchemes:
+    AccountUserAPIKeyAuthentication:
+      type: http
+      scheme: basic
+      description: Token-based authentication where token is passed as the username for basic auth
+    AffiliateAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for affiliate organisations
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    KeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "
+    PartnerUserOnlyAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for partner organisations

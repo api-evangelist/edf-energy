@@ -1,0 +1,1233 @@
+openapi: 3.2.0
+info:
+  title: Kraken Products API
+  version: v1
+servers:
+- url: https://api.edfgb-kraken.energy/v1/
+  description: Base URL declared by the provider in apis.yml (roadmap#122).
+tags:
+- name: Products
+paths:
+  /v1/products/:
+    get:
+      operationId: ListProducts
+      description: Return a list of energy products. By default, results will be public energy products but if the authenticated organisations will also see products available to their organisation.
+      parameters:
+      - in: query
+        name: available_at
+        schema:
+          type: string
+        description: Show products available for new agreements on the given datetime. Defaults to current datetime, effectively showing products that are currently available.
+      - in: query
+        name: brand
+        schema:
+          type: string
+      - in: query
+        name: is_business
+        schema:
+          type: boolean
+        description: Show only business products
+      - in: query
+        name: is_green
+        schema:
+          type: boolean
+        description: Show only green products
+      - in: query
+        name: is_historical
+        schema:
+          type: string
+      - in: query
+        name: is_prepay
+        schema:
+          type: boolean
+        description: Show only pre-pay products
+      - in: query
+        name: is_tracker
+        schema:
+          type: boolean
+        description: Show only tracker products
+      - in: query
+        name: is_variable
+        schema:
+          type: boolean
+        description: Show only variable products
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductsList'
+              examples:
+                ListOfProducts:
+                  value:
+                    count: 123
+                    next: https://api.edfgb-kraken.energy/v1/products/?page=4
+                    previous: https://api.edfgb-kraken.energy/v1/products/?page=2
+                    results:
+                    - direction: IMPORT
+                      code: VAR-17-01-11
+                      full_name: Flexible Tentacle Offer January 2017 v1
+                      display_name: Flexible Tentacle
+                      description: This great value 12 month fixed tariff guarantees…
+                      is_variable: true
+                      is_green: false
+                      is_tracker: false
+                      is_prepay: false
+                      is_business: false
+                      is_restricted: false
+                      term: 12
+                      available_from: '2017-05-05T05:37:27Z'
+                      available_to: null
+                      brand: TENTACLE_ENERGY
+                      links:
+                      - href: https://api.edfgb-kraken.energy/v1/products/VAR-17-01-11/
+                        method: GET
+                        rel: self
+                  summary: List of products
+          description: ''
+      summary: List products
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: List Products
+  /v1/products/{product_code}/:
+    get:
+      operationId: Product
+      parameters:
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+      summary: Product
+      x-summary-source: derived
+  /v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates/:
+    get:
+      operationId: ElectricityTariffDayUnitRates
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Electricity tariff day unit rates
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Electricity Tariff Day Unit Rates
+  /v1/products/{product_code}/electricity-tariffs/{tariff_code}/ev-device-off-peak-unit-rates/:
+    get:
+      operationId: ElectricityTariffEvDeviceOffPeakUnitRates
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Electricity tariff ev device off peak unit rates
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Electricity Tariff Ev Device Off Peak Unit Rates
+  /v1/products/{product_code}/electricity-tariffs/{tariff_code}/ev-device-peak-unit-rates/:
+    get:
+      operationId: ElectricityTariffEvDevicePeakUnitRates
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Electricity tariff ev device peak unit rates
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Electricity Tariff Ev Device Peak Unit Rates
+  /v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates/:
+    get:
+      operationId: ElectricityTariffNightUnitRates
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Electricity tariff night unit rates
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Electricity Tariff Night Unit Rates
+  /v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/:
+    get:
+      operationId: ElectricityTariffStandardUnitRates
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Electricity tariff standard unit rates
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Electricity Tariff Standard Unit Rates
+  /v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges/:
+    get:
+      operationId: ElectricityTariffStandingCharges
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Electricity tariff standing charges
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Electricity Tariff Standing Charges
+  /v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates/:
+    get:
+      operationId: GasTariffStandardUnitRates
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Gas tariff standard unit rates
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Gas Tariff Standard Unit Rates
+  /v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges/:
+    get:
+      operationId: GasTariffStandingCharges
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Page size of returned results. Default is 100, maximum is 1500 to give up to a month of half-hourly prices.
+        schema:
+          type: integer
+      - name: period_from
+        required: false
+        in: query
+        description: Show results from the given datetime (inclusive). This parameter can be provided on its own.
+        schema:
+          type: datetime
+      - name: period_to
+        required: false
+        in: query
+        description: Show results up to the given datetime (exclusive). You must also provide the period_from parameter in order to create a range.
+        schema:
+          type: datetime
+      - in: path
+        name: product_code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: tariff_code
+        schema:
+          type: string
+        required: true
+      tags:
+      - Products
+      security:
+      - KeyAuthentication: []
+      - DRFKrakenTokenAuthentication: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoricalChargeList'
+          description: ''
+      summary: Gas tariff standing charges
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: Gas Tariff Standing Charges
+components:
+  schemas:
+    GasTariff:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 255
+        standing_charge_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standing_charge_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        online_discount_exc_vat:
+          type: integer
+          readOnly: true
+        online_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        dual_fuel_discount_exc_vat:
+          type: integer
+          readOnly: true
+        dual_fuel_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        exit_fees_exc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_inc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_type:
+          type: string
+          readOnly: true
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          readOnly: true
+        standard_unit_rate_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standard_unit_rate_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+      required:
+      - code
+      - dual_fuel_discount_exc_vat
+      - dual_fuel_discount_inc_vat
+      - exit_fees_exc_vat
+      - exit_fees_inc_vat
+      - exit_fees_type
+      - links
+      - online_discount_exc_vat
+      - online_discount_inc_vat
+      - standard_unit_rate_exc_vat
+      - standard_unit_rate_inc_vat
+      - standing_charge_exc_vat
+      - standing_charge_inc_vat
+    FourRateEvElectricityTariff:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 255
+        standing_charge_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standing_charge_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        online_discount_exc_vat:
+          type: integer
+          readOnly: true
+        online_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        dual_fuel_discount_exc_vat:
+          type: integer
+          readOnly: true
+        dual_fuel_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        exit_fees_exc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_inc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_type:
+          type: string
+          readOnly: true
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          readOnly: true
+      required:
+      - code
+      - dual_fuel_discount_exc_vat
+      - dual_fuel_discount_inc_vat
+      - exit_fees_exc_vat
+      - exit_fees_inc_vat
+      - exit_fees_type
+      - links
+      - online_discount_exc_vat
+      - online_discount_inc_vat
+      - standing_charge_exc_vat
+      - standing_charge_inc_vat
+    SampleConsumption:
+      type: object
+      properties:
+        electricity_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+        electricity_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+        dual_fuel_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+        dual_fuel_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+      required:
+      - dual_fuel_dual_rate
+      - dual_fuel_single_rate
+      - electricity_dual_rate
+      - electricity_single_rate
+    PaginatedProductsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/?page=4
+        previous:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Products'
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        method:
+          type: string
+        rel:
+          type: string
+      required:
+      - href
+      - method
+      - rel
+    Product:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 128
+        full_name:
+          type: string
+          maxLength: 255
+        display_name:
+          type: string
+          description: This name will be shown to customers during sign-up
+          maxLength: 255
+        description:
+          type: string
+          description: This will be shown to customers during sign-up
+        is_variable:
+          type: boolean
+          title: Is variable?
+        is_green:
+          type: boolean
+          title: Is a green product?
+        is_tracker:
+          type: boolean
+          title: Is a tracker product?
+        is_prepay:
+          type: boolean
+        is_business:
+          type: boolean
+          title: Is a business product?
+        is_restricted:
+          type: boolean
+          readOnly: true
+        term:
+          type:
+          - integer
+          - 'null'
+          maximum: 2147483647
+          minimum: 0
+          description: Duration of agreements using this product in months
+        available_from:
+          type: string
+          format: date-time
+        available_to:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        tariffs_active_at:
+          type: string
+          format: date-time
+          readOnly: true
+        single_register_electricity_tariffs:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              allOf:
+              - $ref: '#/components/schemas/StandardElectricityTariff'
+              description: Tariffs per payment method (DIRECT_DEBIT_MONTHLY, DIRECT_DEBIT_QUARTERLY, POROB, PREPAYMENT, VARYING)
+            title: Payment methods per GSP's group id
+          readOnly: true
+        dual_register_electricity_tariffs:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              allOf:
+              - $ref: '#/components/schemas/Eco7ElectricityTariff'
+              description: Tariffs per payment method (DIRECT_DEBIT_MONTHLY, DIRECT_DEBIT_QUARTERLY, POROB, PREPAYMENT, VARYING)
+            title: Payment methods per GSP's group id
+          readOnly: true
+        four_rate_ev_electricity_tariffs:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              allOf:
+              - $ref: '#/components/schemas/FourRateEvElectricityTariff'
+              description: Tariffs per payment method (DIRECT_DEBIT_MONTHLY, DIRECT_DEBIT_QUARTERLY, POROB, PREPAYMENT, VARYING)
+            title: Payment methods per GSP's group id
+          readOnly: true
+        single_register_gas_tariffs:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              allOf:
+              - $ref: '#/components/schemas/GasTariff'
+              description: Tariffs per payment method (DIRECT_DEBIT_MONTHLY, DIRECT_DEBIT_QUARTERLY, POROB, PREPAYMENT, VARYING)
+            title: Payment methods per GSP's group id
+          readOnly: true
+        sample_quotes:
+          allOf:
+          - $ref: '#/components/schemas/SampleQuotes'
+          readOnly: true
+        sample_consumption:
+          allOf:
+          - $ref: '#/components/schemas/SampleConsumption'
+          readOnly: true
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          readOnly: true
+          description: Historical charges can be browsed using the provided URLs.
+        brand:
+          type: string
+          readOnly: true
+      required:
+      - available_from
+      - brand
+      - code
+      - description
+      - display_name
+      - dual_register_electricity_tariffs
+      - four_rate_ev_electricity_tariffs
+      - full_name
+      - is_restricted
+      - links
+      - sample_consumption
+      - sample_quotes
+      - single_register_electricity_tariffs
+      - single_register_gas_tariffs
+      - tariffs_active_at
+    StandardElectricityTariff:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 255
+        standing_charge_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standing_charge_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        online_discount_exc_vat:
+          type: integer
+          readOnly: true
+        online_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        dual_fuel_discount_exc_vat:
+          type: integer
+          readOnly: true
+        dual_fuel_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        exit_fees_exc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_inc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_type:
+          type: string
+          readOnly: true
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          readOnly: true
+        standard_unit_rate_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standard_unit_rate_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+      required:
+      - code
+      - dual_fuel_discount_exc_vat
+      - dual_fuel_discount_inc_vat
+      - exit_fees_exc_vat
+      - exit_fees_inc_vat
+      - exit_fees_type
+      - links
+      - online_discount_exc_vat
+      - online_discount_inc_vat
+      - standard_unit_rate_exc_vat
+      - standard_unit_rate_inc_vat
+      - standing_charge_exc_vat
+      - standing_charge_inc_vat
+    Eco7ElectricityTariff:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 255
+        standing_charge_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standing_charge_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        online_discount_exc_vat:
+          type: integer
+          readOnly: true
+        online_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        dual_fuel_discount_exc_vat:
+          type: integer
+          readOnly: true
+        dual_fuel_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        exit_fees_exc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_inc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_type:
+          type: string
+          readOnly: true
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          readOnly: true
+        day_unit_rate_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        day_unit_rate_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        night_unit_rate_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        night_unit_rate_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+      required:
+      - code
+      - day_unit_rate_exc_vat
+      - day_unit_rate_inc_vat
+      - dual_fuel_discount_exc_vat
+      - dual_fuel_discount_inc_vat
+      - exit_fees_exc_vat
+      - exit_fees_inc_vat
+      - exit_fees_type
+      - links
+      - night_unit_rate_exc_vat
+      - night_unit_rate_inc_vat
+      - online_discount_exc_vat
+      - online_discount_inc_vat
+      - standing_charge_exc_vat
+      - standing_charge_inc_vat
+    PaginatedHistoricalChargeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/VAR-17-01-11/electricity-tariffs/E-1R-VAR-17-01-11-A/day-unit-rates/?page=4
+        previous:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/VAR-17-01-11/electricity-tariffs/E-1R-VAR-17-01-11-A/day-unit-rates/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoricalCharge'
+    HistoricalCharge:
+      type: object
+      properties:
+        value_exc_vat:
+          type: number
+          format: double
+          readOnly: true
+        value_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        valid_from:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
+        valid_to:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          readOnly: true
+        payment_method:
+          type:
+          - string
+          - 'null'
+          readOnly: true
+      required:
+      - payment_method
+      - valid_from
+      - valid_to
+      - value_exc_vat
+      - value_inc_vat
+    Products:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 128
+        direction:
+          enum:
+          - IMPORT
+          - EXPORT
+          type: string
+          description: '* `IMPORT` - Import
+
+            * `EXPORT` - Export'
+          x-spec-enum-id: 219f676c2714dd67
+        full_name:
+          type: string
+          maxLength: 255
+        display_name:
+          type: string
+          description: This name will be shown to customers during sign-up
+          maxLength: 255
+        description:
+          type: string
+          description: This will be shown to customers during sign-up
+        is_variable:
+          type: boolean
+          title: Is variable?
+        is_green:
+          type: boolean
+          title: Is a green product?
+        is_tracker:
+          type: boolean
+          title: Is a tracker product?
+        is_prepay:
+          type: boolean
+        is_business:
+          type: boolean
+          title: Is a business product?
+        is_restricted:
+          type: boolean
+          readOnly: true
+        term:
+          type:
+          - integer
+          - 'null'
+          maximum: 2147483647
+          minimum: 0
+          description: Duration of agreements using this product in months
+        available_from:
+          type: string
+          format: date-time
+        available_to:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          readOnly: true
+          description: Historical charges can be browsed using the provided URLs.
+        brand:
+          type: string
+          readOnly: true
+      required:
+      - available_from
+      - brand
+      - code
+      - description
+      - display_name
+      - full_name
+      - is_restricted
+      - links
+    SampleQuotes:
+      type: object
+      properties:
+        electricity_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+        electricity_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+        dual_fuel_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+        dual_fuel_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+      required:
+      - dual_fuel_dual_rate
+      - dual_fuel_single_rate
+      - electricity_dual_rate
+      - electricity_single_rate
+  securitySchemes:
+    AccountUserAPIKeyAuthentication:
+      type: http
+      scheme: basic
+      description: Token-based authentication where token is passed as the username for basic auth
+    AffiliateAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for affiliate organisations
+    DRFKrakenTokenAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT-based authentication
+    KeyAuthentication:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token "
+    PartnerUserOnlyAuthentication:
+      type: http
+      scheme: basic
+      description: Basic authentication for partner organisations
