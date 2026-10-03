@@ -94,22 +94,6 @@ paths:
       x-operation-id-original: List consumption for a gas meter
 components:
   schemas:
-    Consumption:
-      type: object
-      properties:
-        consumption:
-          type: string
-          readOnly: true
-        interval_start:
-          type: string
-          format: date-time
-        interval_end:
-          type: string
-          format: date-time
-      required:
-      - consumption
-      - interval_end
-      - interval_start
     PaginatedConsumptionList:
       type: object
       required:
@@ -135,6 +119,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Consumption'
+    Consumption:
+      type: object
+      properties:
+        consumption:
+          type: string
+          readOnly: true
+        interval_start:
+          type: string
+          format: date-time
+        interval_end:
+          type: string
+          format: date-time
+      required:
+      - consumption
+      - interval_end
+      - interval_start
   securitySchemes:
     AccountUserAPIKeyAuthentication:
       type: http

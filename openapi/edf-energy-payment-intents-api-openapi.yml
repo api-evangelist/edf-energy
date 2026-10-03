@@ -165,6 +165,13 @@ paths:
       x-operation-id-original: Mark a Stripe payment intent as failed
 components:
   schemas:
+    PaymentIntentConfirmed:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+      - success
     PaymentErrorResponse:
       type: object
       properties:
@@ -172,6 +179,20 @@ components:
           type: string
       required:
       - error
+    PaymentIntentCreated:
+      type: object
+      properties:
+        requires_action:
+          type: boolean
+        payment_intent_id:
+          type: string
+        payment_intent_client_secret:
+          type: string
+          title: Will be provided if an action is required
+      required:
+      - payment_intent_client_secret
+      - payment_intent_id
+      - requires_action
     ConfirmStripePaymentIntent:
       type: object
       description: Serializer for confirming Stripe payments using Payment Intents and Stripe JS Elements.
@@ -198,41 +219,6 @@ components:
       - account
       - amount
       - payment_intent_id
-    FailedStripePaymentIntent:
-      type: object
-      description: Serializer for handling failed Stripe payments using Payment Intents and Stripe JS Elements.
-      properties:
-        account:
-          type: string
-          title: The account number of the payment.
-        ledger_number:
-          type:
-          - string
-          - 'null'
-          title: The ledger the payment belongs to.
-          pattern: ^[-a-zA-Z0-9_]+$
-        payment_intent_id:
-          type: string
-        error:
-          type: string
-          title: The failure message to record.
-      required:
-      - account
-      - payment_intent_id
-    PaymentIntentCreated:
-      type: object
-      properties:
-        requires_action:
-          type: boolean
-        payment_intent_id:
-          type: string
-        payment_intent_client_secret:
-          type: string
-          title: Will be provided if an action is required
-      required:
-      - payment_intent_client_secret
-      - payment_intent_id
-      - requires_action
     CreateStripePaymentIntent:
       type: object
       description: Serializer for Stripe payments creation using Payment Intents and Stripe JS Elements.
@@ -262,13 +248,27 @@ components:
       - account
       - amount
       - payment_method_id
-    PaymentIntentConfirmed:
+    FailedStripePaymentIntent:
       type: object
+      description: Serializer for handling failed Stripe payments using Payment Intents and Stripe JS Elements.
       properties:
-        success:
-          type: boolean
+        account:
+          type: string
+          title: The account number of the payment.
+        ledger_number:
+          type:
+          - string
+          - 'null'
+          title: The ledger the payment belongs to.
+          pattern: ^[-a-zA-Z0-9_]+$
+        payment_intent_id:
+          type: string
+        error:
+          type: string
+          title: The failure message to record.
       required:
-      - success
+      - account
+      - payment_intent_id
   securitySchemes:
     AccountUserAPIKeyAuthentication:
       type: http

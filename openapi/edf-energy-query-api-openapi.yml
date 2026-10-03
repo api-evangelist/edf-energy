@@ -177,6 +177,15 @@ paths:
       x-operation-id-original: V1 Get Pending Account Import Processes
 components:
   schemas:
+    GbrMeterPointStatusError:
+      type: object
+      properties:
+        error:
+          type: string
+          title: Description of the error.
+          description: <p>The details of the error.</p>
+      required:
+      - error
     ImportProcess:
       type: object
       properties:
@@ -194,15 +203,6 @@ components:
           maxLength: 128
       required:
       - external_account_number
-    GbrMeterPointStatusError:
-      type: object
-      properties:
-        error:
-          type: string
-          title: Description of the error.
-          description: <p>The details of the error.</p>
-      required:
-      - error
     GbrMeterPointStatus:
       type: object
       properties:

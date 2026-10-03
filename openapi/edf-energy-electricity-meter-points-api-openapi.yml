@@ -127,26 +127,6 @@ paths:
       x-operation-id-original: List consumption for an electricity meter
 components:
   schemas:
-    BespokeTariffRates:
-      type: object
-      properties:
-        standing_charge:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per day of the charge (excluding VAT).
-        unit_rate:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: This field should be used for gas meters.
-        unit_rates:
-          type: array
-          items:
-            $ref: '#/components/schemas/BespokeElectricityUnitRate'
-          title: List of the value in pence per kWh of the charges (excluding VAT).
-          description: For elec meters, the unit rates are provided on a per register basis in this array.
     PaginatedConsumptionList:
       type: object
       required:
@@ -172,16 +152,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Consumption'
-    Quote:
-      type: object
-      properties:
-        annual_payment:
-          type: integer
-          minimum: 0
-          title: The estimated annual payment for this meter-point based on consumption.
-          description: This value must be provided in pence. For business quotes, the price is exclusive of VAT, while for non-business quotes, it should be inclusive of VAT.
-      required:
-      - annual_payment
     Consumption:
       type: object
       properties:
@@ -198,27 +168,41 @@ components:
       - consumption
       - interval_end
       - interval_start
-    ExportDetails:
+    BespokePPSTariffRates:
       type: object
       properties:
-        import_mpan:
+        standing_charge:
           type: string
-          description: The import MPAN.
-          maxLength: 13
-        site_contact_name:
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per day of the charge (excluding VAT).
+        unit_rate:
           type: string
-          description: The name of the site contact.
-        site_contact_phone:
-          type: string
-          description: The phone number of the site contact.
-        site_contact_email:
-          type: string
-          format: email
-          description: The email address of the site contact.
-        installations:
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: This field should be used for gas meters.
+        unit_rates:
           type: array
           items:
-            $ref: '#/components/schemas/Installation'
+            $ref: '#/components/schemas/BespokeElectricityUnitRate'
+          title: List of the value in pence per kWh of the charges (excluding VAT).
+          description: For elec meters, the unit rates are provided on a per register basis in this array.
+        payment_method:
+          enum:
+          - DD
+          - NDD
+          - PP
+          type: string
+          description: '* `DD` - Direct Debit
+
+            * `NDD` - Non-Direct Debit
+
+            * `PP` - Prepayment'
+          x-spec-enum-id: 362e54c421bbcaea
+          title: The payment method for the rate.
+      required:
+      - payment_method
     Address:
       type: object
       properties:
@@ -349,7 +333,7 @@ components:
           title: The generation details for the meter-point.
       required:
       - quote
-    BespokePPSTariffRates:
+    BespokeTariffRates:
       type: object
       properties:
         standing_charge:
@@ -369,21 +353,27 @@ components:
             $ref: '#/components/schemas/BespokeElectricityUnitRate'
           title: List of the value in pence per kWh of the charges (excluding VAT).
           description: For elec meters, the unit rates are provided on a per register basis in this array.
-        payment_method:
-          enum:
-          - DD
-          - NDD
-          - PP
+    ExportDetails:
+      type: object
+      properties:
+        import_mpan:
           type: string
-          description: '* `DD` - Direct Debit
-
-            * `NDD` - Non-Direct Debit
-
-            * `PP` - Prepayment'
-          x-spec-enum-id: 362e54c421bbcaea
-          title: The payment method for the rate.
-      required:
-      - payment_method
+          description: The import MPAN.
+          maxLength: 13
+        site_contact_name:
+          type: string
+          description: The name of the site contact.
+        site_contact_phone:
+          type: string
+          description: The phone number of the site contact.
+        site_contact_email:
+          type: string
+          format: email
+          description: The email address of the site contact.
+        installations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Installation'
     BespokeElectricityUnitRate:
       type: object
       properties:
@@ -487,6 +477,16 @@ components:
             * `PP` - PP'
       required:
       - unit_rate
+    Quote:
+      type: object
+      properties:
+        annual_payment:
+          type: integer
+          minimum: 0
+          title: The estimated annual payment for this meter-point based on consumption.
+          description: This value must be provided in pence. For business quotes, the price is exclusive of VAT, while for non-business quotes, it should be inclusive of VAT.
+      required:
+      - annual_payment
     Installation:
       type: object
       properties:
