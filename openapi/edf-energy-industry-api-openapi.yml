@@ -52,6 +52,13 @@ paths:
       x-operation-id-original: List Industry Grid Supply Points
 components:
   schemas:
+    GridSupplyPoint:
+      type: object
+      properties:
+        group_id:
+          type: string
+      required:
+      - group_id
     PaginatedGridSupplyPointList:
       type: object
       required:
@@ -77,13 +84,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GridSupplyPoint'
-    GridSupplyPoint:
-      type: object
-      properties:
-        group_id:
-          type: string
-      required:
-      - group_id
   securitySchemes:
     AccountUserAPIKeyAuthentication:
       type: http

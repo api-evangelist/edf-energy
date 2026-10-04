@@ -177,32 +177,6 @@ paths:
       x-operation-id-original: V1 Get Pending Account Import Processes
 components:
   schemas:
-    GbrMeterPointStatusError:
-      type: object
-      properties:
-        error:
-          type: string
-          title: Description of the error.
-          description: <p>The details of the error.</p>
-      required:
-      - error
-    ImportProcess:
-      type: object
-      properties:
-        account_created_at:
-          type: string
-          format: date-time
-          description: <p>The date and time that the account was created at.</p>
-        external_account_number:
-          type: string
-          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
-          maxLength: 128
-        kraken_account_number:
-          type: string
-          description: Account number
-          maxLength: 128
-      required:
-      - external_account_number
     GbrMeterPointStatus:
       type: object
       properties:
@@ -318,6 +292,32 @@ components:
       required:
       - mpxn
       - status
+    GbrMeterPointStatusError:
+      type: object
+      properties:
+        error:
+          type: string
+          title: Description of the error.
+          description: <p>The details of the error.</p>
+      required:
+      - error
+    ImportProcess:
+      type: object
+      properties:
+        account_created_at:
+          type: string
+          format: date-time
+          description: <p>The date and time that the account was created at.</p>
+        external_account_number:
+          type: string
+          description: <p>The account number in the source system. This, along with the <code>import_supplier</code>, will be used to find the account in Kraken.</p>
+          maxLength: 128
+        kraken_account_number:
+          type: string
+          description: Account number
+          maxLength: 128
+      required:
+      - external_account_number
   securitySchemes:
     DRFKrakenTokenAuthentication:
       type: apiKey

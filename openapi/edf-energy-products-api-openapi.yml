@@ -567,6 +567,145 @@ paths:
       x-operation-id-original: Gas Tariff Standing Charges
 components:
   schemas:
+    SampleConsumption:
+      type: object
+      properties:
+        electricity_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+        electricity_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+        dual_fuel_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+        dual_fuel_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Consumption type
+      required:
+      - dual_fuel_dual_rate
+      - dual_fuel_single_rate
+      - electricity_dual_rate
+      - electricity_single_rate
+    Eco7ElectricityTariff:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 255
+        standing_charge_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standing_charge_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        online_discount_exc_vat:
+          type: integer
+          readOnly: true
+        online_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        dual_fuel_discount_exc_vat:
+          type: integer
+          readOnly: true
+        dual_fuel_discount_inc_vat:
+          type: number
+          format: double
+          readOnly: true
+        exit_fees_exc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_inc_vat:
+          type: integer
+          readOnly: true
+        exit_fees_type:
+          type: string
+          readOnly: true
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+          readOnly: true
+        day_unit_rate_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        day_unit_rate_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        night_unit_rate_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        night_unit_rate_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+      required:
+      - code
+      - day_unit_rate_exc_vat
+      - day_unit_rate_inc_vat
+      - dual_fuel_discount_exc_vat
+      - dual_fuel_discount_inc_vat
+      - exit_fees_exc_vat
+      - exit_fees_inc_vat
+      - exit_fees_type
+      - links
+      - night_unit_rate_exc_vat
+      - night_unit_rate_inc_vat
+      - online_discount_exc_vat
+      - online_discount_inc_vat
+      - standing_charge_exc_vat
+      - standing_charge_inc_vat
+    PaginatedProductsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/?page=4
+        previous:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Products'
     Product:
       type: object
       properties:
@@ -692,7 +831,35 @@ components:
       - single_register_electricity_tariffs
       - single_register_gas_tariffs
       - tariffs_active_at
-    FourRateEvElectricityTariff:
+    SampleQuotes:
+      type: object
+      properties:
+        electricity_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+        electricity_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+        dual_fuel_single_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+        dual_fuel_dual_rate:
+          type: object
+          additionalProperties:
+            type: integer
+          title: Annual cost (inc or exc)
+      required:
+      - dual_fuel_dual_rate
+      - dual_fuel_single_rate
+      - electricity_dual_rate
+      - electricity_single_rate
+    StandardElectricityTariff:
       type: object
       properties:
         code:
@@ -738,6 +905,18 @@ components:
           items:
             $ref: '#/components/schemas/Link'
           readOnly: true
+        standard_unit_rate_exc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
+        standard_unit_rate_inc_vat:
+          type:
+          - number
+          - 'null'
+          format: double
+          readOnly: true
       required:
       - code
       - dual_fuel_discount_exc_vat
@@ -748,61 +927,10 @@ components:
       - links
       - online_discount_exc_vat
       - online_discount_inc_vat
+      - standard_unit_rate_exc_vat
+      - standard_unit_rate_inc_vat
       - standing_charge_exc_vat
       - standing_charge_inc_vat
-    PaginatedHistoricalChargeList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type:
-          - string
-          - 'null'
-          format: uri
-          example: https://api.edfgb-kraken.energy/v1/products/VAR-17-01-11/electricity-tariffs/E-1R-VAR-17-01-11-A/day-unit-rates/?page=4
-        previous:
-          type:
-          - string
-          - 'null'
-          format: uri
-          example: https://api.edfgb-kraken.energy/v1/products/VAR-17-01-11/electricity-tariffs/E-1R-VAR-17-01-11-A/day-unit-rates/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/HistoricalCharge'
-    SampleQuotes:
-      type: object
-      properties:
-        electricity_single_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Annual cost (inc or exc)
-        electricity_dual_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Annual cost (inc or exc)
-        dual_fuel_single_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Annual cost (inc or exc)
-        dual_fuel_dual_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Annual cost (inc or exc)
-      required:
-      - dual_fuel_dual_rate
-      - dual_fuel_single_rate
-      - electricity_dual_rate
-      - electricity_single_rate
     Products:
       type: object
       properties:
@@ -878,144 +1006,40 @@ components:
       - full_name
       - is_restricted
       - links
-    SampleConsumption:
+    HistoricalCharge:
       type: object
       properties:
-        electricity_single_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Consumption type
-        electricity_dual_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Consumption type
-        dual_fuel_single_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Consumption type
-        dual_fuel_dual_rate:
-          type: object
-          additionalProperties:
-            type: integer
-          title: Consumption type
-      required:
-      - dual_fuel_dual_rate
-      - dual_fuel_single_rate
-      - electricity_dual_rate
-      - electricity_single_rate
-    PaginatedProductsList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type:
-          - string
-          - 'null'
-          format: uri
-          example: https://api.edfgb-kraken.energy/v1/products/?page=4
-        previous:
-          type:
-          - string
-          - 'null'
-          format: uri
-          example: https://api.edfgb-kraken.energy/v1/products/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Products'
-    StandardElectricityTariff:
-      type: object
-      properties:
-        code:
-          type: string
-          maxLength: 255
-        standing_charge_exc_vat:
-          type:
-          - number
-          - 'null'
-          format: double
-          readOnly: true
-        standing_charge_inc_vat:
-          type:
-          - number
-          - 'null'
-          format: double
-          readOnly: true
-        online_discount_exc_vat:
-          type: integer
-          readOnly: true
-        online_discount_inc_vat:
+        value_exc_vat:
           type: number
           format: double
           readOnly: true
-        dual_fuel_discount_exc_vat:
-          type: integer
-          readOnly: true
-        dual_fuel_discount_inc_vat:
+        value_inc_vat:
           type: number
           format: double
           readOnly: true
-        exit_fees_exc_vat:
-          type: integer
-          readOnly: true
-        exit_fees_inc_vat:
-          type: integer
-          readOnly: true
-        exit_fees_type:
-          type: string
-          readOnly: true
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-          readOnly: true
-        standard_unit_rate_exc_vat:
+        valid_from:
           type:
-          - number
+          - string
           - 'null'
-          format: double
+          format: date-time
           readOnly: true
-        standard_unit_rate_inc_vat:
+        valid_to:
           type:
-          - number
+          - string
           - 'null'
-          format: double
+          format: date-time
+          readOnly: true
+        payment_method:
+          type:
+          - string
+          - 'null'
           readOnly: true
       required:
-      - code
-      - dual_fuel_discount_exc_vat
-      - dual_fuel_discount_inc_vat
-      - exit_fees_exc_vat
-      - exit_fees_inc_vat
-      - exit_fees_type
-      - links
-      - online_discount_exc_vat
-      - online_discount_inc_vat
-      - standard_unit_rate_exc_vat
-      - standard_unit_rate_inc_vat
-      - standing_charge_exc_vat
-      - standing_charge_inc_vat
-    Link:
-      type: object
-      properties:
-        href:
-          type: string
-        method:
-          type: string
-        rel:
-          type: string
-      required:
-      - href
-      - method
-      - rel
+      - payment_method
+      - valid_from
+      - valid_to
+      - value_exc_vat
+      - value_inc_vat
     GasTariff:
       type: object
       properties:
@@ -1088,41 +1112,45 @@ components:
       - standard_unit_rate_inc_vat
       - standing_charge_exc_vat
       - standing_charge_inc_vat
-    HistoricalCharge:
+    PaginatedHistoricalChargeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/VAR-17-01-11/electricity-tariffs/E-1R-VAR-17-01-11-A/day-unit-rates/?page=4
+        previous:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/products/VAR-17-01-11/electricity-tariffs/E-1R-VAR-17-01-11-A/day-unit-rates/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoricalCharge'
+    Link:
       type: object
       properties:
-        value_exc_vat:
-          type: number
-          format: double
-          readOnly: true
-        value_inc_vat:
-          type: number
-          format: double
-          readOnly: true
-        valid_from:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          readOnly: true
-        valid_to:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          readOnly: true
-        payment_method:
-          type:
-          - string
-          - 'null'
-          readOnly: true
+        href:
+          type: string
+        method:
+          type: string
+        rel:
+          type: string
       required:
-      - payment_method
-      - valid_from
-      - valid_to
-      - value_exc_vat
-      - value_inc_vat
-    Eco7ElectricityTariff:
+      - href
+      - method
+      - rel
+    FourRateEvElectricityTariff:
       type: object
       properties:
         code:
@@ -1168,42 +1196,14 @@ components:
           items:
             $ref: '#/components/schemas/Link'
           readOnly: true
-        day_unit_rate_exc_vat:
-          type:
-          - number
-          - 'null'
-          format: double
-          readOnly: true
-        day_unit_rate_inc_vat:
-          type:
-          - number
-          - 'null'
-          format: double
-          readOnly: true
-        night_unit_rate_exc_vat:
-          type:
-          - number
-          - 'null'
-          format: double
-          readOnly: true
-        night_unit_rate_inc_vat:
-          type:
-          - number
-          - 'null'
-          format: double
-          readOnly: true
       required:
       - code
-      - day_unit_rate_exc_vat
-      - day_unit_rate_inc_vat
       - dual_fuel_discount_exc_vat
       - dual_fuel_discount_inc_vat
       - exit_fees_exc_vat
       - exit_fees_inc_vat
       - exit_fees_type
       - links
-      - night_unit_rate_exc_vat
-      - night_unit_rate_inc_vat
       - online_discount_exc_vat
       - online_discount_inc_vat
       - standing_charge_exc_vat

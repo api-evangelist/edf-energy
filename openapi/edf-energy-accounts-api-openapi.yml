@@ -251,111 +251,270 @@ paths:
       x-operation-id-original: Renew a business tariff
 components:
   schemas:
-    Business:
+    BespokeElectricityUnitRate:
       type: object
       properties:
-        name:
-          type: string
-          title: The name of the business.
-          maxLength: 255
-        number:
-          type: string
-          title: The registered number of the business.
-          description: This field is required for 'LIMITED' businesses.</p>
-          maxLength: 8
-        business_type:
+        rate_type:
           enum:
-          - SOLE_TRADER
-          - LIMITED
-          - CHARITY
-          - PARTNERSHIP
-          - GOVERNMENT
+          - STANDARD
+          - ECO7_DAY
+          - ECO7_NIGHT
+          - OFF_PEAK
+          - PEAK
+          - WEEKDAY
+          - OFF_PEAK_WEEKENDS
+          - WEEKENDS_OTHER
+          - SUMMER
+          - SUMMER_PEAK
+          - SUMMER_OFF_PEAK
+          - WINTER
+          - WINTER_PEAK
+          - WINTER_OFF_PEAK
+          - NUCLEAR_RAB
+          - SUMMER_WEEKENDS_OFF_PEAK_WINTER
+          - TNUOS
+          - CAPACITY_MARKET
+          - HMC_GUARANTEE_ADVANCE
+          - HMC_GUARANTEE_FULL
+          - EV_DEVICE
+          - EV_DEVICE_PEAK
+          - EV_DEVICE_OFF_PEAK
           type: string
-          description: '* `SOLE_TRADER` - SOLE_TRADER
+          x-spec-enum-id: 382cc620726bec21
+          title: The rate type of the unit rate.
+          description: 'If the register_identifier is not provided, the rate type must be provided instead.
 
-            * `LIMITED` - LIMITED
 
-            * `CHARITY` - CHARITY
+            * `STANDARD` - Standard rate (pence per kWh)
 
-            * `PARTNERSHIP` - PARTNERSHIP
+            * `ECO7_DAY` - Day (or peak) rate (pence per kWh)
 
-            * `GOVERNMENT` - GOVERNMENT'
-          x-spec-enum-id: 6d21c7807a449a8a
-        is_ccl_exempt:
-          type: boolean
-          title: Whether the business is exempt from paying CCL (Climate Change Levy).
-        is_vat_exempt:
-          type: boolean
-          title: Whether the business is exempt from paying VAT.
-        head_count:
+            * `ECO7_NIGHT` - Night (or off-peak) rate (pence per kWh)
+
+            * `OFF_PEAK` - Additional off-peak rate for three-rate tariffs (pence per kWh)
+
+            * `PEAK` - Peak rate (pence per kWh) for business tariffs
+
+            * `WEEKDAY` - Weekday rate (pence per kWh) for business tariffs
+
+            * `OFF_PEAK_WEEKENDS` - Off peak weekend rate (pence per kWh) for business tariffs
+
+            * `WEEKENDS_OTHER` - Weekend rate (pence per kWh) for business tariffs
+
+            * `SUMMER` - Summer rate (pence per kWh) for business tariffs
+
+            * `SUMMER_PEAK` - Summer peak rate (pence per kWh) for two-rate tariffs
+
+            * `SUMMER_OFF_PEAK` - Summer off-peak rate (pence per kWh) for two-rate tariffs
+
+            * `WINTER` - Winter rate (pence per kWh) for business tariffs
+
+            * `WINTER_PEAK` - Winter peak rate (pence per kWh) for two-rate tariffs
+
+            * `WINTER_OFF_PEAK` - Winter off-peak rate (pence per kWh) for two-rate tariffs
+
+            * `NUCLEAR_RAB` - Nuclear RAB rate (pence per day) for business tariffs
+
+            * `SUMMER_WEEKENDS_OFF_PEAK_WINTER` - A rate that applies during summer, weekends and off-peak in winter periods(pence per kWh) for business tariffs
+
+            * `TNUOS` - TNUoS rate (pence per day) for business tariffs
+
+            * `CAPACITY_MARKET` - Capacity Market rate (pence per day) for business tariffs
+
+            * `HMC_GUARANTEE_ADVANCE` - Hourly Matching Credit Guarantee Advance rate (pence per kWh) for business tariffs
+
+            * `HMC_GUARANTEE_FULL` - Hourly Matching Credit Guarantee Full rate (pence per kWh) for business tariffs
+
+            * `EV_DEVICE` - Electric vehicle device rate (pence per kWh) for sub-meter billing
+
+            * `EV_DEVICE_PEAK` - Electric vehicle device peak rate (pence per kWh) for sub-meter billing
+
+            * `EV_DEVICE_OFF_PEAK` - Electric vehicle device off-peak rate (pence per kWh) for sub-meter billing'
+        unit_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: This field should be used for gas meters.
+        payment_method:
+          enum:
+          - DD
+          - NDD
+          - PP
+          type: string
+          x-spec-enum-id: 84f5b0df65c6e1bb
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: 'This field should be used for gas meters.
+
+
+            * `DD` - DD
+
+            * `NDD` - NDD
+
+            * `PP` - PP'
+      required:
+      - unit_rate
+    _Commission:
+      type: object
+      properties:
+        unit_rate_uplift:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,3})?$
+          title: Uplift in pence to be paid to the affiliate.
+        standing_charge_uplift:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,3})?$
+          title: Uplift in pence to be paid to the affiliate.
+        fixed_tpi_fee:
           type: integer
           minimum: 0
-          title: The head count of the business, i.e. number of staff.
-        annual_turnover:
-          type: integer
-          minimum: 0
-          title: The estimated annual turnover
-          description: In pounds £ (GBP)
-        credit_reference_id:
+        affiliate_organisation_name:
           type: string
-          title: ID used by the Credit Reference Agency to identify business.
-          description: Required for unlimited liablity companies (e.g. 'SOLE_TRADER', 'PARTNERSHIP', 'CHARITY')
-          maxLength: 10
-        phone_number:
-          type: string
-          title: Main phone number for the business.
-        proprietor:
-          allOf:
-          - $ref: '#/components/schemas/Proprietor'
-          title: Details of a business owner.
-          description: Required for credit checking unlimited liability businesses.
-      required:
-      - business_type
-      - is_ccl_exempt
-      - is_vat_exempt
-      - name
-    ErrorResponse:
-      type: object
-      properties:
-        detail:
-          type: string
-      required:
-      - detail
-    PSR:
-      type: object
-      properties:
-        requires_signup:
-          type: boolean
-          description: If true, indicates that the user should be signed up to the PSR but the categories are unknown. Therefore the user requires contacting to determine the categories.
-    Affiliate:
-      type: object
-      description: 'This serializer is used to allow affiliates to pass a signup reward code when creating
-
-        accounts which later will then give credit to the accounts once their payments start.'
-      properties:
-        signup_reward_code:
-          type: string
-          default: ''
-          title: The code of an existing signup reward referral scheme that will be used for giving credit to the created account as a signup reward.
-          maxLength: 255
-        organization_name:
-          type: string
-          title: The name of an existing organization that will be used to create an account for an affiliate.
+          title: Name of the affiliate organisation due the commission for this agreement.
           maxLength: 128
         affiliate_link_subdomain:
           type: string
+          title: Sub-domain of the affiliate link due the commission for this agreement.
           maxLength: 64
-    BusinessTariffRenewal:
+      required:
+      - affiliate_organisation_name
+      - unit_rate_uplift
+    BespokeTariffRates:
       type: object
       properties:
-        agreements:
+        standing_charge:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per day of the charge (excluding VAT).
+        unit_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: This field should be used for gas meters.
+        unit_rates:
           type: array
           items:
-            $ref: '#/components/schemas/_Agreement'
-          title: List of all agreements to be created to the given account.
+            $ref: '#/components/schemas/BespokeElectricityUnitRate'
+          title: List of the value in pence per kWh of the charges (excluding VAT).
+          description: For elec meters, the unit rates are provided on a per register basis in this array.
+    SuccessResponse:
+      type: object
+      properties:
+        number:
+          type: string
+          title: Number of the newly created account
       required:
-      - agreements
-    ElectricityMeterPoint:
+      - number
+    ExportDetails:
+      type: object
+      properties:
+        import_mpan:
+          type: string
+          description: The import MPAN.
+          maxLength: 13
+        site_contact_name:
+          type: string
+          description: The name of the site contact.
+        site_contact_phone:
+          type: string
+          description: The phone number of the site contact.
+        site_contact_email:
+          type: string
+          format: email
+          description: The email address of the site contact.
+        installations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Installation'
+    Payment:
+      type: object
+      properties:
+        method:
+          enum:
+          - MONTHLY_DIRECT_DEBIT
+          - MONTHLY_DIRECT_PAYMENT
+          - BILL_TRIGGERED_DIRECT_DEBIT
+          type: string
+          description: '* `MONTHLY_DIRECT_DEBIT` - Monthly Direct Debit
+
+            * `MONTHLY_DIRECT_PAYMENT` - POROB schedule, payment initiated by the customer
+
+            * `BILL_TRIGGERED_DIRECT_DEBIT` - POROB Direct Debit Schedule'
+          x-spec-enum-id: fb7b2e7b4cccfd02
+        account_name:
+          type: string
+          title: The name associated with the bank account.
+          maxLength: 255
+          minLength: 3
+        account_number:
+          type: string
+          title: The bank account number.
+        account_sort_code:
+          type: string
+          title: The bank account sort code.
+        payment_day:
+          type: integer
+          maximum: 28
+          minimum: 1
+          title: The preferred day of the month for the payment request.
+          description: Only required for 'MONTHLY_DIRECT_DEBIT' schedules.
+        delay_days:
+          type: integer
+          maximum: 90
+          minimum: 5
+          title: The number of days to delay the payment for a bill triggered schedule.
+      required:
+      - method
+    User:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        given_name:
+          type: string
+          maxLength: 255
+        family_name:
+          type: string
+          maxLength: 255
+        date_of_birth:
+          type: string
+          format: date
+        label:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          description: Cannot already be in use for an existing account.
+          maxLength: 512
+        mobile:
+          type: string
+          maxLength: 64
+        landline:
+          type: string
+          maxLength: 64
+        opted_in_for_marketing:
+          type: boolean
+        opted_in_to_third_parties:
+          type: boolean
+          default: false
+        psr:
+          allOf:
+          - $ref: '#/components/schemas/PSR'
+          title: Priority Services Register details for the user
+        credit_score_data:
+          $ref: '#/components/schemas/CreditScoreData'
+      required:
+      - email
+      - family_name
+      - given_name
+      - opted_in_for_marketing
+    GasMeterPoint:
       type: object
       properties:
         tariff_code:
@@ -426,38 +585,106 @@ components:
         preferred_ssd:
           type: string
           format: date
-        mpan:
+        mprn:
           type: string
           title: The meter-point identifier.
-          maxLength: 13
-        is_half_hourly:
-          type: boolean
-          title: Whether the meter point should be enrolled as a half hourly meter point
-          description: Required to start the CoS Gain correctly for half hourly customers.
-        consumption_day:
-          type: integer
-          maximum: 500000
-          minimum: 1
-          title: The expected annual consumption for the day/peak register in kWh.
-          description: Required if eco7 or three-rate tariff.
-        consumption_night:
-          type: integer
-          maximum: 500000
-          minimum: 0
-          title: The expected annual consumption for the night/off-peak register in kWh.
-          description: Required if eco7 or three-rate tariff.
-        consumption_off_peak:
-          type: integer
-          maximum: 500000
-          minimum: 0
-          title: The expected annual consumption for the additional off-peak register in kWh.
-          description: Required if three-rate tariff.
-        export_details:
-          allOf:
-          - $ref: '#/components/schemas/ExportDetails'
-          title: The generation details for the meter-point.
+          maxLength: 10
       required:
+      - consumption_standard
       - quote
+    Agreement:
+      type: object
+      properties:
+        mpxn:
+          type: string
+          title: MPRN or MPAN of the meter point getting a new agreement.
+        tariff_code:
+          type: string
+          title: Tariff code for the new agreements.
+        valid_from_date:
+          type: string
+          format: date
+          title: Date (inclusive) the new agreement is valid from.
+        valid_to_date:
+          type: string
+          format: date
+          title: Date (exclusive) the new agreement is valid to.
+      required:
+      - mpxn
+      - tariff_code
+      - valid_from_date
+    BespokePPSTariffRates:
+      type: object
+      properties:
+        standing_charge:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per day of the charge (excluding VAT).
+        unit_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: This field should be used for gas meters.
+        unit_rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/BespokeElectricityUnitRate'
+          title: List of the value in pence per kWh of the charges (excluding VAT).
+          description: For elec meters, the unit rates are provided on a per register basis in this array.
+        payment_method:
+          enum:
+          - DD
+          - NDD
+          - PP
+          type: string
+          description: '* `DD` - Direct Debit
+
+            * `NDD` - Non-Direct Debit
+
+            * `PP` - Prepayment'
+          x-spec-enum-id: 362e54c421bbcaea
+          title: The payment method for the rate.
+      required:
+      - payment_method
+    Address:
+      type: object
+      properties:
+        address_line_1:
+          type: string
+          maxLength: 512
+        address_line_2:
+          type: string
+          maxLength: 512
+        address_line_3:
+          type: string
+          maxLength: 512
+        town:
+          type: string
+          maxLength: 512
+        county:
+          type: string
+          maxLength: 512
+        postcode:
+          type: string
+          maxLength: 8
+        delivery_point_identifier:
+          type: string
+          maxLength: 11
+      required:
+      - address_line_1
+      - postcode
+    BusinessTariffRenewal:
+      type: object
+      properties:
+        agreements:
+          type: array
+          items:
+            $ref: '#/components/schemas/_Agreement'
+          title: List of all agreements to be created to the given account.
+      required:
+      - agreements
     BillingOptions:
       type: object
       properties:
@@ -478,27 +705,247 @@ components:
           minimum: 1
           default: 1
           title: The length of the billing period in months.
-    ExportDetails:
+    Metadata:
       type: object
       properties:
-        import_mpan:
+        key:
           type: string
-          description: The import MPAN.
-          maxLength: 13
-        site_contact_name:
-          type: string
-          description: The name of the site contact.
-        site_contact_phone:
-          type: string
-          description: The phone number of the site contact.
-        site_contact_email:
-          type: string
-          format: email
-          description: The email address of the site contact.
-        installations:
+          title: Key on which the metadata will be stored.
+          maxLength: 1024
+        value:
+          title: A json object containing any arbitrary piece of data to store in relation to the account.
+      required:
+      - key
+      - value
+    ValidationOrDomainError:
+      type: object
+      properties:
+        errors:
           type: array
           items:
-            $ref: '#/components/schemas/Installation'
+            type: string
+      required:
+      - errors
+    Affiliate:
+      type: object
+      description: 'This serializer is used to allow affiliates to pass a signup reward code when creating
+
+        accounts which later will then give credit to the accounts once their payments start.'
+      properties:
+        signup_reward_code:
+          type: string
+          default: ''
+          title: The code of an existing signup reward referral scheme that will be used for giving credit to the created account as a signup reward.
+          maxLength: 255
+        organization_name:
+          type: string
+          title: The name of an existing organization that will be used to create an account for an affiliate.
+          maxLength: 128
+        affiliate_link_subdomain:
+          type: string
+          maxLength: 64
+    _BespokeRegisterRate:
+      type: object
+      properties:
+        rate_type:
+          enum:
+          - STANDARD
+          - ECO7_DAY
+          - ECO7_NIGHT
+          - OFF_PEAK
+          - PEAK
+          - WEEKDAY
+          - OFF_PEAK_WEEKENDS
+          - WEEKENDS_OTHER
+          - SUMMER
+          - SUMMER_PEAK
+          - SUMMER_OFF_PEAK
+          - WINTER
+          - WINTER_PEAK
+          - WINTER_OFF_PEAK
+          - NUCLEAR_RAB
+          - SUMMER_WEEKENDS_OFF_PEAK_WINTER
+          - TNUOS
+          - CAPACITY_MARKET
+          - HMC_GUARANTEE_ADVANCE
+          - HMC_GUARANTEE_FULL
+          - EV_DEVICE
+          - EV_DEVICE_PEAK
+          - EV_DEVICE_OFF_PEAK
+          type: string
+          x-spec-enum-id: 382cc620726bec21
+          title: The rate type of the unit rate.
+          description: 'If the register_identifier is not provided, the rate type must be provided instead.
+
+
+            * `STANDARD` - Standard rate (pence per kWh)
+
+            * `ECO7_DAY` - Day (or peak) rate (pence per kWh)
+
+            * `ECO7_NIGHT` - Night (or off-peak) rate (pence per kWh)
+
+            * `OFF_PEAK` - Additional off-peak rate for three-rate tariffs (pence per kWh)
+
+            * `PEAK` - Peak rate (pence per kWh) for business tariffs
+
+            * `WEEKDAY` - Weekday rate (pence per kWh) for business tariffs
+
+            * `OFF_PEAK_WEEKENDS` - Off peak weekend rate (pence per kWh) for business tariffs
+
+            * `WEEKENDS_OTHER` - Weekend rate (pence per kWh) for business tariffs
+
+            * `SUMMER` - Summer rate (pence per kWh) for business tariffs
+
+            * `SUMMER_PEAK` - Summer peak rate (pence per kWh) for two-rate tariffs
+
+            * `SUMMER_OFF_PEAK` - Summer off-peak rate (pence per kWh) for two-rate tariffs
+
+            * `WINTER` - Winter rate (pence per kWh) for business tariffs
+
+            * `WINTER_PEAK` - Winter peak rate (pence per kWh) for two-rate tariffs
+
+            * `WINTER_OFF_PEAK` - Winter off-peak rate (pence per kWh) for two-rate tariffs
+
+            * `NUCLEAR_RAB` - Nuclear RAB rate (pence per day) for business tariffs
+
+            * `SUMMER_WEEKENDS_OFF_PEAK_WINTER` - A rate that applies during summer, weekends and off-peak in winter periods(pence per kWh) for business tariffs
+
+            * `TNUOS` - TNUoS rate (pence per day) for business tariffs
+
+            * `CAPACITY_MARKET` - Capacity Market rate (pence per day) for business tariffs
+
+            * `HMC_GUARANTEE_ADVANCE` - Hourly Matching Credit Guarantee Advance rate (pence per kWh) for business tariffs
+
+            * `HMC_GUARANTEE_FULL` - Hourly Matching Credit Guarantee Full rate (pence per kWh) for business tariffs
+
+            * `EV_DEVICE` - Electric vehicle device rate (pence per kWh) for sub-meter billing
+
+            * `EV_DEVICE_PEAK` - Electric vehicle device peak rate (pence per kWh) for sub-meter billing
+
+            * `EV_DEVICE_OFF_PEAK` - Electric vehicle device off-peak rate (pence per kWh) for sub-meter billing'
+        unit_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: This field should be used for gas meters.
+        payment_method:
+          enum:
+          - DD
+          - NDD
+          - PP
+          type: string
+          x-spec-enum-id: 84f5b0df65c6e1bb
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: 'This field should be used for gas meters.
+
+
+            * `DD` - DD
+
+            * `NDD` - NDD
+
+            * `PP` - PP'
+        register_identifier:
+          type: string
+          title: The identifier of the register to which this unit rate applies.
+          maxLength: 32
+      required:
+      - unit_rate
+    CreditScoreData:
+      type: object
+      properties:
+        score:
+          type: integer
+          maximum: 9999
+          minimum: 0
+        risk_bracket:
+          enum:
+          - LOW
+          - MID
+          - HIGH
+          - UNKNOWN
+          type: string
+          description: '* `LOW` - Low
+
+            * `MID` - Medium
+
+            * `HIGH` - High
+
+            * `UNKNOWN` - Unknown'
+          x-spec-enum-id: e6b98b6c312ff7bf
+    Deposit:
+      type: object
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+        key:
+          type: string
+        reason:
+          type: string
+    Proprietor:
+      type: object
+      properties:
+        first_name:
+          type: string
+          title: First name of the business owner.
+        last_name:
+          type: string
+          title: Last name of the business owner.
+        email_address:
+          type: string
+          title: Email address from a business owner.
+        phone_number:
+          type: string
+          title: Phone number of a business owner.
+        address:
+          allOf:
+          - $ref: '#/components/schemas/ProprietorAddress'
+          title: Main address of a business owner (only required for non limited companies).
+        date_of_birth:
+          type: string
+          format: date
+          title: Date of birth of the business owner (only required for non limited companies)
+      required:
+      - email_address
+      - first_name
+      - last_name
+    ProprietorAddress:
+      type: object
+      properties:
+        line_1:
+          type: string
+          title: First line of address.
+        line_2:
+          type: string
+          title: Second line of address.
+        line_3:
+          type: string
+          title: Third line of address.
+        line_4:
+          type: string
+          title: Fourth line of address.
+        line_5:
+          type: string
+          title: Fifth line of address.
+        postcode:
+          type: string
+          title: Postcode of the address.
+      required:
+      - line_1
+      - postcode
+    AgreementsCreated:
+      type: object
+      properties:
+        account_number:
+          type: string
+        agreements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agreement'
+      required:
+      - account_number
+      - agreements
     Create:
       type: object
       description: Serializer to create an account via a REST API.
@@ -755,199 +1202,13 @@ components:
       - reference
       - source
       - users
-    Agreement:
+    PSR:
       type: object
       properties:
-        mpxn:
-          type: string
-          title: MPRN or MPAN of the meter point getting a new agreement.
-        tariff_code:
-          type: string
-          title: Tariff code for the new agreements.
-        valid_from_date:
-          type: string
-          format: date
-          title: Date (inclusive) the new agreement is valid from.
-        valid_to_date:
-          type: string
-          format: date
-          title: Date (exclusive) the new agreement is valid to.
-      required:
-      - mpxn
-      - tariff_code
-      - valid_from_date
-    ValidationOrDomainError:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: string
-      required:
-      - errors
-    Payment:
-      type: object
-      properties:
-        method:
-          enum:
-          - MONTHLY_DIRECT_DEBIT
-          - MONTHLY_DIRECT_PAYMENT
-          - BILL_TRIGGERED_DIRECT_DEBIT
-          type: string
-          description: '* `MONTHLY_DIRECT_DEBIT` - Monthly Direct Debit
-
-            * `MONTHLY_DIRECT_PAYMENT` - POROB schedule, payment initiated by the customer
-
-            * `BILL_TRIGGERED_DIRECT_DEBIT` - POROB Direct Debit Schedule'
-          x-spec-enum-id: fb7b2e7b4cccfd02
-        account_name:
-          type: string
-          title: The name associated with the bank account.
-          maxLength: 255
-          minLength: 3
-        account_number:
-          type: string
-          title: The bank account number.
-        account_sort_code:
-          type: string
-          title: The bank account sort code.
-        payment_day:
-          type: integer
-          maximum: 28
-          minimum: 1
-          title: The preferred day of the month for the payment request.
-          description: Only required for 'MONTHLY_DIRECT_DEBIT' schedules.
-        delay_days:
-          type: integer
-          maximum: 90
-          minimum: 5
-          title: The number of days to delay the payment for a bill triggered schedule.
-      required:
-      - method
-    User:
-      type: object
-      properties:
-        title:
-          type: string
-          maxLength: 255
-        given_name:
-          type: string
-          maxLength: 255
-        family_name:
-          type: string
-          maxLength: 255
-        date_of_birth:
-          type: string
-          format: date
-        label:
-          type: string
-          maxLength: 255
-        email:
-          type: string
-          format: email
-          description: Cannot already be in use for an existing account.
-          maxLength: 512
-        mobile:
-          type: string
-          maxLength: 64
-        landline:
-          type: string
-          maxLength: 64
-        opted_in_for_marketing:
+        requires_signup:
           type: boolean
-        opted_in_to_third_parties:
-          type: boolean
-          default: false
-        psr:
-          allOf:
-          - $ref: '#/components/schemas/PSR'
-          title: Priority Services Register details for the user
-        credit_score_data:
-          $ref: '#/components/schemas/CreditScoreData'
-      required:
-      - email
-      - family_name
-      - given_name
-      - opted_in_for_marketing
-    _Commission:
-      type: object
-      properties:
-        unit_rate_uplift:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,3})?$
-          title: Uplift in pence to be paid to the affiliate.
-        standing_charge_uplift:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,3})?$
-          title: Uplift in pence to be paid to the affiliate.
-        fixed_tpi_fee:
-          type: integer
-          minimum: 0
-        affiliate_organisation_name:
-          type: string
-          title: Name of the affiliate organisation due the commission for this agreement.
-          maxLength: 128
-        affiliate_link_subdomain:
-          type: string
-          title: Sub-domain of the affiliate link due the commission for this agreement.
-          maxLength: 64
-      required:
-      - affiliate_organisation_name
-      - unit_rate_uplift
-    ProprietorAddress:
-      type: object
-      properties:
-        line_1:
-          type: string
-          title: First line of address.
-        line_2:
-          type: string
-          title: Second line of address.
-        line_3:
-          type: string
-          title: Third line of address.
-        line_4:
-          type: string
-          title: Fourth line of address.
-        line_5:
-          type: string
-          title: Fifth line of address.
-        postcode:
-          type: string
-          title: Postcode of the address.
-      required:
-      - line_1
-      - postcode
-    Address:
-      type: object
-      properties:
-        address_line_1:
-          type: string
-          maxLength: 512
-        address_line_2:
-          type: string
-          maxLength: 512
-        address_line_3:
-          type: string
-          maxLength: 512
-        town:
-          type: string
-          maxLength: 512
-        county:
-          type: string
-          maxLength: 512
-        postcode:
-          type: string
-          maxLength: 8
-        delivery_point_identifier:
-          type: string
-          maxLength: 11
-      required:
-      - address_line_1
-      - postcode
-    GasMeterPoint:
+          description: If true, indicates that the user should be signed up to the PSR but the categories are unknown. Therefore the user requires contacting to determine the categories.
+    ElectricityMeterPoint:
       type: object
       properties:
         tariff_code:
@@ -1018,232 +1279,102 @@ components:
         preferred_ssd:
           type: string
           format: date
-        mprn:
+        mpan:
           type: string
           title: The meter-point identifier.
-          maxLength: 10
-      required:
-      - consumption_standard
-      - quote
-    BespokeTariffRates:
-      type: object
-      properties:
-        standing_charge:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per day of the charge (excluding VAT).
-        unit_rate:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: This field should be used for gas meters.
-        unit_rates:
-          type: array
-          items:
-            $ref: '#/components/schemas/BespokeElectricityUnitRate'
-          title: List of the value in pence per kWh of the charges (excluding VAT).
-          description: For elec meters, the unit rates are provided on a per register basis in this array.
-    CreditScoreData:
-      type: object
-      properties:
-        score:
+          maxLength: 13
+        is_half_hourly:
+          type: boolean
+          title: Whether the meter point should be enrolled as a half hourly meter point
+          description: Required to start the CoS Gain correctly for half hourly customers.
+        consumption_day:
           type: integer
-          maximum: 9999
-          minimum: 0
-        risk_bracket:
-          enum:
-          - LOW
-          - MID
-          - HIGH
-          - UNKNOWN
-          type: string
-          description: '* `LOW` - Low
-
-            * `MID` - Medium
-
-            * `HIGH` - High
-
-            * `UNKNOWN` - Unknown'
-          x-spec-enum-id: e6b98b6c312ff7bf
-    Metadata:
-      type: object
-      properties:
-        key:
-          type: string
-          title: Key on which the metadata will be stored.
-          maxLength: 1024
-        value:
-          title: A json object containing any arbitrary piece of data to store in relation to the account.
-      required:
-      - key
-      - value
-    Deposit:
-      type: object
-      properties:
-        amount:
-          type: integer
+          maximum: 500000
           minimum: 1
-        key:
-          type: string
-        reason:
-          type: string
-    Proprietor:
-      type: object
-      properties:
-        first_name:
-          type: string
-          title: First name of the business owner.
-        last_name:
-          type: string
-          title: Last name of the business owner.
-        email_address:
-          type: string
-          title: Email address from a business owner.
-        phone_number:
-          type: string
-          title: Phone number of a business owner.
-        address:
+          title: The expected annual consumption for the day/peak register in kWh.
+          description: Required if eco7 or three-rate tariff.
+        consumption_night:
+          type: integer
+          maximum: 500000
+          minimum: 0
+          title: The expected annual consumption for the night/off-peak register in kWh.
+          description: Required if eco7 or three-rate tariff.
+        consumption_off_peak:
+          type: integer
+          maximum: 500000
+          minimum: 0
+          title: The expected annual consumption for the additional off-peak register in kWh.
+          description: Required if three-rate tariff.
+        export_details:
           allOf:
-          - $ref: '#/components/schemas/ProprietorAddress'
-          title: Main address of a business owner (only required for non limited companies).
-        date_of_birth:
-          type: string
-          format: date
-          title: Date of birth of the business owner (only required for non limited companies)
+          - $ref: '#/components/schemas/ExportDetails'
+          title: The generation details for the meter-point.
       required:
-      - email_address
-      - first_name
-      - last_name
-    AgreementsCreated:
+      - quote
+    Business:
       type: object
       properties:
-        account_number:
+        name:
           type: string
-        agreements:
-          type: array
-          items:
-            $ref: '#/components/schemas/Agreement'
-      required:
-      - account_number
-      - agreements
-    _BespokeRegisterRate:
-      type: object
-      properties:
-        rate_type:
-          enum:
-          - STANDARD
-          - ECO7_DAY
-          - ECO7_NIGHT
-          - OFF_PEAK
-          - PEAK
-          - WEEKDAY
-          - OFF_PEAK_WEEKENDS
-          - WEEKENDS_OTHER
-          - SUMMER
-          - SUMMER_PEAK
-          - SUMMER_OFF_PEAK
-          - WINTER
-          - WINTER_PEAK
-          - WINTER_OFF_PEAK
-          - NUCLEAR_RAB
-          - SUMMER_WEEKENDS_OFF_PEAK_WINTER
-          - TNUOS
-          - CAPACITY_MARKET
-          - HMC_GUARANTEE_ADVANCE
-          - HMC_GUARANTEE_FULL
-          - EV_DEVICE
-          - EV_DEVICE_PEAK
-          - EV_DEVICE_OFF_PEAK
-          type: string
-          x-spec-enum-id: 382cc620726bec21
-          title: The rate type of the unit rate.
-          description: 'If the register_identifier is not provided, the rate type must be provided instead.
-
-
-            * `STANDARD` - Standard rate (pence per kWh)
-
-            * `ECO7_DAY` - Day (or peak) rate (pence per kWh)
-
-            * `ECO7_NIGHT` - Night (or off-peak) rate (pence per kWh)
-
-            * `OFF_PEAK` - Additional off-peak rate for three-rate tariffs (pence per kWh)
-
-            * `PEAK` - Peak rate (pence per kWh) for business tariffs
-
-            * `WEEKDAY` - Weekday rate (pence per kWh) for business tariffs
-
-            * `OFF_PEAK_WEEKENDS` - Off peak weekend rate (pence per kWh) for business tariffs
-
-            * `WEEKENDS_OTHER` - Weekend rate (pence per kWh) for business tariffs
-
-            * `SUMMER` - Summer rate (pence per kWh) for business tariffs
-
-            * `SUMMER_PEAK` - Summer peak rate (pence per kWh) for two-rate tariffs
-
-            * `SUMMER_OFF_PEAK` - Summer off-peak rate (pence per kWh) for two-rate tariffs
-
-            * `WINTER` - Winter rate (pence per kWh) for business tariffs
-
-            * `WINTER_PEAK` - Winter peak rate (pence per kWh) for two-rate tariffs
-
-            * `WINTER_OFF_PEAK` - Winter off-peak rate (pence per kWh) for two-rate tariffs
-
-            * `NUCLEAR_RAB` - Nuclear RAB rate (pence per day) for business tariffs
-
-            * `SUMMER_WEEKENDS_OFF_PEAK_WINTER` - A rate that applies during summer, weekends and off-peak in winter periods(pence per kWh) for business tariffs
-
-            * `TNUOS` - TNUoS rate (pence per day) for business tariffs
-
-            * `CAPACITY_MARKET` - Capacity Market rate (pence per day) for business tariffs
-
-            * `HMC_GUARANTEE_ADVANCE` - Hourly Matching Credit Guarantee Advance rate (pence per kWh) for business tariffs
-
-            * `HMC_GUARANTEE_FULL` - Hourly Matching Credit Guarantee Full rate (pence per kWh) for business tariffs
-
-            * `EV_DEVICE` - Electric vehicle device rate (pence per kWh) for sub-meter billing
-
-            * `EV_DEVICE_PEAK` - Electric vehicle device peak rate (pence per kWh) for sub-meter billing
-
-            * `EV_DEVICE_OFF_PEAK` - Electric vehicle device off-peak rate (pence per kWh) for sub-meter billing'
-        unit_rate:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: This field should be used for gas meters.
-        payment_method:
-          enum:
-          - DD
-          - NDD
-          - PP
-          type: string
-          x-spec-enum-id: 84f5b0df65c6e1bb
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: 'This field should be used for gas meters.
-
-
-            * `DD` - DD
-
-            * `NDD` - NDD
-
-            * `PP` - PP'
-        register_identifier:
-          type: string
-          title: The identifier of the register to which this unit rate applies.
-          maxLength: 32
-      required:
-      - unit_rate
-    SuccessResponse:
-      type: object
-      properties:
+          title: The name of the business.
+          maxLength: 255
         number:
           type: string
-          title: Number of the newly created account
+          title: The registered number of the business.
+          description: This field is required for 'LIMITED' businesses.</p>
+          maxLength: 8
+        business_type:
+          enum:
+          - SOLE_TRADER
+          - LIMITED
+          - CHARITY
+          - PARTNERSHIP
+          - GOVERNMENT
+          type: string
+          description: '* `SOLE_TRADER` - SOLE_TRADER
+
+            * `LIMITED` - LIMITED
+
+            * `CHARITY` - CHARITY
+
+            * `PARTNERSHIP` - PARTNERSHIP
+
+            * `GOVERNMENT` - GOVERNMENT'
+          x-spec-enum-id: 6d21c7807a449a8a
+        is_ccl_exempt:
+          type: boolean
+          title: Whether the business is exempt from paying CCL (Climate Change Levy).
+        is_vat_exempt:
+          type: boolean
+          title: Whether the business is exempt from paying VAT.
+        head_count:
+          type: integer
+          minimum: 0
+          title: The head count of the business, i.e. number of staff.
+        annual_turnover:
+          type: integer
+          minimum: 0
+          title: The estimated annual turnover
+          description: In pounds £ (GBP)
+        credit_reference_id:
+          type: string
+          title: ID used by the Credit Reference Agency to identify business.
+          description: Required for unlimited liablity companies (e.g. 'SOLE_TRADER', 'PARTNERSHIP', 'CHARITY')
+          maxLength: 10
+        phone_number:
+          type: string
+          title: Main phone number for the business.
+        proprietor:
+          allOf:
+          - $ref: '#/components/schemas/Proprietor'
+          title: Details of a business owner.
+          description: Required for credit checking unlimited liability businesses.
       required:
-      - number
-    BespokePPSTariffRates:
+      - business_type
+      - is_ccl_exempt
+      - is_vat_exempt
+      - name
+    _BespokeTariffRate:
       type: object
       properties:
         standing_charge:
@@ -1257,27 +1388,25 @@ components:
           pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
           title: The value in pence per kWh of the charge (excluding VAT).
           description: This field should be used for gas meters.
-        unit_rates:
+        meter_serial_number:
+          type: string
+          title: Meter serial number to which the bespoke tariff applies
+          maxLength: 32
+        registers:
           type: array
           items:
-            $ref: '#/components/schemas/BespokeElectricityUnitRate'
-          title: List of the value in pence per kWh of the charges (excluding VAT).
+            $ref: '#/components/schemas/_BespokeRegisterRate'
           description: For elec meters, the unit rates are provided on a per register basis in this array.
-        payment_method:
-          enum:
-          - DD
-          - NDD
-          - PP
-          type: string
-          description: '* `DD` - Direct Debit
-
-            * `NDD` - Non-Direct Debit
-
-            * `PP` - Prepayment'
-          x-spec-enum-id: 362e54c421bbcaea
-          title: The payment method for the rate.
       required:
-      - payment_method
+      - meter_serial_number
+      - standing_charge
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
     _Agreement:
       type: object
       properties:
@@ -1308,145 +1437,6 @@ components:
       - mpxn
       - tariff_code
       - valid_from_date
-    BespokeElectricityUnitRate:
-      type: object
-      properties:
-        rate_type:
-          enum:
-          - STANDARD
-          - ECO7_DAY
-          - ECO7_NIGHT
-          - OFF_PEAK
-          - PEAK
-          - WEEKDAY
-          - OFF_PEAK_WEEKENDS
-          - WEEKENDS_OTHER
-          - SUMMER
-          - SUMMER_PEAK
-          - SUMMER_OFF_PEAK
-          - WINTER
-          - WINTER_PEAK
-          - WINTER_OFF_PEAK
-          - NUCLEAR_RAB
-          - SUMMER_WEEKENDS_OFF_PEAK_WINTER
-          - TNUOS
-          - CAPACITY_MARKET
-          - HMC_GUARANTEE_ADVANCE
-          - HMC_GUARANTEE_FULL
-          - EV_DEVICE
-          - EV_DEVICE_PEAK
-          - EV_DEVICE_OFF_PEAK
-          type: string
-          x-spec-enum-id: 382cc620726bec21
-          title: The rate type of the unit rate.
-          description: 'If the register_identifier is not provided, the rate type must be provided instead.
-
-
-            * `STANDARD` - Standard rate (pence per kWh)
-
-            * `ECO7_DAY` - Day (or peak) rate (pence per kWh)
-
-            * `ECO7_NIGHT` - Night (or off-peak) rate (pence per kWh)
-
-            * `OFF_PEAK` - Additional off-peak rate for three-rate tariffs (pence per kWh)
-
-            * `PEAK` - Peak rate (pence per kWh) for business tariffs
-
-            * `WEEKDAY` - Weekday rate (pence per kWh) for business tariffs
-
-            * `OFF_PEAK_WEEKENDS` - Off peak weekend rate (pence per kWh) for business tariffs
-
-            * `WEEKENDS_OTHER` - Weekend rate (pence per kWh) for business tariffs
-
-            * `SUMMER` - Summer rate (pence per kWh) for business tariffs
-
-            * `SUMMER_PEAK` - Summer peak rate (pence per kWh) for two-rate tariffs
-
-            * `SUMMER_OFF_PEAK` - Summer off-peak rate (pence per kWh) for two-rate tariffs
-
-            * `WINTER` - Winter rate (pence per kWh) for business tariffs
-
-            * `WINTER_PEAK` - Winter peak rate (pence per kWh) for two-rate tariffs
-
-            * `WINTER_OFF_PEAK` - Winter off-peak rate (pence per kWh) for two-rate tariffs
-
-            * `NUCLEAR_RAB` - Nuclear RAB rate (pence per day) for business tariffs
-
-            * `SUMMER_WEEKENDS_OFF_PEAK_WINTER` - A rate that applies during summer, weekends and off-peak in winter periods(pence per kWh) for business tariffs
-
-            * `TNUOS` - TNUoS rate (pence per day) for business tariffs
-
-            * `CAPACITY_MARKET` - Capacity Market rate (pence per day) for business tariffs
-
-            * `HMC_GUARANTEE_ADVANCE` - Hourly Matching Credit Guarantee Advance rate (pence per kWh) for business tariffs
-
-            * `HMC_GUARANTEE_FULL` - Hourly Matching Credit Guarantee Full rate (pence per kWh) for business tariffs
-
-            * `EV_DEVICE` - Electric vehicle device rate (pence per kWh) for sub-meter billing
-
-            * `EV_DEVICE_PEAK` - Electric vehicle device peak rate (pence per kWh) for sub-meter billing
-
-            * `EV_DEVICE_OFF_PEAK` - Electric vehicle device off-peak rate (pence per kWh) for sub-meter billing'
-        unit_rate:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: This field should be used for gas meters.
-        payment_method:
-          enum:
-          - DD
-          - NDD
-          - PP
-          type: string
-          x-spec-enum-id: 84f5b0df65c6e1bb
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: 'This field should be used for gas meters.
-
-
-            * `DD` - DD
-
-            * `NDD` - NDD
-
-            * `PP` - PP'
-      required:
-      - unit_rate
-    Quote:
-      type: object
-      properties:
-        annual_payment:
-          type: integer
-          minimum: 0
-          title: The estimated annual payment for this meter-point based on consumption.
-          description: This value must be provided in pence. For business quotes, the price is exclusive of VAT, while for non-business quotes, it should be inclusive of VAT.
-      required:
-      - annual_payment
-    _BespokeTariffRate:
-      type: object
-      properties:
-        standing_charge:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per day of the charge (excluding VAT).
-        unit_rate:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: This field should be used for gas meters.
-        meter_serial_number:
-          type: string
-          title: Meter serial number to which the bespoke tariff applies
-          maxLength: 32
-        registers:
-          type: array
-          items:
-            $ref: '#/components/schemas/_BespokeRegisterRate'
-          description: For elec meters, the unit rates are provided on a per register basis in this array.
-      required:
-      - meter_serial_number
-      - standing_charge
     Installation:
       type: object
       properties:
@@ -1569,6 +1559,16 @@ components:
       - capacity_in_kw
       - estimated_annual_generation_in_kwh
       - technology_type
+    Quote:
+      type: object
+      properties:
+        annual_payment:
+          type: integer
+          minimum: 0
+          title: The estimated annual payment for this meter-point based on consumption.
+          description: This value must be provided in pence. For business quotes, the price is exclusive of VAT, while for non-business quotes, it should be inclusive of VAT.
+      required:
+      - annual_payment
   securitySchemes:
     AccountUserAPIKeyAuthentication:
       type: http
