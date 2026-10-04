@@ -319,6 +319,8 @@ apis:
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -432,6 +434,8 @@ apis:
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
+  - Order
+  tags_raw:
   - Orders
   properties:
   - type: OpenAPI
@@ -488,6 +492,8 @@ apis:
   humanURL: https://developer.edfgb-kraken.energy/graphql/
   baseURL: https://api.edfgb-kraken.energy/v1/graphql/
   tags:
+  - Product
+  tags_raw:
   - Products
   properties:
   - type: OpenAPI
