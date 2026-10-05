@@ -4,6 +4,7 @@ generated_by: planning/capability-mapping/scripts/classify_capabilities.py
 model: claude-opus-5
 frame:
 - Power & Water Utilities
+- Software & Technology
 min_confidence: 0.7
 capability_model:
   source: https://github.com/vincentmakes/turbo-ea-capabilities
@@ -11,8 +12,33 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 1
+edge_count: 3
 edges:
+- tag: Quotes
+  spec_file: edf-energy-quotes-api-openapi.yml
+  capability_id: BC-410.40
+  capability_id_l1: BC-410
+  capability_name: Quote & Configuration Management
+  confidence: 0.78
+  evidence: POST /v1/quotes/ Create a quote; POST /v1/quotes/{code}/products/{product_id}/ Share a quote
+    via email; schemas QuoteCreated, BespokeTariffRates, BillingOptions, CreditScoreData
+  reason: Operations generate a priced quote for a prospective supply contract against specified meter
+    points and tariff rates and send it to the customer — configure/price/quote in the lead-to-order motion.
+    Schema names (BespokeTariffRates, BillingOptions, CreditScoreData) confirm commercial quoting rather
+    than a generic 'quote' string.
+- tag: Products
+  spec_file: edf-energy-products-api-openapi.yml
+  capability_id: BC-440.20
+  capability_id_l1: BC-440
+  capability_name: Price List Management
+  confidence: 0.7
+  evidence: GET /v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates/ Electricity
+    tariff standard unit rates; GET .../gas-tariffs/{tariff_code}/standing-charges/ Gas tariff standing
+    charges
+  reason: The surface publishes the tariff catalogue and the unit rates and standing charges attached
+    to each product/tariff code — a published price book for electricity and gas, i.e. Price List Management.
+    Not full 0.8 because the tag also carries product-catalogue listing (schemas Product, Products, SampleQuotes)
+    which touches product lifecycle.
 - tag: account_import
   spec_file: edf-energy-account-import-api-openapi.yml
   capability_id: BC-3910.10
