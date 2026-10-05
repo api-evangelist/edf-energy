@@ -1,0 +1,12 @@
+{
+ "url": "https://api.edfgb-kraken.energy/v1/schema/?namespaces=default",
+ "requested_url": "https://api.edfgb-kraken.energy/v1/schema?namespaces=default",
+ "status": 200,
+ "content_type": "application/yaml; charset=utf-8",
+ "bytes": 111869,
+ "sha256": "5638caac0a42eb085a0bb1d307bada0cf205c9aaef70acec9a910f2835a8c8c9",
+ "fetched_at": "2026-10-04",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "equivalent",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the provider's current document describes the same operations (Jaccard 1.0), but the bytes differ, so the archive is an earlier or reformatted copy."
+}
