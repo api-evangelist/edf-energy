@@ -175,6 +175,464 @@ paths:
       x-operation-id-original: Share a quote via email
 components:
   schemas:
+    ProprietorAddress:
+      type: object
+      properties:
+        line_1:
+          type: string
+          title: First line of address.
+        line_2:
+          type: string
+          title: Second line of address.
+        line_3:
+          type: string
+          title: Third line of address.
+        line_4:
+          type: string
+          title: Fourth line of address.
+        line_5:
+          type: string
+          title: Fifth line of address.
+        postcode:
+          type: string
+          title: Postcode of the address.
+      required:
+      - line_1
+      - postcode
+    Address:
+      type: object
+      properties:
+        address_line_1:
+          type: string
+          maxLength: 512
+        address_line_2:
+          type: string
+          maxLength: 512
+        address_line_3:
+          type: string
+          maxLength: 512
+        town:
+          type: string
+          maxLength: 512
+        county:
+          type: string
+          maxLength: 512
+        postcode:
+          type: string
+          maxLength: 8
+        delivery_point_identifier:
+          type: string
+          maxLength: 11
+      required:
+      - address_line_1
+      - postcode
+    GasMeterPoint:
+      type: object
+      properties:
+        tariff_code:
+          type: string
+          title: The tariff code as stored by the supplier.
+          description: Must match an available tariff on the 'sold_at' datetime for the authenticating partner. Required if no 'quote_request_code' is supplied.
+          maxLength: 255
+        quoted_product_id:
+          type: integer
+          description: The ID of the market supply quoted product returned by the 'QuoteNewMeterPoints' or 'QuoteNewMeterPointsOnBespokeProducts' mutation which was selected by the customer for this meter point. Required if a 'quote_request_code' is supplied.
+        address:
+          $ref: '#/components/schemas/Address'
+        current_supplier_name:
+          type: string
+          maxLength: 255
+        current_supplier_tariff:
+          type: string
+          maxLength: 255
+        has_smart_meter:
+          type: boolean
+          title: Whether a smart meter is installed. The default is 'false'.
+        consumption_standard:
+          type: integer
+          maximum: 500000
+          minimum: 1
+          title: The expected annual consumption for the standard register in kWh.
+          description: Required if standard tariff.
+        unit_rate_uplift:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
+          title: The amount to be added to the unit rate as commission (a string, pence per kWh).
+        standing_charge_uplift:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
+          title: The amount to be added to the standing charge as commission (a string, pence per day).
+        fixed_tpi_fee:
+          type: integer
+          minimum: 0
+        quote:
+          $ref: '#/components/schemas/Quote'
+        bespoke_tariff_rates:
+          allOf:
+          - $ref: '#/components/schemas/BespokeTariffRates'
+          title: A json object containing bespoke tariff rates, if applicable.
+          description: Cannot be used in conjunction with 'bespoke_pps_tariff_rates'.
+        bespoke_pps_tariff_rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/BespokePPSTariffRates'
+          description: 'If applicable, must contain two objects: one for direct debit bespoke and another for non-direct debit bespoke rates. Cannot be used in conjunction with ''bespoke_tariff_rates''.'
+          maxItems: 2
+          minItems: 0
+        meter_type:
+          enum:
+          - CREDIT
+          - PREPAYMENT
+          type: string
+          x-spec-enum-id: ebae2e9cf73bc01e
+          default: CREDIT
+          description: 'The default is ''CREDIT'', which represents any kind of traditional credit meter or smart meter. This field is mandatory for traditional prepay meters, for which the value ''PREPAYMENT'' should be used.
+
+
+            * `CREDIT` - CREDIT
+
+            * `PREPAYMENT` - PREPAYMENT'
+        preferred_ssd:
+          type: string
+          format: date
+        mprn:
+          type: string
+          title: The meter-point identifier.
+          maxLength: 10
+      required:
+      - consumption_standard
+      - quote
+    Business:
+      type: object
+      properties:
+        name:
+          type: string
+          title: The name of the business.
+          maxLength: 255
+        number:
+          type: string
+          title: The registered number of the business.
+          description: This field is required for 'LIMITED' businesses.</p>
+          maxLength: 8
+        business_type:
+          enum:
+          - SOLE_TRADER
+          - LIMITED
+          - CHARITY
+          - PARTNERSHIP
+          - GOVERNMENT
+          type: string
+          description: '* `SOLE_TRADER` - SOLE_TRADER
+
+            * `LIMITED` - LIMITED
+
+            * `CHARITY` - CHARITY
+
+            * `PARTNERSHIP` - PARTNERSHIP
+
+            * `GOVERNMENT` - GOVERNMENT'
+          x-spec-enum-id: 6d21c7807a449a8a
+        is_ccl_exempt:
+          type: boolean
+          title: Whether the business is exempt from paying CCL (Climate Change Levy).
+        is_vat_exempt:
+          type: boolean
+          title: Whether the business is exempt from paying VAT.
+        head_count:
+          type: integer
+          minimum: 0
+          title: The head count of the business, i.e. number of staff.
+        annual_turnover:
+          type: integer
+          minimum: 0
+          title: The estimated annual turnover
+          description: In pounds £ (GBP)
+        credit_reference_id:
+          type: string
+          title: ID used by the Credit Reference Agency to identify business.
+          description: Required for unlimited liablity companies (e.g. 'SOLE_TRADER', 'PARTNERSHIP', 'CHARITY')
+          maxLength: 10
+        phone_number:
+          type: string
+          title: Main phone number for the business.
+        proprietor:
+          allOf:
+          - $ref: '#/components/schemas/Proprietor'
+          title: Details of a business owner.
+          description: Required for credit checking unlimited liability businesses.
+      required:
+      - business_type
+      - is_ccl_exempt
+      - is_vat_exempt
+      - name
+    Affiliate:
+      type: object
+      description: 'This serializer is used to allow affiliates to pass a signup reward code when creating
+
+        accounts which later will then give credit to the accounts once their payments start.'
+      properties:
+        signup_reward_code:
+          type: string
+          default: ''
+          title: The code of an existing signup reward referral scheme that will be used for giving credit to the created account as a signup reward.
+          maxLength: 255
+        organization_name:
+          type: string
+          title: The name of an existing organization that will be used to create an account for an affiliate.
+          maxLength: 128
+        affiliate_link_subdomain:
+          type: string
+          maxLength: 64
+    CreateQuoteError:
+      type: object
+      properties:
+        brand_code:
+          type: array
+          items:
+            type: string
+        electricity_meter_points:
+          type: array
+          items:
+            type: string
+        gas_meter_points:
+          type: array
+          items:
+            type: string
+        business_products_only:
+          type: array
+          items:
+            type: string
+        product_codes:
+          type: array
+          items:
+            type: string
+    Installation:
+      type: object
+      properties:
+        fit_id:
+          type: string
+          description: The Feed-in Tariff ID.
+        rego_id:
+          type: string
+          description: The REGO accreditation number.
+        technology_type:
+          enum:
+          - LkUp_Generator_TypesCombined
+          - Bio Diesel (Oil)
+          - Bio Diesel (Oil) CHP
+          - Bio Gas (AD)
+          - Bio Gas (AD) CHP
+          - Bio Gas (Landfill)
+          - Bio Mass (Wood)
+          - Bio Mass (Wood) CHP
+          - Bio Methane
+          - Geothermal (Airsource)
+          - Geothermal (Groundsource)
+          - Geothermal (Watersource)
+          - Hydro (Dam - Drinking Water)
+          - Hydro (Dam)
+          - Hydro (Pumped Storage)
+          - Hydro (Run-of-River)
+          - Hydro (Sewerage Treatment)
+          - Hydro (Tidal)
+          - Hydro (Water Treatment)
+          - Hydro (Wave)
+          - Solar PV (Building)
+          - Solar PV (Field - Multi Use)
+          - Solar PV (Field - Single Use)
+          - Solar Thermal
+          - Wind (Offshore)
+          - Wind (Onshore)
+          - AD
+          - CHP
+          - Hydro
+          - Solar
+          - Wind
+          type: string
+          x-spec-enum-id: da0f319a77bff5cf
+          description: 'The technology type for the installation. If there are multiple technologies at one site then provide multiple installations.
+
+
+            * `LkUp_Generator_TypesCombined` - LkUp_Generator_TypesCombined
+
+            * `Bio Diesel (Oil)` - Bio Diesel (Oil)
+
+            * `Bio Diesel (Oil) CHP` - Bio Diesel (Oil) CHP
+
+            * `Bio Gas (AD)` - Bio Gas (AD)
+
+            * `Bio Gas (AD) CHP` - Bio Gas (AD) CHP
+
+            * `Bio Gas (Landfill)` - Bio Gas (Landfill)
+
+            * `Bio Mass (Wood)` - Bio Mass (Wood)
+
+            * `Bio Mass (Wood) CHP` - Bio Mass (Wood) CHP
+
+            * `Bio Methane` - Bio Methane
+
+            * `Geothermal (Airsource)` - Geothermal (Airsource)
+
+            * `Geothermal (Groundsource)` - Geothermal (Groundsource)
+
+            * `Geothermal (Watersource)` - Geothermal (Watersource)
+
+            * `Hydro (Dam - Drinking Water)` - Hydro (Dam - Drinking Water)
+
+            * `Hydro (Dam)` - Hydro (Dam)
+
+            * `Hydro (Pumped Storage)` - Hydro (Pumped Storage)
+
+            * `Hydro (Run-of-River)` - Hydro (Run-of-River)
+
+            * `Hydro (Sewerage Treatment)` - Hydro (Sewerage Treatment)
+
+            * `Hydro (Tidal)` - Hydro (Tidal)
+
+            * `Hydro (Water Treatment)` - Hydro (Water Treatment)
+
+            * `Hydro (Wave)` - Hydro (Wave)
+
+            * `Solar PV (Building)` - Solar PV (Building)
+
+            * `Solar PV (Field - Multi Use)` - Solar PV (Field - Multi Use)
+
+            * `Solar PV (Field - Single Use)` - Solar PV (Field - Single Use)
+
+            * `Solar Thermal` - Solar Thermal
+
+            * `Wind (Offshore)` - Wind (Offshore)
+
+            * `Wind (Onshore)` - Wind (Onshore)
+
+            * `AD` - AD
+
+            * `CHP` - CHP
+
+            * `Hydro` - Hydro
+
+            * `Solar` - Solar
+
+            * `Wind` - Wind'
+        capacity_in_kw:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,2})?$
+          title: The total capacity of the installation in kW.
+        estimated_annual_generation_in_kwh:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,2})?$
+          title: The estimated annual generation of the installation in kWh.
+      required:
+      - capacity_in_kw
+      - estimated_annual_generation_in_kwh
+      - technology_type
+    ElectricityMeterPoint:
+      type: object
+      properties:
+        tariff_code:
+          type: string
+          title: The tariff code as stored by the supplier.
+          description: Must match an available tariff on the 'sold_at' datetime for the authenticating partner. Required if no 'quote_request_code' is supplied.
+          maxLength: 255
+        quoted_product_id:
+          type: integer
+          description: The ID of the market supply quoted product returned by the 'QuoteNewMeterPoints' or 'QuoteNewMeterPointsOnBespokeProducts' mutation which was selected by the customer for this meter point. Required if a 'quote_request_code' is supplied.
+        address:
+          $ref: '#/components/schemas/Address'
+        current_supplier_name:
+          type: string
+          maxLength: 255
+        current_supplier_tariff:
+          type: string
+          maxLength: 255
+        has_smart_meter:
+          type: boolean
+          title: Whether a smart meter is installed. The default is 'false'.
+        consumption_standard:
+          type: integer
+          maximum: 500000
+          minimum: 1
+          title: The expected annual consumption for the standard register in kWh.
+          description: Required if standard tariff.
+        unit_rate_uplift:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
+          title: The amount to be added to the unit rate as commission (a string, pence per kWh).
+        standing_charge_uplift:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
+          title: The amount to be added to the standing charge as commission (a string, pence per day).
+        fixed_tpi_fee:
+          type: integer
+          minimum: 0
+        quote:
+          $ref: '#/components/schemas/Quote'
+        bespoke_tariff_rates:
+          allOf:
+          - $ref: '#/components/schemas/BespokeTariffRates'
+          title: A json object containing bespoke tariff rates, if applicable.
+          description: Cannot be used in conjunction with 'bespoke_pps_tariff_rates'.
+        bespoke_pps_tariff_rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/BespokePPSTariffRates'
+          description: 'If applicable, must contain two objects: one for direct debit bespoke and another for non-direct debit bespoke rates. Cannot be used in conjunction with ''bespoke_tariff_rates''.'
+          maxItems: 2
+          minItems: 0
+        meter_type:
+          enum:
+          - CREDIT
+          - PREPAYMENT
+          type: string
+          x-spec-enum-id: ebae2e9cf73bc01e
+          default: CREDIT
+          description: 'The default is ''CREDIT'', which represents any kind of traditional credit meter or smart meter. This field is mandatory for traditional prepay meters, for which the value ''PREPAYMENT'' should be used.
+
+
+            * `CREDIT` - CREDIT
+
+            * `PREPAYMENT` - PREPAYMENT'
+        preferred_ssd:
+          type: string
+          format: date
+        mpan:
+          type: string
+          title: The meter-point identifier.
+          maxLength: 13
+        is_half_hourly:
+          type: boolean
+          title: Whether the meter point should be enrolled as a half hourly meter point
+          description: Required to start the CoS Gain correctly for half hourly customers.
+        consumption_day:
+          type: integer
+          maximum: 500000
+          minimum: 1
+          title: The expected annual consumption for the day/peak register in kWh.
+          description: Required if eco7 or three-rate tariff.
+        consumption_night:
+          type: integer
+          maximum: 500000
+          minimum: 0
+          title: The expected annual consumption for the night/off-peak register in kWh.
+          description: Required if eco7 or three-rate tariff.
+        consumption_off_peak:
+          type: integer
+          maximum: 500000
+          minimum: 0
+          title: The expected annual consumption for the additional off-peak register in kWh.
+          description: Required if three-rate tariff.
+        export_details:
+          allOf:
+          - $ref: '#/components/schemas/ExportDetails'
+          title: The generation details for the meter-point.
+      required:
+      - quote
     BespokeElectricityUnitRate:
       type: object
       properties:
@@ -278,47 +736,6 @@ components:
             * `PP` - PP'
       required:
       - unit_rate
-    BespokeTariffRates:
-      type: object
-      properties:
-        standing_charge:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per day of the charge (excluding VAT).
-        unit_rate:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: This field should be used for gas meters.
-        unit_rates:
-          type: array
-          items:
-            $ref: '#/components/schemas/BespokeElectricityUnitRate'
-          title: List of the value in pence per kWh of the charges (excluding VAT).
-          description: For elec meters, the unit rates are provided on a per register basis in this array.
-    ExportDetails:
-      type: object
-      properties:
-        import_mpan:
-          type: string
-          description: The import MPAN.
-          maxLength: 13
-        site_contact_name:
-          type: string
-          description: The name of the site contact.
-        site_contact_phone:
-          type: string
-          description: The phone number of the site contact.
-        site_contact_email:
-          type: string
-          format: email
-          description: The email address of the site contact.
-        installations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Installation'
     Payment:
       type: object
       properties:
@@ -358,152 +775,112 @@ components:
           title: The number of days to delay the payment for a bill triggered schedule.
       required:
       - method
-    User:
+    BespokeTariffRates:
       type: object
       properties:
-        title:
+        standing_charge:
           type: string
-          maxLength: 255
-        given_name:
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per day of the charge (excluding VAT).
+        unit_rate:
           type: string
-          maxLength: 255
-        family_name:
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: This field should be used for gas meters.
+        unit_rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/BespokeElectricityUnitRate'
+          title: List of the value in pence per kWh of the charges (excluding VAT).
+          description: For elec meters, the unit rates are provided on a per register basis in this array.
+    QuoteCreated:
+      type: object
+      properties:
+        code:
           type: string
-          maxLength: 255
+        gsp:
+          type: string
+        products:
+          type: array
+          items:
+            type: object
+          readOnly: true
+      required:
+      - code
+      - gsp
+      - products
+    ExportDetails:
+      type: object
+      properties:
+        import_mpan:
+          type: string
+          description: The import MPAN.
+          maxLength: 13
+        site_contact_name:
+          type: string
+          description: The name of the site contact.
+        site_contact_phone:
+          type: string
+          description: The phone number of the site contact.
+        site_contact_email:
+          type: string
+          format: email
+          description: The email address of the site contact.
+        installations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Installation'
+    CreditScoreData:
+      type: object
+      properties:
+        score:
+          type: integer
+          maximum: 9999
+          minimum: 0
+        risk_bracket:
+          enum:
+          - LOW
+          - MID
+          - HIGH
+          - UNKNOWN
+          type: string
+          description: '* `LOW` - Low
+
+            * `MID` - Medium
+
+            * `HIGH` - High
+
+            * `UNKNOWN` - Unknown'
+          x-spec-enum-id: e6b98b6c312ff7bf
+    Proprietor:
+      type: object
+      properties:
+        first_name:
+          type: string
+          title: First name of the business owner.
+        last_name:
+          type: string
+          title: Last name of the business owner.
+        email_address:
+          type: string
+          title: Email address from a business owner.
+        phone_number:
+          type: string
+          title: Phone number of a business owner.
+        address:
+          allOf:
+          - $ref: '#/components/schemas/ProprietorAddress'
+          title: Main address of a business owner (only required for non limited companies).
         date_of_birth:
           type: string
           format: date
-        label:
-          type: string
-          maxLength: 255
-        email:
-          type: string
-          format: email
-          description: Cannot already be in use for an existing account.
-          maxLength: 512
-        mobile:
-          type: string
-          maxLength: 64
-        landline:
-          type: string
-          maxLength: 64
-        opted_in_for_marketing:
-          type: boolean
-        opted_in_to_third_parties:
-          type: boolean
-          default: false
-        psr:
-          allOf:
-          - $ref: '#/components/schemas/PSR'
-          title: Priority Services Register details for the user
-        credit_score_data:
-          $ref: '#/components/schemas/CreditScoreData'
+          title: Date of birth of the business owner (only required for non limited companies)
       required:
-      - email
-      - family_name
-      - given_name
-      - opted_in_for_marketing
-    GasMeterPoint:
-      type: object
-      properties:
-        tariff_code:
-          type: string
-          title: The tariff code as stored by the supplier.
-          description: Must match an available tariff on the 'sold_at' datetime for the authenticating partner. Required if no 'quote_request_code' is supplied.
-          maxLength: 255
-        quoted_product_id:
-          type: integer
-          description: The ID of the market supply quoted product returned by the 'QuoteNewMeterPoints' or 'QuoteNewMeterPointsOnBespokeProducts' mutation which was selected by the customer for this meter point. Required if a 'quote_request_code' is supplied.
-        address:
-          $ref: '#/components/schemas/Address'
-        current_supplier_name:
-          type: string
-          maxLength: 255
-        current_supplier_tariff:
-          type: string
-          maxLength: 255
-        has_smart_meter:
-          type: boolean
-          title: Whether a smart meter is installed. The default is 'false'.
-        consumption_standard:
-          type: integer
-          maximum: 500000
-          minimum: 1
-          title: The expected annual consumption for the standard register in kWh.
-          description: Required if standard tariff.
-        unit_rate_uplift:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
-          title: The amount to be added to the unit rate as commission (a string, pence per kWh).
-        standing_charge_uplift:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
-          title: The amount to be added to the standing charge as commission (a string, pence per day).
-        fixed_tpi_fee:
-          type: integer
-          minimum: 0
-        quote:
-          $ref: '#/components/schemas/Quote'
-        bespoke_tariff_rates:
-          allOf:
-          - $ref: '#/components/schemas/BespokeTariffRates'
-          title: A json object containing bespoke tariff rates, if applicable.
-          description: Cannot be used in conjunction with 'bespoke_pps_tariff_rates'.
-        bespoke_pps_tariff_rates:
-          type: array
-          items:
-            $ref: '#/components/schemas/BespokePPSTariffRates'
-          description: 'If applicable, must contain two objects: one for direct debit bespoke and another for non-direct debit bespoke rates. Cannot be used in conjunction with ''bespoke_tariff_rates''.'
-          maxItems: 2
-          minItems: 0
-        meter_type:
-          enum:
-          - CREDIT
-          - PREPAYMENT
-          type: string
-          x-spec-enum-id: ebae2e9cf73bc01e
-          default: CREDIT
-          description: 'The default is ''CREDIT'', which represents any kind of traditional credit meter or smart meter. This field is mandatory for traditional prepay meters, for which the value ''PREPAYMENT'' should be used.
-
-
-            * `CREDIT` - CREDIT
-
-            * `PREPAYMENT` - PREPAYMENT'
-        preferred_ssd:
-          type: string
-          format: date
-        mprn:
-          type: string
-          title: The meter-point identifier.
-          maxLength: 10
-      required:
-      - consumption_standard
-      - quote
-    CreateQuoteError:
-      type: object
-      properties:
-        brand_code:
-          type: array
-          items:
-            type: string
-        electricity_meter_points:
-          type: array
-          items:
-            type: string
-        gas_meter_points:
-          type: array
-          items:
-            type: string
-        business_products_only:
-          type: array
-          items:
-            type: string
-        product_codes:
-          type: array
-          items:
-            type: string
+      - email_address
+      - first_name
+      - last_name
     BespokePPSTariffRates:
       type: object
       properties:
@@ -539,40 +916,6 @@ components:
           title: The payment method for the rate.
       required:
       - payment_method
-    ValidationErrors:
-      type: object
-      properties:
-        emails:
-          type: object
-      required:
-      - emails
-    Address:
-      type: object
-      properties:
-        address_line_1:
-          type: string
-          maxLength: 512
-        address_line_2:
-          type: string
-          maxLength: 512
-        address_line_3:
-          type: string
-          maxLength: 512
-        town:
-          type: string
-          maxLength: 512
-        county:
-          type: string
-          maxLength: 512
-        postcode:
-          type: string
-          maxLength: 8
-        delivery_point_identifier:
-          type: string
-          maxLength: 11
-      required:
-      - address_line_1
-      - postcode
     BillingOptions:
       type: object
       properties:
@@ -593,151 +936,13 @@ components:
           minimum: 1
           default: 1
           title: The length of the billing period in months.
-    Metadata:
-      type: object
-      properties:
-        key:
-          type: string
-          title: Key on which the metadata will be stored.
-          maxLength: 1024
-        value:
-          title: A json object containing any arbitrary piece of data to store in relation to the account.
-      required:
-      - key
-      - value
-    Affiliate:
-      type: object
-      description: 'This serializer is used to allow affiliates to pass a signup reward code when creating
-
-        accounts which later will then give credit to the accounts once their payments start.'
-      properties:
-        signup_reward_code:
-          type: string
-          default: ''
-          title: The code of an existing signup reward referral scheme that will be used for giving credit to the created account as a signup reward.
-          maxLength: 255
-        organization_name:
-          type: string
-          title: The name of an existing organization that will be used to create an account for an affiliate.
-          maxLength: 128
-        affiliate_link_subdomain:
-          type: string
-          maxLength: 64
-    CreditScoreData:
-      type: object
-      properties:
-        score:
-          type: integer
-          maximum: 9999
-          minimum: 0
-        risk_bracket:
-          enum:
-          - LOW
-          - MID
-          - HIGH
-          - UNKNOWN
-          type: string
-          description: '* `LOW` - Low
-
-            * `MID` - Medium
-
-            * `HIGH` - High
-
-            * `UNKNOWN` - Unknown'
-          x-spec-enum-id: e6b98b6c312ff7bf
-    QuoteCreated:
-      type: object
-      properties:
-        code:
-          type: string
-        gsp:
-          type: string
-        products:
-          type: array
-          items:
-            type: object
-          readOnly: true
-      required:
-      - code
-      - gsp
-      - products
-    Deposit:
-      type: object
-      properties:
-        amount:
-          type: integer
-          minimum: 1
-        key:
-          type: string
-        reason:
-          type: string
-    EmailQuote:
+    ValidationErrors:
       type: object
       properties:
         emails:
-          type: array
-          items:
-            type: string
-            format: email
-          title: An array of one or more email addresses to send the email to.
-        smart_product:
-          type: string
-        referral_code:
-          type: string
-          maxLength: 256
+          type: object
       required:
       - emails
-    Proprietor:
-      type: object
-      properties:
-        first_name:
-          type: string
-          title: First name of the business owner.
-        last_name:
-          type: string
-          title: Last name of the business owner.
-        email_address:
-          type: string
-          title: Email address from a business owner.
-        phone_number:
-          type: string
-          title: Phone number of a business owner.
-        address:
-          allOf:
-          - $ref: '#/components/schemas/ProprietorAddress'
-          title: Main address of a business owner (only required for non limited companies).
-        date_of_birth:
-          type: string
-          format: date
-          title: Date of birth of the business owner (only required for non limited companies)
-      required:
-      - email_address
-      - first_name
-      - last_name
-    ProprietorAddress:
-      type: object
-      properties:
-        line_1:
-          type: string
-          title: First line of address.
-        line_2:
-          type: string
-          title: Second line of address.
-        line_3:
-          type: string
-          title: Third line of address.
-        line_4:
-          type: string
-          title: Fourth line of address.
-        line_5:
-          type: string
-          title: Fifth line of address.
-        postcode:
-          type: string
-          title: Postcode of the address.
-      required:
-      - line_1
-      - postcode
     Create:
       type: object
       description: Serializer to create an account via a REST API.
@@ -1000,294 +1205,61 @@ components:
         requires_signup:
           type: boolean
           description: If true, indicates that the user should be signed up to the PSR but the categories are unknown. Therefore the user requires contacting to determine the categories.
-    ElectricityMeterPoint:
+    User:
       type: object
       properties:
-        tariff_code:
-          type: string
-          title: The tariff code as stored by the supplier.
-          description: Must match an available tariff on the 'sold_at' datetime for the authenticating partner. Required if no 'quote_request_code' is supplied.
-          maxLength: 255
-        quoted_product_id:
-          type: integer
-          description: The ID of the market supply quoted product returned by the 'QuoteNewMeterPoints' or 'QuoteNewMeterPointsOnBespokeProducts' mutation which was selected by the customer for this meter point. Required if a 'quote_request_code' is supplied.
-        address:
-          $ref: '#/components/schemas/Address'
-        current_supplier_name:
+        title:
           type: string
           maxLength: 255
-        current_supplier_tariff:
+        given_name:
           type: string
           maxLength: 255
-        has_smart_meter:
-          type: boolean
-          title: Whether a smart meter is installed. The default is 'false'.
-        consumption_standard:
-          type: integer
-          maximum: 500000
-          minimum: 1
-          title: The expected annual consumption for the standard register in kWh.
-          description: Required if standard tariff.
-        unit_rate_uplift:
+        family_name:
           type: string
-          format: decimal
-          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
-          title: The amount to be added to the unit rate as commission (a string, pence per kWh).
-        standing_charge_uplift:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,4}(?:\.\d{0,3})?$
-          title: The amount to be added to the standing charge as commission (a string, pence per day).
-        fixed_tpi_fee:
-          type: integer
-          minimum: 0
-        quote:
-          $ref: '#/components/schemas/Quote'
-        bespoke_tariff_rates:
-          allOf:
-          - $ref: '#/components/schemas/BespokeTariffRates'
-          title: A json object containing bespoke tariff rates, if applicable.
-          description: Cannot be used in conjunction with 'bespoke_pps_tariff_rates'.
-        bespoke_pps_tariff_rates:
-          type: array
-          items:
-            $ref: '#/components/schemas/BespokePPSTariffRates'
-          description: 'If applicable, must contain two objects: one for direct debit bespoke and another for non-direct debit bespoke rates. Cannot be used in conjunction with ''bespoke_tariff_rates''.'
-          maxItems: 2
-          minItems: 0
-        meter_type:
-          enum:
-          - CREDIT
-          - PREPAYMENT
-          type: string
-          x-spec-enum-id: ebae2e9cf73bc01e
-          default: CREDIT
-          description: 'The default is ''CREDIT'', which represents any kind of traditional credit meter or smart meter. This field is mandatory for traditional prepay meters, for which the value ''PREPAYMENT'' should be used.
-
-
-            * `CREDIT` - CREDIT
-
-            * `PREPAYMENT` - PREPAYMENT'
-        preferred_ssd:
+          maxLength: 255
+        date_of_birth:
           type: string
           format: date
-        mpan:
+        label:
           type: string
-          title: The meter-point identifier.
-          maxLength: 13
-        is_half_hourly:
-          type: boolean
-          title: Whether the meter point should be enrolled as a half hourly meter point
-          description: Required to start the CoS Gain correctly for half hourly customers.
-        consumption_day:
-          type: integer
-          maximum: 500000
-          minimum: 1
-          title: The expected annual consumption for the day/peak register in kWh.
-          description: Required if eco7 or three-rate tariff.
-        consumption_night:
-          type: integer
-          maximum: 500000
-          minimum: 0
-          title: The expected annual consumption for the night/off-peak register in kWh.
-          description: Required if eco7 or three-rate tariff.
-        consumption_off_peak:
-          type: integer
-          maximum: 500000
-          minimum: 0
-          title: The expected annual consumption for the additional off-peak register in kWh.
-          description: Required if three-rate tariff.
-        export_details:
-          allOf:
-          - $ref: '#/components/schemas/ExportDetails'
-          title: The generation details for the meter-point.
-      required:
-      - quote
-    Business:
-      type: object
-      properties:
-        name:
-          type: string
-          title: The name of the business.
           maxLength: 255
-        number:
+        email:
           type: string
-          title: The registered number of the business.
-          description: This field is required for 'LIMITED' businesses.</p>
-          maxLength: 8
-        business_type:
-          enum:
-          - SOLE_TRADER
-          - LIMITED
-          - CHARITY
-          - PARTNERSHIP
-          - GOVERNMENT
+          format: email
+          description: Cannot already be in use for an existing account.
+          maxLength: 512
+        mobile:
           type: string
-          description: '* `SOLE_TRADER` - SOLE_TRADER
-
-            * `LIMITED` - LIMITED
-
-            * `CHARITY` - CHARITY
-
-            * `PARTNERSHIP` - PARTNERSHIP
-
-            * `GOVERNMENT` - GOVERNMENT'
-          x-spec-enum-id: 6d21c7807a449a8a
-        is_ccl_exempt:
+          maxLength: 64
+        landline:
+          type: string
+          maxLength: 64
+        opted_in_for_marketing:
           type: boolean
-          title: Whether the business is exempt from paying CCL (Climate Change Levy).
-        is_vat_exempt:
+        opted_in_to_third_parties:
           type: boolean
-          title: Whether the business is exempt from paying VAT.
-        head_count:
-          type: integer
-          minimum: 0
-          title: The head count of the business, i.e. number of staff.
-        annual_turnover:
-          type: integer
-          minimum: 0
-          title: The estimated annual turnover
-          description: In pounds £ (GBP)
-        credit_reference_id:
-          type: string
-          title: ID used by the Credit Reference Agency to identify business.
-          description: Required for unlimited liablity companies (e.g. 'SOLE_TRADER', 'PARTNERSHIP', 'CHARITY')
-          maxLength: 10
-        phone_number:
-          type: string
-          title: Main phone number for the business.
-        proprietor:
+          default: false
+        psr:
           allOf:
-          - $ref: '#/components/schemas/Proprietor'
-          title: Details of a business owner.
-          description: Required for credit checking unlimited liability businesses.
+          - $ref: '#/components/schemas/PSR'
+          title: Priority Services Register details for the user
+        credit_score_data:
+          $ref: '#/components/schemas/CreditScoreData'
       required:
-      - business_type
-      - is_ccl_exempt
-      - is_vat_exempt
-      - name
-    Installation:
+      - email
+      - family_name
+      - given_name
+      - opted_in_for_marketing
+    Deposit:
       type: object
       properties:
-        fit_id:
+        amount:
+          type: integer
+          minimum: 1
+        key:
           type: string
-          description: The Feed-in Tariff ID.
-        rego_id:
+        reason:
           type: string
-          description: The REGO accreditation number.
-        technology_type:
-          enum:
-          - LkUp_Generator_TypesCombined
-          - Bio Diesel (Oil)
-          - Bio Diesel (Oil) CHP
-          - Bio Gas (AD)
-          - Bio Gas (AD) CHP
-          - Bio Gas (Landfill)
-          - Bio Mass (Wood)
-          - Bio Mass (Wood) CHP
-          - Bio Methane
-          - Geothermal (Airsource)
-          - Geothermal (Groundsource)
-          - Geothermal (Watersource)
-          - Hydro (Dam - Drinking Water)
-          - Hydro (Dam)
-          - Hydro (Pumped Storage)
-          - Hydro (Run-of-River)
-          - Hydro (Sewerage Treatment)
-          - Hydro (Tidal)
-          - Hydro (Water Treatment)
-          - Hydro (Wave)
-          - Solar PV (Building)
-          - Solar PV (Field - Multi Use)
-          - Solar PV (Field - Single Use)
-          - Solar Thermal
-          - Wind (Offshore)
-          - Wind (Onshore)
-          - AD
-          - CHP
-          - Hydro
-          - Solar
-          - Wind
-          type: string
-          x-spec-enum-id: da0f319a77bff5cf
-          description: 'The technology type for the installation. If there are multiple technologies at one site then provide multiple installations.
-
-
-            * `LkUp_Generator_TypesCombined` - LkUp_Generator_TypesCombined
-
-            * `Bio Diesel (Oil)` - Bio Diesel (Oil)
-
-            * `Bio Diesel (Oil) CHP` - Bio Diesel (Oil) CHP
-
-            * `Bio Gas (AD)` - Bio Gas (AD)
-
-            * `Bio Gas (AD) CHP` - Bio Gas (AD) CHP
-
-            * `Bio Gas (Landfill)` - Bio Gas (Landfill)
-
-            * `Bio Mass (Wood)` - Bio Mass (Wood)
-
-            * `Bio Mass (Wood) CHP` - Bio Mass (Wood) CHP
-
-            * `Bio Methane` - Bio Methane
-
-            * `Geothermal (Airsource)` - Geothermal (Airsource)
-
-            * `Geothermal (Groundsource)` - Geothermal (Groundsource)
-
-            * `Geothermal (Watersource)` - Geothermal (Watersource)
-
-            * `Hydro (Dam - Drinking Water)` - Hydro (Dam - Drinking Water)
-
-            * `Hydro (Dam)` - Hydro (Dam)
-
-            * `Hydro (Pumped Storage)` - Hydro (Pumped Storage)
-
-            * `Hydro (Run-of-River)` - Hydro (Run-of-River)
-
-            * `Hydro (Sewerage Treatment)` - Hydro (Sewerage Treatment)
-
-            * `Hydro (Tidal)` - Hydro (Tidal)
-
-            * `Hydro (Water Treatment)` - Hydro (Water Treatment)
-
-            * `Hydro (Wave)` - Hydro (Wave)
-
-            * `Solar PV (Building)` - Solar PV (Building)
-
-            * `Solar PV (Field - Multi Use)` - Solar PV (Field - Multi Use)
-
-            * `Solar PV (Field - Single Use)` - Solar PV (Field - Single Use)
-
-            * `Solar Thermal` - Solar Thermal
-
-            * `Wind (Offshore)` - Wind (Offshore)
-
-            * `Wind (Onshore)` - Wind (Onshore)
-
-            * `AD` - AD
-
-            * `CHP` - CHP
-
-            * `Hydro` - Hydro
-
-            * `Solar` - Solar
-
-            * `Wind` - Wind'
-        capacity_in_kw:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,11}(?:\.\d{0,2})?$
-          title: The total capacity of the installation in kW.
-        estimated_annual_generation_in_kwh:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,11}(?:\.\d{0,2})?$
-          title: The estimated annual generation of the installation in kWh.
-      required:
-      - capacity_in_kw
-      - estimated_annual_generation_in_kwh
-      - technology_type
     Quote:
       type: object
       properties:
@@ -1298,6 +1270,34 @@ components:
           description: This value must be provided in pence. For business quotes, the price is exclusive of VAT, while for non-business quotes, it should be inclusive of VAT.
       required:
       - annual_payment
+    EmailQuote:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: string
+            format: email
+          title: An array of one or more email addresses to send the email to.
+        smart_product:
+          type: string
+        referral_code:
+          type: string
+          maxLength: 256
+      required:
+      - emails
+    Metadata:
+      type: object
+      properties:
+        key:
+          type: string
+          title: Key on which the metadata will be stored.
+          maxLength: 1024
+        value:
+          title: A json object containing any arbitrary piece of data to store in relation to the account.
+      required:
+      - key
+      - value
   securitySchemes:
     AccountUserAPIKeyAuthentication:
       type: http

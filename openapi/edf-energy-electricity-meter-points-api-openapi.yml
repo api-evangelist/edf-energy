@@ -127,6 +127,125 @@ paths:
       x-operation-id-original: List consumption for an electricity meter
 components:
   schemas:
+    Consumption:
+      type: object
+      properties:
+        consumption:
+          type: string
+          readOnly: true
+        interval_start:
+          type: string
+          format: date-time
+        interval_end:
+          type: string
+          format: date-time
+      required:
+      - consumption
+      - interval_end
+      - interval_start
+    Address:
+      type: object
+      properties:
+        address_line_1:
+          type: string
+          maxLength: 512
+        address_line_2:
+          type: string
+          maxLength: 512
+        address_line_3:
+          type: string
+          maxLength: 512
+        town:
+          type: string
+          maxLength: 512
+        county:
+          type: string
+          maxLength: 512
+        postcode:
+          type: string
+          maxLength: 8
+        delivery_point_identifier:
+          type: string
+          maxLength: 11
+      required:
+      - address_line_1
+      - postcode
+    PaginatedConsumptionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/electricity-meter-points/S1212345678901/meters/Z16N389556/consumption/?page=4
+        previous:
+          type:
+          - string
+          - 'null'
+          format: uri
+          example: https://api.edfgb-kraken.energy/v1/electricity-meter-points/S1212345678901/meters/Z16N389556/consumption/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Consumption'
+    BespokeTariffRates:
+      type: object
+      properties:
+        standing_charge:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per day of the charge (excluding VAT).
+        unit_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: This field should be used for gas meters.
+        unit_rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/BespokeElectricityUnitRate'
+          title: List of the value in pence per kWh of the charges (excluding VAT).
+          description: For elec meters, the unit rates are provided on a per register basis in this array.
+    ExportDetails:
+      type: object
+      properties:
+        import_mpan:
+          type: string
+          description: The import MPAN.
+          maxLength: 13
+        site_contact_name:
+          type: string
+          description: The name of the site contact.
+        site_contact_phone:
+          type: string
+          description: The phone number of the site contact.
+        site_contact_email:
+          type: string
+          format: email
+          description: The email address of the site contact.
+        installations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Installation'
+    Quote:
+      type: object
+      properties:
+        annual_payment:
+          type: integer
+          minimum: 0
+          title: The estimated annual payment for this meter-point based on consumption.
+          description: This value must be provided in pence. For business quotes, the price is exclusive of VAT, while for non-business quotes, it should be inclusive of VAT.
+      required:
+      - annual_payment
     Installation:
       type: object
       properties:
@@ -249,134 +368,6 @@ components:
       - capacity_in_kw
       - estimated_annual_generation_in_kwh
       - technology_type
-    BespokeElectricityUnitRate:
-      type: object
-      properties:
-        rate_type:
-          enum:
-          - STANDARD
-          - ECO7_DAY
-          - ECO7_NIGHT
-          - OFF_PEAK
-          - PEAK
-          - WEEKDAY
-          - OFF_PEAK_WEEKENDS
-          - WEEKENDS_OTHER
-          - SUMMER
-          - SUMMER_PEAK
-          - SUMMER_OFF_PEAK
-          - WINTER
-          - WINTER_PEAK
-          - WINTER_OFF_PEAK
-          - NUCLEAR_RAB
-          - SUMMER_WEEKENDS_OFF_PEAK_WINTER
-          - TNUOS
-          - CAPACITY_MARKET
-          - HMC_GUARANTEE_ADVANCE
-          - HMC_GUARANTEE_FULL
-          - EV_DEVICE
-          - EV_DEVICE_PEAK
-          - EV_DEVICE_OFF_PEAK
-          type: string
-          x-spec-enum-id: 382cc620726bec21
-          title: The rate type of the unit rate.
-          description: 'If the register_identifier is not provided, the rate type must be provided instead.
-
-
-            * `STANDARD` - Standard rate (pence per kWh)
-
-            * `ECO7_DAY` - Day (or peak) rate (pence per kWh)
-
-            * `ECO7_NIGHT` - Night (or off-peak) rate (pence per kWh)
-
-            * `OFF_PEAK` - Additional off-peak rate for three-rate tariffs (pence per kWh)
-
-            * `PEAK` - Peak rate (pence per kWh) for business tariffs
-
-            * `WEEKDAY` - Weekday rate (pence per kWh) for business tariffs
-
-            * `OFF_PEAK_WEEKENDS` - Off peak weekend rate (pence per kWh) for business tariffs
-
-            * `WEEKENDS_OTHER` - Weekend rate (pence per kWh) for business tariffs
-
-            * `SUMMER` - Summer rate (pence per kWh) for business tariffs
-
-            * `SUMMER_PEAK` - Summer peak rate (pence per kWh) for two-rate tariffs
-
-            * `SUMMER_OFF_PEAK` - Summer off-peak rate (pence per kWh) for two-rate tariffs
-
-            * `WINTER` - Winter rate (pence per kWh) for business tariffs
-
-            * `WINTER_PEAK` - Winter peak rate (pence per kWh) for two-rate tariffs
-
-            * `WINTER_OFF_PEAK` - Winter off-peak rate (pence per kWh) for two-rate tariffs
-
-            * `NUCLEAR_RAB` - Nuclear RAB rate (pence per day) for business tariffs
-
-            * `SUMMER_WEEKENDS_OFF_PEAK_WINTER` - A rate that applies during summer, weekends and off-peak in winter periods(pence per kWh) for business tariffs
-
-            * `TNUOS` - TNUoS rate (pence per day) for business tariffs
-
-            * `CAPACITY_MARKET` - Capacity Market rate (pence per day) for business tariffs
-
-            * `HMC_GUARANTEE_ADVANCE` - Hourly Matching Credit Guarantee Advance rate (pence per kWh) for business tariffs
-
-            * `HMC_GUARANTEE_FULL` - Hourly Matching Credit Guarantee Full rate (pence per kWh) for business tariffs
-
-            * `EV_DEVICE` - Electric vehicle device rate (pence per kWh) for sub-meter billing
-
-            * `EV_DEVICE_PEAK` - Electric vehicle device peak rate (pence per kWh) for sub-meter billing
-
-            * `EV_DEVICE_OFF_PEAK` - Electric vehicle device off-peak rate (pence per kWh) for sub-meter billing'
-        unit_rate:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: This field should be used for gas meters.
-        payment_method:
-          enum:
-          - DD
-          - NDD
-          - PP
-          type: string
-          x-spec-enum-id: 84f5b0df65c6e1bb
-          title: The value in pence per kWh of the charge (excluding VAT).
-          description: 'This field should be used for gas meters.
-
-
-            * `DD` - DD
-
-            * `NDD` - NDD
-
-            * `PP` - PP'
-      required:
-      - unit_rate
-    PaginatedConsumptionList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type:
-          - string
-          - 'null'
-          format: uri
-          example: https://api.edfgb-kraken.energy/v1/electricity-meter-points/S1212345678901/meters/Z16N389556/consumption/?page=4
-        previous:
-          type:
-          - string
-          - 'null'
-          format: uri
-          example: https://api.edfgb-kraken.energy/v1/electricity-meter-points/S1212345678901/meters/Z16N389556/consumption/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Consumption'
     ElectricityMeterPoint:
       type: object
       properties:
@@ -515,100 +506,109 @@ components:
           title: The payment method for the rate.
       required:
       - payment_method
-    Address:
+    BespokeElectricityUnitRate:
       type: object
       properties:
-        address_line_1:
+        rate_type:
+          enum:
+          - STANDARD
+          - ECO7_DAY
+          - ECO7_NIGHT
+          - OFF_PEAK
+          - PEAK
+          - WEEKDAY
+          - OFF_PEAK_WEEKENDS
+          - WEEKENDS_OTHER
+          - SUMMER
+          - SUMMER_PEAK
+          - SUMMER_OFF_PEAK
+          - WINTER
+          - WINTER_PEAK
+          - WINTER_OFF_PEAK
+          - NUCLEAR_RAB
+          - SUMMER_WEEKENDS_OFF_PEAK_WINTER
+          - TNUOS
+          - CAPACITY_MARKET
+          - HMC_GUARANTEE_ADVANCE
+          - HMC_GUARANTEE_FULL
+          - EV_DEVICE
+          - EV_DEVICE_PEAK
+          - EV_DEVICE_OFF_PEAK
           type: string
-          maxLength: 512
-        address_line_2:
-          type: string
-          maxLength: 512
-        address_line_3:
-          type: string
-          maxLength: 512
-        town:
-          type: string
-          maxLength: 512
-        county:
-          type: string
-          maxLength: 512
-        postcode:
-          type: string
-          maxLength: 8
-        delivery_point_identifier:
-          type: string
-          maxLength: 11
-      required:
-      - address_line_1
-      - postcode
-    BespokeTariffRates:
-      type: object
-      properties:
-        standing_charge:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
-          title: The value in pence per day of the charge (excluding VAT).
+          x-spec-enum-id: 382cc620726bec21
+          title: The rate type of the unit rate.
+          description: 'If the register_identifier is not provided, the rate type must be provided instead.
+
+
+            * `STANDARD` - Standard rate (pence per kWh)
+
+            * `ECO7_DAY` - Day (or peak) rate (pence per kWh)
+
+            * `ECO7_NIGHT` - Night (or off-peak) rate (pence per kWh)
+
+            * `OFF_PEAK` - Additional off-peak rate for three-rate tariffs (pence per kWh)
+
+            * `PEAK` - Peak rate (pence per kWh) for business tariffs
+
+            * `WEEKDAY` - Weekday rate (pence per kWh) for business tariffs
+
+            * `OFF_PEAK_WEEKENDS` - Off peak weekend rate (pence per kWh) for business tariffs
+
+            * `WEEKENDS_OTHER` - Weekend rate (pence per kWh) for business tariffs
+
+            * `SUMMER` - Summer rate (pence per kWh) for business tariffs
+
+            * `SUMMER_PEAK` - Summer peak rate (pence per kWh) for two-rate tariffs
+
+            * `SUMMER_OFF_PEAK` - Summer off-peak rate (pence per kWh) for two-rate tariffs
+
+            * `WINTER` - Winter rate (pence per kWh) for business tariffs
+
+            * `WINTER_PEAK` - Winter peak rate (pence per kWh) for two-rate tariffs
+
+            * `WINTER_OFF_PEAK` - Winter off-peak rate (pence per kWh) for two-rate tariffs
+
+            * `NUCLEAR_RAB` - Nuclear RAB rate (pence per day) for business tariffs
+
+            * `SUMMER_WEEKENDS_OFF_PEAK_WINTER` - A rate that applies during summer, weekends and off-peak in winter periods(pence per kWh) for business tariffs
+
+            * `TNUOS` - TNUoS rate (pence per day) for business tariffs
+
+            * `CAPACITY_MARKET` - Capacity Market rate (pence per day) for business tariffs
+
+            * `HMC_GUARANTEE_ADVANCE` - Hourly Matching Credit Guarantee Advance rate (pence per kWh) for business tariffs
+
+            * `HMC_GUARANTEE_FULL` - Hourly Matching Credit Guarantee Full rate (pence per kWh) for business tariffs
+
+            * `EV_DEVICE` - Electric vehicle device rate (pence per kWh) for sub-meter billing
+
+            * `EV_DEVICE_PEAK` - Electric vehicle device peak rate (pence per kWh) for sub-meter billing
+
+            * `EV_DEVICE_OFF_PEAK` - Electric vehicle device off-peak rate (pence per kWh) for sub-meter billing'
         unit_rate:
           type: string
           format: decimal
           pattern: ^-?\d{0,7}(?:\.\d{0,5})?$
           title: The value in pence per kWh of the charge (excluding VAT).
           description: This field should be used for gas meters.
-        unit_rates:
-          type: array
-          items:
-            $ref: '#/components/schemas/BespokeElectricityUnitRate'
-          title: List of the value in pence per kWh of the charges (excluding VAT).
-          description: For elec meters, the unit rates are provided on a per register basis in this array.
-    Consumption:
-      type: object
-      properties:
-        consumption:
+        payment_method:
+          enum:
+          - DD
+          - NDD
+          - PP
           type: string
-          readOnly: true
-        interval_start:
-          type: string
-          format: date-time
-        interval_end:
-          type: string
-          format: date-time
+          x-spec-enum-id: 84f5b0df65c6e1bb
+          title: The value in pence per kWh of the charge (excluding VAT).
+          description: 'This field should be used for gas meters.
+
+
+            * `DD` - DD
+
+            * `NDD` - NDD
+
+            * `PP` - PP'
       required:
-      - consumption
-      - interval_end
-      - interval_start
-    ExportDetails:
-      type: object
-      properties:
-        import_mpan:
-          type: string
-          description: The import MPAN.
-          maxLength: 13
-        site_contact_name:
-          type: string
-          description: The name of the site contact.
-        site_contact_phone:
-          type: string
-          description: The phone number of the site contact.
-        site_contact_email:
-          type: string
-          format: email
-          description: The email address of the site contact.
-        installations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Installation'
-    Quote:
-      type: object
-      properties:
-        annual_payment:
-          type: integer
-          minimum: 0
-          title: The estimated annual payment for this meter-point based on consumption.
-          description: This value must be provided in pence. For business quotes, the price is exclusive of VAT, while for non-business quotes, it should be inclusive of VAT.
-      required:
-      - annual_payment
+      - unit_rate
   securitySchemes:
     AccountUserAPIKeyAuthentication:
       type: http

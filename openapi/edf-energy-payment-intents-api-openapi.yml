@@ -165,27 +165,27 @@ paths:
       x-operation-id-original: Mark a Stripe payment intent as failed
 components:
   schemas:
-    FailedStripePaymentIntent:
+    PaymentIntentCreated:
       type: object
-      description: Serializer for handling failed Stripe payments using Payment Intents and Stripe JS Elements.
       properties:
-        account:
-          type: string
-          title: The account number of the payment.
-        ledger_number:
-          type:
-          - string
-          - 'null'
-          title: The ledger the payment belongs to.
-          pattern: ^[-a-zA-Z0-9_]+$
+        requires_action:
+          type: boolean
         payment_intent_id:
           type: string
+        payment_intent_client_secret:
+          type: string
+          title: Will be provided if an action is required
+      required:
+      - payment_intent_client_secret
+      - payment_intent_id
+      - requires_action
+    PaymentErrorResponse:
+      type: object
+      properties:
         error:
           type: string
-          title: The failure message to record.
       required:
-      - account
-      - payment_intent_id
+      - error
     CreateStripePaymentIntent:
       type: object
       description: Serializer for Stripe payments creation using Payment Intents and Stripe JS Elements.
@@ -215,13 +215,6 @@ components:
       - account
       - amount
       - payment_method_id
-    PaymentErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-      required:
-      - error
     ConfirmStripePaymentIntent:
       type: object
       description: Serializer for confirming Stripe payments using Payment Intents and Stripe JS Elements.
@@ -248,20 +241,27 @@ components:
       - account
       - amount
       - payment_intent_id
-    PaymentIntentCreated:
+    FailedStripePaymentIntent:
       type: object
+      description: Serializer for handling failed Stripe payments using Payment Intents and Stripe JS Elements.
       properties:
-        requires_action:
-          type: boolean
+        account:
+          type: string
+          title: The account number of the payment.
+        ledger_number:
+          type:
+          - string
+          - 'null'
+          title: The ledger the payment belongs to.
+          pattern: ^[-a-zA-Z0-9_]+$
         payment_intent_id:
           type: string
-        payment_intent_client_secret:
+        error:
           type: string
-          title: Will be provided if an action is required
+          title: The failure message to record.
       required:
-      - payment_intent_client_secret
+      - account
       - payment_intent_id
-      - requires_action
     PaymentIntentConfirmed:
       type: object
       properties:
