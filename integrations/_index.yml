@@ -26,3 +26,14 @@
     detected: '2026-10-13'
   status: not-a-workflow
   arazzo: null
+- slug: edf-energy-openchargemap
+  label: openchargemap
+  partner: openchargemap
+  partner_name: openchargemap
+  type: claimed
+  channel: partner-built
+  evidence: https://openchargemap.org/site/poi?operatorid=3312
+  source: edge
+  relationship: endpoint-coverage
+  status: not-a-workflow
+  arazzo: null

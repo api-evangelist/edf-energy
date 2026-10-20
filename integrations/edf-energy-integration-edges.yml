@@ -38,3 +38,5 @@ generated: '2026-10-13'
 method: searched
 checked:
 - https://api.arcadia.com/plug/providers/public
+source:
+- https://api.arcadia.com/plug/providers/public
